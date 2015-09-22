@@ -1,9 +1,0 @@
-goIn()
-
-LabelFrame('Options',text="""Options""",link="guidesigner/Options.gui")
-pack(fill=X,anchor=N)
-
-Frame('LayoutShort',link="guidesigner/LayoutShort.gui")
-pack(side='bottom',anchor='n',fill='x')
-
-goOut()
