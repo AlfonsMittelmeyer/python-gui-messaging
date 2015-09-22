@@ -1,0 +1,24 @@
+    import gc
+    from copy import copy
+     
+    def destroy(a):
+        c = copy(a)
+        for k,e in c.items():
+            if k != '__builtins__': a.pop(k)
+     
+    def start():
+        for _ in range(10):
+            a = {}
+            eval(compile(open('foo.py', "rb").read(), 'foo.py', 'exec'), a)
+            destroy(a)
+            print(gc.collect(), len(gc.garbage))
+
+
+    VAR['myfunction'](par1, par2, par3)
+    del VAR['myfunction']
+     
+    Die destroy Funktion habe ich jetzt verbessert, denn man braucht kein deep copy und darf anscheinen hier schon del nehmen:
+    [Code=python file=Untitled.py]def destroy(a):
+        c = dict(a)
+        for k,e in c.items():
+            if k != '__builtins__': del a[k]
