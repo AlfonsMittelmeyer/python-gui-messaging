@@ -169,6 +169,7 @@ def main(parent):
 "label",
 "text",
 "link",
+"selectmode",
 "state",
 "underline",
 "default",
@@ -269,6 +270,10 @@ def main(parent):
 
 						elif entry[0] =="compound":
 							Listbox(width=7,height=6).fillList(("none","center","left","right","top","bottom"))
+							lbox_select()
+
+						elif entry[0] =="selectmode":
+							Listbox(width=8,height=4).fillList(("browse","single","multiple","extended"))
 							lbox_select()
 
 						elif entry[0] =="tabstyle":
