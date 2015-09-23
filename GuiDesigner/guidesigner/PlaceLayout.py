@@ -1,3 +1,5 @@
+import time
+
 def main(parent):
 
 	Button('MouseOn',text="""ON""",state='disabled').grid(column='3',sticky='w',row='4')
@@ -84,24 +86,45 @@ def main(parent):
 	# on mouse button down the current y,x offset of the mouse pointer is stored in mydata
 	# if the widget isn't the selected widget, then it becomes the selected widget
 
+
+	def mouse_move(me):
+		if me.mydata[6]:
+			step = 10
+			diffx = me.winfo_pointerx() - me.winfo_rootx()
+			diffy = me.winfo_pointery() - me.winfo_rooty()
+			me.mydata[3] += diffx-me.mydata[0]
+			me.mydata[4] += diffy-me.mydata[1]
+			yxplace(me.mydata[4],me.mydata[3])
+			me.mydata[5] += step
+			if me.mydata[5] >= 100:
+				me.mydata[5] = 0
+				send('POSITION_CHANGED',me)
+				send('LAYOUT_VALUES_REFRESH',me)
+			me.mydata[5] += step
+			me.after(step,mouse_move,me)
+
 	def on_mouse_down(me,event):
-		me.mydata = (event.x,event.y,'mouse')
+		xpos = int(me.getlayout("x"))
+		ypos = int(me.getlayout("y"))
+		me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
+		mouse_move(me)
+
 		if this() != me:
 			setWidgetSelection(me)
 			send('SELECTION_CHANGED')
 
-	def on_mouse_move(me,event):
-		xpos = int(me.getlayout("x"))+event.x-me.mydata[0]
-		ypos = int(me.getlayout("y"))+event.y-me.mydata[1]
-		yxplace(ypos,xpos)
-		send('POSITION_CHANGED',this())
-		send('LAYOUT_VALUES_REFRESH',this())
+	def on_mouse_up(me,event):
+		me.mydata[6] = False # stop timer
+		send('POSITION_CHANGED',me)
+		send('LAYOUT_VALUES_REFRESH',me)
 
-	def do_mouse_on(mouse_down = on_mouse_down, mouse_move = on_mouse_move):
+
+
+	def do_mouse_on(mouse_down = on_mouse_down, mouse_up = on_mouse_up):
 		config(cursor="mouse")
 		this().mydata=(None,None,'mouse')
 		do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
-		do_event('<B1-Motion>',mouse_move,wishWidget=True,wishEvent=True)
+		do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
 
 
 	# by pressing the MouseOn button, we bind the mouse down and the mouse motion event to the selected widget
@@ -109,8 +132,8 @@ def main(parent):
 
 	def do_mouse_off():
 		config(cursor="")
-		this().unbind('<B1-Motion>')
 		this().unbind('<Button-1>')
+		this().unbind('<ButtonRelease-1>')
 		this().mydata=None
 
 	# by pressing the MouseOff button, we unbind the mouse events
