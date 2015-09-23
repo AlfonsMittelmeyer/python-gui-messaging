@@ -156,8 +156,8 @@ def main(parent):
 
 	def switch_off_mousemove(mouse_off = do_mouse_off):
 
-		if type(this().mydata) is tuple:
-			if len(this().mydata) == 3:
+		if type(this().mydata) is tuple or type(this().mydata) is list:
+			if len(this().mydata) >= 3:
 				if type(this().mydata[2]) is str:
 					if this().mydata[2] == 'mouse': mouse_off()
 
