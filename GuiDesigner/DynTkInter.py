@@ -46,7 +46,8 @@ NOLAYOUT = 0
 PACKLAYOUT = 1
 GRIDLAYOUT = 2
 PLACELAYOUT = 4
-LAYOUTNEVER = 8
+PANELAYOUT = 8
+LAYOUTNEVER = 16
 
 ACTORS = {}
 EXISTING_WIDGETS = {}
@@ -195,6 +196,11 @@ class GuiElement:
 		self.Layout = PACKLAYOUT
 		self.tkClass.pack(self,**kwargs)
 		
+	def add(self,*args):
+		global PANELAYOUT
+		self.Layout = PANELAYOUT
+		self.master.tkClass.add(self.master,self)
+
 	def pack_forget(self):
 		global NOLAYOUT
 		self._removeFromPackList()
@@ -241,24 +247,25 @@ class GuiElement:
 		self.tkClass.place_forget(self)
 		self.Layout = NOLAYOUT
 
+	def pane_forget(self):
+		global NOLAYOUT
+		print("Pane_forget")
+		self.master.tkClass.remove(self.master,self)
+		self.Layout = NOLAYOUT
+
 	def unlayout(self):
-		global PACKLAYOUT
-		global GRIDLAYOUT
-		global PLACELAYOUT
-		global NOLAYOUT 
 		layout = self.Layout
 		if layout == PACKLAYOUT: self.pack_forget()
 		elif layout == GRIDLAYOUT: self.grid_remove()
 		elif layout == PLACELAYOUT: self.place_forget()
+		elif layout == PANELAYOUT: self.pane_forget()
 
 	def layout(self,**kwargs):
-		global PACKLAYOUT
-		global GRIDLAYOUT
-		global PLACELAYOUT
 		layout = self.Layout
 		if layout == PACKLAYOUT: self.pack(**kwargs)
 		elif layout == GRIDLAYOUT: self.grid(**kwargs)
 		elif layout == PLACELAYOUT: self.place(**kwargs)
+		elif layout == PANELAYOUT: self.master.paneconfig(self,**kwargs)
 
 	# layout settings with the options as a string - is used by the GUI Creator
 	def setlayout(self,name,value):
@@ -273,13 +280,21 @@ class GuiElement:
 		else: return ""
 
 	def layout_info(self):
-		global PACKLAYOUT
-		global GRIDLAYOUT
-		global PLACELAYOUT
 		layout = self.Layout
 		if layout == PACKLAYOUT: dictionary=self.pack_info()
 		elif layout == GRIDLAYOUT: dictionary=self.grid_info()
 		elif layout == PLACELAYOUT: dictionary = self.place_info()
+		elif layout == PANELAYOUT:
+			parent = self.master
+			dictionary = {}
+			#dictionary['after'] = parent.panecget(self,'after')
+			#dictionary['before'] = parent.panecget(self,'before')
+			dictionary['width'] = parent.panecget(self,'width')
+			dictionary['height'] = parent.panecget(self,'height')
+			dictionary['minsize'] = parent.panecget(self,'minsize')
+			dictionary['padx'] = parent.panecget(self,'padx')
+			dictionary['pady'] = parent.panecget(self,'pady')
+			dictionary['sticky'] = parent.panecget(self,'sticky')
 		else: dictionary = {}
 		return dictionary
 
@@ -337,6 +352,8 @@ def ConfDictionaryShort(dictionary):
 def pack(**kwargs): this().pack(**kwargs)
 def grid(**kwargs): this().grid(**kwargs)
 def place(**kwargs): this().place(**kwargs)
+def add(*args): this().add(*args)
+
 
 # for convenience
 def rcgrid(prow,pcolumn,**kwargs): this().rcgrid(prow,pcolumn,**kwargs)
@@ -1054,13 +1071,12 @@ class PanedWindow(GuiElement,StatTkInter.PanedWindow):
 
 	def __init__(self,myname="PanedWindow",**kwargs):
 		self.tkClass = StatTkInter.PanedWindow
+		print(self.tkClass)
 		master,myname,select = _getMasterAndNameAndSelect(myname,"PanedWindow")
 		kwargs["master"] = master
 		StatTkInter.PanedWindow.__init__(self,**kwargs)
 		self.isContainer = True
 		GuiElement.__init__(self,myname,select)
-
-
 
 def goIn():_Selection.selectIn()
 def goOut(): _Selection.selectOut()
@@ -1256,7 +1272,11 @@ def Lock(): this().isLocked=True
 
 # File saving: sollte überarbeitet und gekürzt werden
 
-def WidgetClass(widget): return widget.winfo_class()
+def WidgetClass(widget):
+	classString = str(widget.tkClass)
+	begin = classString.find(".")+1
+	end = classString.find("'",begin)
+	return classString[begin:end]
 
 
 # ====================================
