@@ -249,7 +249,6 @@ class GuiElement:
 
 	def pane_forget(self):
 		global NOLAYOUT
-		print("Pane_forget")
 		self.master.tkClass.remove(self.master,self)
 		self.Layout = NOLAYOUT
 
@@ -1071,7 +1070,6 @@ class PanedWindow(GuiElement,StatTkInter.PanedWindow):
 
 	def __init__(self,myname="PanedWindow",**kwargs):
 		self.tkClass = StatTkInter.PanedWindow
-		print(self.tkClass)
 		master,myname,select = _getMasterAndNameAndSelect(myname,"PanedWindow")
 		kwargs["master"] = master
 		StatTkInter.PanedWindow.__init__(self,**kwargs)
