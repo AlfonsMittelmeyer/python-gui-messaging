@@ -1,39 +1,62 @@
-def main(parent):
+LabelFrame('PackLayout',link="guidesigner/PackLayout.py")
+grid(sticky='ew',row='0')
 
-	LabelFrame('PackLayout',link="guidesigner/PackLayout.py")
-	grid(sticky='ew',row='0')
+LabelFrame('GridLayout',link="guidesigner/GridLayout.py")
+grid(sticky='ew',row='1')
 
-	LabelFrame('GridLayout',link="guidesigner/GridLayout.py")
-	grid(sticky='ew',row='1')
+LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
+grid(sticky='ew',row='2')
 
-	LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
-	grid(sticky='ew',row='2')
+LabelFrame('PaneLayout',link="guidesigner/PaneLayout.py")
+grid(sticky='ew',row='3')
 
 ### CODE ===================================================
 
-	# A routine for the pack and he grid layout: pack and grid must not occur in the same parent. ------------------------------------
-	# This would cause a system hang up of TkInter. If the parent (container) contains already the other layout (pack or grid),
-	# the pack or grid portion will be hidden (unlayout)
+# A routine for the pack and he grid layout: pack and grid must not occur in the same parent. ------------------------------------
+# This would cause a system hang up of TkInter. If the parent (container) contains already the other layout (pack or grid),
+# the pack or grid portion will be hidden (unlayout)
 
-	def hide_pack_or_grid(msg):
-		if getContLayouts(container()) & msg[0]:
-			if msg[1].Layout != NOLAYOUT: msg[1].unlayout()
-		elif msg[1].Layout == NOLAYOUT: msg[1].grid()
+def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),placely=widget('PlaceLayout'),panely=widget('PaneLayout')):
+    #if True:
+    if this().Layout != LAYOUTNEVER:
+        if container() != this() and container().tkClass == StatTkInter.PanedWindow:
+            packly.unlayout()
+            gridly.unlayout()
+            placely.unlayout()
+            panely.grid()
+            send("ENABLE_SASH_LIST",True)
 
-	do_receive('HIDELAYOUT_PackOrGrid',hide_pack_or_grid,wishMessage=True)
+        else:
+            placely.grid()
+            packly.grid()
+            gridly.grid()
+            panely.unlayout()
+            send("ENABLE_SASH_LIST",False)
+            cont = container()
+            if container() == this() and container().master != None:
+                cont = container().master
+            cont_layouts = getContLayouts(cont)
+            if cont_layouts & GRIDLAYOUT:
+                if packly.Layout != NOLAYOUT: packly.unlayout()
+            elif packly.Layout == NOLAYOUT: packly.grid()
+            if cont_layouts & PACKLAYOUT:
+                if gridly.Layout != NOLAYOUT: gridly.unlayout()
+            elif gridly.Layout == NOLAYOUT: gridly.grid()
 
-	# full action for new or changed widgets
-	# for LAYOUTNEVER the LabelFrame LayoutShortShowHide has to be hidden and otherwise shown
-	# sends a BASE_LAYOUT_REFRESH to inside for the pack, grid and place portions
-	# sends a SHOW_LAYOUT for the layout details options
-	# sends a SHOW_SELECTION for showing, which widget is selected 
+do_receive('BASE_LAYOUT_REFRESH', hide_pack_or_grid)
 
-	def base_layout_widget_changed(cont = container()):
-		if this().Layout == LAYOUTNEVER: cont.unlayout()
-		elif cont.Layout == NOLAYOUT: cont.grid()
-		send("BASE_LAYOUT_REFRESH",this())
-		send("SHOW_LAYOUT",this())
+# full action for new or changed widgets
+# for LAYOUTNEVER the LabelFrame LayoutShortShowHide has to be hidden and otherwise shown
+# sends a BASE_LAYOUT_REFRESH to inside for the pack, grid and place portions
+# sends a SHOW_LAYOUT for the layout details options
+# sends a SHOW_SELECTION for showing, which widget is selected 
 
-	do_receive('BASE_LAYOUT_WIDGET_CHANGED',base_layout_widget_changed)
+def base_layout_widget_changed(cont = container(),packly=widget('PackLayout'),gridly=widget('GridLayout'),placely=widget('PlaceLayout'),panely=widget('PaneLayout')):
+    if this().Layout == LAYOUTNEVER: cont.unlayout()
+    elif cont.Layout == NOLAYOUT: cont.grid()
+    send("BASE_LAYOUT_REFRESH",this())
+    send("SHOW_LAYOUT",this())
+
+do_receive('BASE_LAYOUT_WIDGET_CHANGED',base_layout_widget_changed)
 
 ### ========================================================

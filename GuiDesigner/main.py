@@ -1,9 +1,3 @@
-from DynTkInter import *
-
-
+import DynTkInter as tk
  
-Tk()
-
-gui()
-
-mainloop()
+tk.Tk().mainloop("guidesigner/Guidesigner.py")
