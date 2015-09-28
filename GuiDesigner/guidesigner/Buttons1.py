@@ -34,12 +34,20 @@ widget("gotoTopLevel").do_command(go_TopRoot)
 widget("refresh").do_command(lambda: send('SELECTION_CHANGED',this()))
 
 def do_unlayout():
-    if this().Layout & 15:
+    if this().Layout & LAYOUTALL:
         unlayout()
         send('BASE_LAYOUT_WIDGET_CHANGED',this())
         send("SELECTION_LAYOUT_CHANGED")
 
 widget("unlayout").do_command(do_unlayout)
+
+def enable_unlayout(button=widget("unlayout")):
+
+    if this().Layout == NOLAYOUT or this().Layout == LAYOUTNEVER: button['state'] = 'disabled'
+    else: button['state'] = 'normal'
+
+do_receive('SELECTION_LAYOUT_CHANGED',enable_unlayout)
+do_receive('SELECTION_CHANGED',enable_unlayout)
 
 def do_rename(cont = container()):
     if _Selection._widget == _Selection._container: messagebox.showinfo('rename container "."',"""

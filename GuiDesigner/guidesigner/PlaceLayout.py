@@ -145,7 +145,6 @@ def main():
         send('POSITION_CHANGED',this()) # show this in X an Y Spinbox
         send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
-
     widget("Place").do_command(do_place_at00)
 
 

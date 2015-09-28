@@ -93,7 +93,9 @@ def listbox_selection(helpbutton = listbox_helpbutton):
 
 def select_color(mebutton,entry):
     # call color chooser and save the result
-    choosen_color = colorchooser.askcolor(parent=mebutton,initialcolor=getconfig(entry.mydata),title="Choose color: "+entry.mydata)
+    color = getconfig(entry.mydata)
+    if color == "": color = 'white'
+    choosen_color = colorchooser.askcolor(parent=mebutton,initialcolor=color,title="Choose color: "+entry.mydata)
     # if a valid color was chosen
     if choosen_color[1] != None:
         selcolor = choosen_color[1]
@@ -189,6 +191,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "font",
 "fg",
 "bg",
+"background",
 "troughcolor",
 "selectforeground",
 "selectbackground",
@@ -211,7 +214,9 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "sashcursor",
 "showhandle",
 "handlesize",
-"handlepad"
+"handlepad",
+"takefocus",
+"cursor"
 ):
                 if entry in confdict: conflist.append((entry,confdict.pop(entry)))
             for confname,entry in confdict.items():conflist.append((confname,entry))
@@ -234,7 +239,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 
 
                 if entry[0] == "text": do_event("<Return>",text_color,None,True)
-                elif entry[0] in ("command","vcmd","invcmd","variable","textvariable"): config(state = "readonly")
+                elif entry[0] in ("command","vcmd","invcmd","variable","textvariable","menu"): config(state = "readonly")
                 elif (entry[0] in ["fg","bg"]) or ("foreground" in entry[0]) or ("background" in entry[0]) or ("color" in entry[0]):
                     color_button(this())
                     widget("Entry").do_event("<Return>",e_event,this(),True)

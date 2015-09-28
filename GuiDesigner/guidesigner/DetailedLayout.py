@@ -6,8 +6,8 @@ Lock()
 
 # -------------- this LabelFrame contains data for a layout value refresh ---------------------
 
-# the data reference Entries for x,y,row,column,side depending an the layout type
-this().mydata=[None,None,None,None,None]
+# the data reference Entries for x,y,row,column,side, and index depending an the layout type
+this().mydata=[None,None,None,None,None,None]
 
 # -------------- receiver for message 'LAYOUT_VALUES_REFRESH' ---------------------
 
@@ -28,6 +28,9 @@ def values_refresh(widget = widget("LayoutOptions")):
     if mydata[4] != None:
         mydata[4].delete(0,END)	
         mydata[4].insert(0,getlayout("side"))
+    if mydata[5] != None:
+        mydata[5].delete(0,END)	
+        mydata[5].insert(0,getlayout("index"))
 
 do_receive('LAYOUT_VALUES_REFRESH',values_refresh)
 
@@ -85,12 +88,12 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
         elif onflag[0]: #if shall switch off and SHOW_LAYOUT is on
             onflag[0]=False # switch flag to off
             cont.unlayout() # and unlayout the DetailedLayout frame
-            thisframe.mydata=[None,None,None,None,None] # set references for value refresh  to not active
+            thisframe.mydata=[None,None,None,None,None,None] # set references for value refresh  to not active
     elif onflag[0]: # a correct message arrived and show layout is on
         # reset references for value refresh  to not active
-        thisframe.mydata = [None,None,None,None,None]
+        thisframe.mydata = [None,None,None,None,None,None]
         # if the widget has a layout, then show it
-        if msg.Layout & 15:
+        if msg.Layout & LAYOUTALL:
             current_selection = Selection() # save current selection
             cont.grid()			
 
@@ -151,6 +154,7 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                 elif entry[0] == "row": thisframe.mydata[2]=this()
                 elif entry[0] == "column": thisframe.mydata[3]=this()
                 elif entry[0] == "side": thisframe.mydata[4]=this()
+                elif entry[0] == "index": thisframe.mydata[5]=this()
 
                 # listboxes and readonly state for some options
                 if entry[0] =="side":
@@ -182,7 +186,7 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 
         else:   # if the widget doesn't have a layout, then disable value refresh and hide the layout options
             cont.unlayout()
-            thisframe.mydata=[None,None,None,None,None]
+            thisframe.mydata=[None,None,None,None,None,None]
 
 
 do_receive('SHOW_LAYOUT',show_layout,wishMessage = True)

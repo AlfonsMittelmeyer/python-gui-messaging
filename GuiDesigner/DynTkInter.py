@@ -47,7 +47,10 @@ PACKLAYOUT = 1
 GRIDLAYOUT = 2
 PLACELAYOUT = 4
 PANELAYOUT = 8
-LAYOUTNEVER = 16
+MENUITEMLAYOUT = 16
+MENULAYOUT = 32
+LAYOUTNEVER = 64
+LAYOUTALL = LAYOUTNEVER-1
 
 ACTORS = {}
 EXISTING_WIDGETS = {}
@@ -70,6 +73,8 @@ _Application = None
 
 def widget_exists(widget): return widget in EXISTING_WIDGETS
 
+class Dummy: pass
+
 class GuiElement:
 
     def __init__(self,name="nn",select=True):
@@ -89,6 +94,7 @@ class GuiElement:
         self.mydata = None
         self.save =True
         self.actions = {}
+        self.menu_ref = None
 
         global NOLAYOUT
         self.Layout = NOLAYOUT
@@ -145,7 +151,11 @@ class GuiElement:
         pop()
 
         if self.Layout == PACKLAYOUT or self.Layout == PANELAYOUT: self._removeFromPackList()
-        self.tkClass.destroy(self)
+        if self.tkClass != Dummy:
+            if self.tkClass == Tk: self.quit()
+            else: 
+                if isinstance(self.master,MenuItem): self.master = self.myRoot()
+                self.tkClass.destroy(self)
 
         EXISTING_WIDGETS.pop(self,None)		
         cdApp()
@@ -184,6 +194,18 @@ class GuiElement:
 
     def _addToPackList(self): self.master.PackList.append(self)
         
+    def PackListLen(self): return len(self.PackList)
+
+    def getPackListIndex(self):
+
+        index = -1
+        for i in range(len(self.master.PackList)):
+            if self.master.PackList[i] == self:
+                index = i;
+                break
+        return index
+
+
     def _removeFromPackList(self):
             packlist = self.master.PackList
             packlist.pop(packlist.index(self))
@@ -252,12 +274,38 @@ class GuiElement:
         self.master.tkClass.remove(self.master,self)
         self.Layout = NOLAYOUT
 
+    def selectmenu_forget(self):
+        activwidget = self.master if isinstance(self.master,MenuItem) else self.myRoot()
+        activwidget.menu_ref = None
+        activwidget.config(menu='')
+        self.Layout = NOLAYOUT
+
     def unlayout(self):
         layout = self.Layout
         if layout == PACKLAYOUT: self.pack_forget()
         elif layout == GRIDLAYOUT: self.grid_remove()
         elif layout == PLACELAYOUT: self.place_forget()
         elif layout == PANELAYOUT: self.pane_forget()
+        elif layout == MENULAYOUT: self.selectmenu_forget()
+
+
+    def item_change_index(self,index):
+
+        old_index = self.getPackListIndex()
+        new_index = old_index
+        try:
+            new_index = int(index) -1
+        except ValueError: return
+
+        if new_index != old_index:
+            limit = self.master.PackListLen()
+            if new_index >= 0 and new_index < limit:
+                confdict = self.getconfdict()
+                self.master.delete(old_index+1)
+                self.master.insert(new_index+1,this().mytype,confdict)
+                del self.master.PackList[old_index]
+                self.master.PackList.insert(new_index,this())
+
 
     def layout(self,**kwargs):
         layout = self.Layout
@@ -265,6 +313,8 @@ class GuiElement:
         elif layout == GRIDLAYOUT: self.grid(**kwargs)
         elif layout == PLACELAYOUT: self.place(**kwargs)
         elif layout == PANELAYOUT: self.master.paneconfig(self,**kwargs)
+        elif layout == MENUITEMLAYOUT: self.item_change_index(**kwargs)
+        elif layout == MENULAYOUT: self.select_menu(**kwargs)
 
     # layout settings with the options as a string - is used by the GUI Creator
     def setlayout(self,name,value):
@@ -278,7 +328,6 @@ class GuiElement:
         if name in dictionary: return dictionary[name]
         else: return ""
 
-
     def pane_info(self):
         parent = self.master
         dictionary = {}
@@ -290,12 +339,21 @@ class GuiElement:
         dictionary['sticky'] = parent.panecget(self,'sticky')
         return dictionary
 
+
+    def menuitem_info(self):
+        dictionary = {}
+        dictionary['index'] = self.getPackListIndex()+1
+        return dictionary
+
     def layout_info(self):
         layout = self.Layout
         if layout == PACKLAYOUT: dictionary=self.pack_info()
         elif layout == GRIDLAYOUT: dictionary=self.grid_info()
         elif layout == PLACELAYOUT: dictionary = self.place_info()
         elif layout == PANELAYOUT: dictionary = self.pane_info()
+        elif layout == MENUITEMLAYOUT: dictionary = self.menuitem_info()
+ 
+ 
         else: dictionary = {}
         return dictionary
 
@@ -325,10 +383,12 @@ def ConfDictionaryShort(dictionary):
         dictionary[n] = e[-1]
 
     # erase doubles
-    dictionary['bd'] = dictionary['borderwidth']
-    dictionary.pop('borderwidth',None)
-    dictionary['bg'] = dictionary['background']
-    dictionary.pop('background',None)
+    if "bd" in dictionary:	
+        dictionary['bd'] = dictionary['borderwidth']
+        dictionary.pop('borderwidth',None)
+    if "bg" in dictionary:	
+        dictionary['bg'] = dictionary['background']
+        dictionary.pop('background',None)
     if "fg" in dictionary:	
         dictionary['fg'] = dictionary['foreground']
         dictionary.pop('foreground',None)
@@ -681,13 +741,13 @@ class Tk(GuiElement,StatTkInter.Tk):
     def place(self,**kwargs): print("Sorry, no place for the Application!")
 
 
-class _CreateTopLevelRoot(GuiElement):
+class _CreateTopLevelRoot(GuiElement,Dummy):
     def __init__(self):
+        self.tkClass = Dummy
         self.isContainer = True
         self.master = None
         GuiElement.__init__(self,"TopLevel")
         self.hasConfig = False
-        global LAYOUTNEVER
         self.Layout = LAYOUTNEVER
         
     def pack(self,**kwargs): print("Sorry, no pack for the Toplevel Root!")
@@ -775,7 +835,6 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
 
 
 # Achtung, auch App muss einen Namen haben, wegen Toplevel Fenstern
-
 
 def _getMasterAndNameAndSelect(name,altname):
     if type(name) == str: return _Selection._container,name,True
@@ -1001,16 +1060,91 @@ class Menubutton(GuiElement,StatTkInter.Menubutton):
         GuiElement.__init__(self,myname,select)
 
 
-class Menu(GuiElement,StatTkInter.Menu): # Achtung, Master darf vielleicht nur ein Menuebutton sein?
+class MenuItem(GuiElement):
+    def __init__(self,myname="MenuItem",mytype='command',**kwargs):
+
+        self.mytype = mytype
+        master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem")
+        self.master = master
+        self._addToPackList()
+        container().add(mytype,**kwargs)
+
+        self.tkClass = Dummy
+
+        self.isContainer = mytype == 'cascade'
+        GuiElement.__init__(self,myname,select)
+        self.Layout = MENUITEMLAYOUT
+
+    def destroy(self):
+         index = self.getPackListIndex()
+         self.master.delete(index+1)
+         self._removeFromPackList()
+         GuiElement.destroy(self)
+
+    def config(self,**kwargs):
+        index = self.getPackListIndex() + 1
+        if len(kwargs) == 0:
+            dictionary = {}
+            for entry in (
+'activebackground',
+'activeforeground',
+'accelerator',
+'background',
+'bitmap',
+'columnbreak',
+'command',
+'font',
+'foreground',
+'hidemargin',
+'image',
+'indicatoron',
+'label',
+'menu',
+'offvalue',
+'onvalue',
+'selectcolor',
+'selectimage',
+'state',
+'underline',
+'value',
+'variable'
+):
+
+                try:
+                    dictionary[entry] = (self.master.entrycget(index,entry),)
+                except TclError: pass
+            return dictionary
+        else:
+            self.master.entryconfig(index,**kwargs)
+                
+
+class Menu(GuiElement,StatTkInter.Menu):
 
     def __init__(self,myname="Menu",**kwargs):
         self.tkClass = StatTkInter.Menu
         master,myname,select = _getMasterAndNameAndSelect(myname,"Menu")
-        kwargs["master"] = master
+ 
+        if isinstance(container(),MenuItem):
+            push(Selection())
+            setWidgetSelection(container())
+            gotoRoot()
+            rootwidget=this()
+            setSelection(pop())
+            kwargs["master"] = rootwidget
+        else: kwargs["master"] = master
+
         StatTkInter.Menu.__init__(self,**kwargs)
-        self.isContainer = False
+        self.master = container()
+        self.isContainer = True
         GuiElement.__init__(self,myname,select)
-        self.Layout = LAYOUTNEVER
+
+    def select(self,**kwargs):
+        activwidget = self.master if isinstance(self.master,MenuItem) else self.myRoot()
+        if activwidget.menu_ref != None:
+            activwidget.menu_ref.unlayout()
+        activwidget.config(menu=self)
+        activwidget.menu_ref = self
+        self.Layout = MENULAYOUT
 
 class Message(GuiElement,StatTkInter.Message): # similiar Label
 
@@ -1119,6 +1253,7 @@ def setWidgetSelection(widget,container=None):
 
 def text(mytext): this().text(mytext)
 
+def do_command(function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False): this().do_command(function,parameters,wishWidget,wishEvent,wishSelf)
 def do_command(function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False): this().do_command(function,parameters,wishWidget,wishEvent,wishSelf)
 def do_event(eventstr,function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False): this().do_event(eventstr,function,parameters,wishWidget,wishEvent,wishSelf)
 def do_receive(msgid,function,parameters=None,wishWidget=False,wishMessage=False): proxy.do_receive(container(),msgid,Callback(None,function,parameters,wishWidget,wishEvent=wishMessage).receive)
@@ -1388,6 +1523,7 @@ def saveOneElement(filehandle,name):
     dictionaryWidget.pop("command",None)
     dictionaryWidget.pop("variable",None)
     dictionaryWidget.pop("image",None)
+    dictionaryWidget.pop("menu",None)
 
     thisClass = WidgetClass(this())
     CompareWidget = eval("StatTkInter."+thisClass+"(container())")
@@ -1562,6 +1698,7 @@ def saveWidgets(filehandle,withConfig=False):
             dictionaryWidget = getconfdict()
             dictionaryWidget.pop("command",None)
             dictionaryWidget.pop("variable",None)
+            dictionaryWidget.pop("menu",None)
             dictionaryCopy = copy(dictionaryWidget)
 
             for n,e in dictionaryCopy.items():
@@ -1749,8 +1886,7 @@ def DynLink(filename):
     DynLoad(filename)
     goOut()
 
-def quit(): _AppRoot._widget.quit()
-
+def quit(): _Application.quit()
 
 def do_action(actionid,function,parameters=None,wishWidget=False,wishMessage=False,wishSelf=False): this().do_action(actionid,function,parameters,wishWidget,wishMessage,wishSelf)
 def activateAction(actionid,flag): this().activateAction(actionid,flag)
