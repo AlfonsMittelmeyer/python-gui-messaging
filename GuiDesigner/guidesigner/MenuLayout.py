@@ -5,7 +5,7 @@ Button('Select',text="""Select""",pady='2',padx='1',bg='green',anchor='n').pack(
 
 def activate_menu():
     layout_before = this().Layout
-    this().select()
+    this().select_menu()
     send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
 widget('Select').do_command(activate_menu)

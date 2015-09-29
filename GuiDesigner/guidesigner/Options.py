@@ -13,7 +13,7 @@ Label('Label',text="""Create:""",width='6').grid(row='1')
 
 widget("Config").mydata = False
 widget("Layout").mydata = False
-widget("Create").mydata = True
+widget("Create").mydata = False
 
 def function_callback(me,message_to_send):
     me.mydata = not me.mydata
@@ -26,8 +26,8 @@ def call(widget_name,message_to_send,callback=function_callback):
 
 call("Config","SHOW_CONFIG")
 call("Layout","SHOW_LAYOUT")
-call("Create","HIDE_CREATE")
+call("Create","SHOW_CREATE")
 
-send("HIDE_CREATE",True)
+send("SHOW_CREATE",False)
 
 ### ========================================================

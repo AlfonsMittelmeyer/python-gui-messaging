@@ -12,7 +12,12 @@ def save_module(ioerror = widget("IOError"), fname = widget("FileName"), cont = 
     ioerror.unlayout()
     try:
         fh = open(fname.get(),'w')
+
+        currentSelection = Selection()
+        gotoRoot()
         saveWidgets(fh,True)
+        setSelection(currentSelection)
+
         fh.close()
         cont.unlayout()
     except IOError: ioerror.grid()
@@ -25,9 +30,10 @@ widget("Cancel").do_command(lambda cont = container(): cont.unlayout())
 do_receive('SELECTION_CHANGED',lambda cont = container(): cont.unlayout())
 
 def show_frame(msg,wname = widget("Name"), fname = widget("FileName"), cont = container(), ioerror = widget("IOError")):
-    if msg == None: wname.config(text=".")
-    elif msg[1] == -1: wname.config(text=msg[0])
-    else: wname.config(text=msg[0]+" [" +str(msg[1])+"]") # show the old name and index in Label OldName
+    #if msg == None: wname.config(text=".")
+    #elif msg[1] == -1: wname.config(text=msg[0])
+    #else: wname.config(text=msg[0]+" [" +str(msg[1])+"]") # show the old name and index in Label OldName
+    wname['text'] = '\\\\';
     fname.delete(0,END) # prepare an empty Entry for the user input
     ioerror.unlayout() # IOError
     cont.pack() # show the LoadFrame

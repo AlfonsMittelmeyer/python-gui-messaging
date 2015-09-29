@@ -275,7 +275,7 @@ class GuiElement:
         self.Layout = NOLAYOUT
 
     def selectmenu_forget(self):
-        activwidget = self.master if isinstance(self.master,MenuItem) else self.myRoot()
+        activwidget = self.master if (isinstance(self.master,MenuItem) or isinstance(self.master,Menubutton)) else self.myRoot()
         activwidget.menu_ref = None
         activwidget.config(menu='')
         self.Layout = NOLAYOUT
@@ -302,9 +302,9 @@ class GuiElement:
             if new_index >= 0 and new_index < limit:
                 confdict = self.getconfdict()
                 self.master.delete(old_index+1)
-                self.master.insert(new_index+1,this().mytype,confdict)
+                self.master.insert(new_index+1,self.mytype,confdict)
                 del self.master.PackList[old_index]
-                self.master.PackList.insert(new_index,this())
+                self.master.PackList.insert(new_index,self)
 
 
     def layout(self,**kwargs):
@@ -360,6 +360,8 @@ class GuiElement:
     # config settings with the options as a string - is used by the GUI Creator
 
     def setconfig(self,name,value):
+        if name == 'title': self.title_changed = True
+        elif name == 'geometry': self.geometry_changed = True
         confdict={}
         confdict[name] = value
         try: self.config(**confdict)
@@ -649,6 +651,8 @@ class Tk(GuiElement,StatTkInter.Tk):
         EXISTING_WIDGETS.clear()
         ACTORS.clear()
         self.link = ""
+ 
+        self.config_menuitems = { 'command':None,'radiobutton':None,'checkbutton':None,'separator':None,'cascade':None,'delimiter':None,'menu':None }
         
         if "link" in kwargs:
             self.link = kwargs['link']
@@ -730,7 +734,7 @@ class Tk(GuiElement,StatTkInter.Tk):
 
     def mainloop(self,load_file = None):
         if load_file != None:
-            _Application.after(1000,_DynLoad,load_file)
+            _Application.after(100,_DynLoad,load_file)
 
         cdApp()
         StatTkInter.Tk.mainloop(self)
@@ -1060,6 +1064,61 @@ class Menubutton(GuiElement,StatTkInter.Menubutton):
         GuiElement.__init__(self,myname,select)
 
 
+class MenuDelimiter(GuiElement):
+    def __init__(self,myname="MenuDelimiter",**kwargs):
+
+        master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem")
+        self.master = master
+        self.master.entryconfig(0,**kwargs)
+
+        self.tkClass = Dummy
+
+        self.isContainer = False
+        GuiElement.__init__(self,myname,select)
+        self.Layout = LAYOUTNEVER
+
+    def config(self,**kwargs):
+        index = 0
+
+        if len(kwargs) == 0:
+            dictionary = {}
+            for entry in (
+'activebackground',
+'activeforeground',
+'accelerator',
+'background',
+'bitmap',
+'columnbreak',
+'command',
+'font',
+'foreground',
+'hidemargin',
+'image',
+'indicatoron',
+'label',
+'menu',
+'offvalue',
+'onvalue',
+'selectcolor',
+'selectimage',
+'state',
+'underline',
+'value',
+'variable'
+):
+
+                try:
+                    dictionary[entry] = (self.master.entrycget(index,entry),)
+                except TclError: pass
+
+            if _Application.config_menuitems['delimiter'] == None:
+                _Application.config_menuitems['delimiter'] = dict(dictionary)
+
+            return dictionary
+        else:
+            self.master.entryconfig(0,**kwargs)
+
+
 class MenuItem(GuiElement):
     def __init__(self,myname="MenuItem",mytype='command',**kwargs):
 
@@ -1067,7 +1126,8 @@ class MenuItem(GuiElement):
         master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem")
         self.master = master
         self._addToPackList()
-        container().add(mytype,**kwargs)
+        master.add(mytype,**kwargs)
+        #container().add(mytype,**kwargs)
 
         self.tkClass = Dummy
 
@@ -1113,6 +1173,10 @@ class MenuItem(GuiElement):
                 try:
                     dictionary[entry] = (self.master.entrycget(index,entry),)
                 except TclError: pass
+            if _Application.config_menuitems[self.mytype] == None:
+                base_dict = dict(dictionary)
+                base_dict.pop('label',None)
+                _Application.config_menuitems[self.mytype] = base_dict
             return dictionary
         else:
             self.master.entryconfig(index,**kwargs)
@@ -1121,6 +1185,9 @@ class MenuItem(GuiElement):
 class Menu(GuiElement,StatTkInter.Menu):
 
     def __init__(self,myname="Menu",**kwargs):
+
+        self.title_changed = False
+
         self.tkClass = StatTkInter.Menu
         master,myname,select = _getMasterAndNameAndSelect(myname,"Menu")
  
@@ -1133,18 +1200,41 @@ class Menu(GuiElement,StatTkInter.Menu):
             kwargs["master"] = rootwidget
         else: kwargs["master"] = master
 
+        self.link = ""
+        if "link" in kwargs:
+            self.link = kwargs['link']
+            kwargs.pop('link',None)
+
         StatTkInter.Menu.__init__(self,**kwargs)
         self.master = container()
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
 
-    def select(self,**kwargs):
-        activwidget = self.master if isinstance(self.master,MenuItem) else self.myRoot()
+        if _Application.config_menuitems['menu'] == None:
+            _Application.config_menuitems['menu'] = self.config()
+
+        FileImportContainer(self)
+
+    def select_menu(self,**kwargs):
+        activwidget = self.master if (isinstance(self.master,MenuItem) or isinstance(self.master,Menubutton)) else self.myRoot()
         if activwidget.menu_ref != None:
             activwidget.menu_ref.unlayout()
         activwidget.config(menu=self)
         activwidget.menu_ref = self
         self.Layout = MENULAYOUT
+
+    def config(self,**kwargs):
+        if len(kwargs) == 0: 
+            dictionary = self.tkClass.config(self)
+            dictionary['link'] = (self.link,)
+            return dictionary
+        else:
+            if 'link' in kwargs:
+                self.link = kwargs['link']
+                kwargs.pop('link',None)
+                self.tkClass.config(self,**kwargs)
+                FileImportContainer(self)
+            else: self.tkClass.config(self,**kwargs)
 
 class Message(GuiElement,StatTkInter.Message): # similiar Label
 
@@ -1411,219 +1501,112 @@ def EraseNames():
 
 def Lock(): this().isLocked=True
 
-# File saving: sollte überarbeitet und gekürzt werden
+# ============= New Save Functions ===================================================================
+
+indent = ""
 
 def WidgetClass(widget):
-    classString = str(widget.tkClass)
+    if isinstance(widget,MenuItem) or isinstance(widget,MenuDelimiter): classString = str(type(widget))
+    else: classString = str(widget.tkClass)
     begin = classString.find(".")+1
     end = classString.find("'",begin)
     return classString[begin:end]
 
+def del_config_before_compare(dictionaryWidget):
 
-# ====================================
+    # delete what we don't want
+    for entry in ("command","variable","image","menu"): dictionaryWidget.pop(entry,None)
 
-# herausspringen, wenn es nicht gesaved werden soll.
-
-# config dictionary holen und herauslöschen, was wir nicht saven sollen
-
-# Widget Klasse als Text bestimmen 
-
-# Ein Compare Widget erzeigen zum Vergleich der Config
-# dann aus der Config des aktuellen Element herauslöschen, was mit dem Compare Widget übereinstimmt
-#
-# wenn es sich um einen Container handelt, der Widgets hat, hineingehen und diesen sichern
-
-# wenn der Container aber nur zu sichernden Code enthält, dann nicht hineingehen und nur diesen Code sichern
-# Neue Zeile für nach Container berücksichtigen
-
-# dann bei grid oder pack das Layout schreiben
-
-# ====================================
-
-# Wie es jetzt sein soll:
-
-# Widget Klasse bestimmen
-#
-# Wenn es kein Container ist, dann beim Create gleichb den Config machen.
-# Wenn es ein Container ist, dann den Config erst im Container vornehmen
-#
-# Das Layout gehört nicht zum Element sondern zum Container
-
-# ====================================
-
-
-def getModifiedConfig():
-
-    # get a reduced config only with entries, which were modified
-    thisClass = WidgetClass(this())
-    CompareWidget = eval("StatTkInter."+thisClass+"(container())")
-    dictionaryCompare = CompareWidget.config()
-    ConfDictionaryShort(dictionaryCompare)
-    CompareWidget.destroy()
+    # delete empty or unchanged special cases
+    if 'title' in dictionaryWidget:
+        if not this().title_changed: del dictionaryWidget['title']
+    if 'geometry' in dictionaryWidget:
+        if not this().geometry_changed: del dictionaryWidget['geometry']
+    dictionaryWidget.pop('link',None) # links shouldn'd be saved. Otherwise we would have the widgets twice
+    if isinstance(this(),Listbox) and dictionaryWidget['text'] == '': del dictionaryWidget['text']
     
-    dictionaryWidget = getconfdict()
-    dictionaryWidget.pop("command",None)
-    dictionaryWidget.pop("variable",None)
-    dictionaryWidget.pop("image",None)
-    
-    dictionaryCopy = copy(dictionaryWidget)
-    
-    for n,e in dictionaryCopy.items():
-        if e == dictionaryCompare[n]: dictionaryWidget.pop(n,None)
-    return dictionaryWidget
-    
-    
-    
-def writeConfig(filehandle,dictionaryWidget,colon):
-        
-    for n,e in dictionaryWidget.items():
-        if colon: filehandle.write(",")
-        colon = True
-        if n == "text":
-            filehandle.write(n + '="""'+str(e)+'"""')
-        else: 
-            if n == "from": n = "from_"			
-            filehandle.write(n + "='"+str(e)+"'")
-    filehandle.write(")")
-        
-indent = ""
+def get_config_compare():
 
-def saveElement(filehandle):
-    name = getNameAndIndex()[0]
-    thisClass = WidgetClass(this())
-    filehandle.write(indent+thisClass+"('"+name+"'")
+    if this().isMainWindow:
+        dictionaryCompare = _AppConf
+    elif isinstance(this(),MenuItem):
+        dictionaryCompare = dict(_Application.config_menuitems[this().mytype])
+        ConfDictionaryShort(dictionaryCompare)
+    elif isinstance(this(),MenuDelimiter):
+        dictionaryCompare = dict(_Application.config_menuitems['delimiter'])
+        ConfDictionaryShort(dictionaryCompare)
+    elif isinstance(this(),Menu):
+        dictionaryCompare = dict(_Application.config_menuitems['menu'])
+        ConfDictionaryShort(dictionaryCompare)
+    else:
+        if isinstance(this(),MenuItem): print("Kann nicht sein")
+        thisClass = WidgetClass(this())
+        CompareWidget = eval("StatTkInter."+thisClass+"(container())")
+        dictionaryCompare = dict(CompareWidget.config())
+        CompareWidget.destroy()
+        ConfDictionaryShort(dictionaryCompare)
 
-    if this().isContainer:
-        filehandle.write(")\n\n"+indent+"goIn()\n\n")
-        goIn()
-        saveContainer(filehandle)
-        goOut()
-        filehandle.write("\n"+indent+"goOut()\n")
-        return True
-        
-    writeConfig(filehandle,getModifiedConfig(),True)
-    return False
-    
-
-def saveContainer(filehandle): pass
+    return dictionaryCompare
 
 
+def get_layout_dictionary():
 
-# ====================================
-
-
-def saveOneElement(filehandle,name):
-
-    if not this().save : return
-
-    wasInContainer = False	
-    addNl = False
-
-    dictionaryWidget = getconfdict()
-    dictionaryWidget.pop("command",None)
-    dictionaryWidget.pop("variable",None)
-    dictionaryWidget.pop("image",None)
-    dictionaryWidget.pop("menu",None)
-
-    thisClass = WidgetClass(this())
-    CompareWidget = eval("StatTkInter."+thisClass+"(container())")
-    dictionaryCompare = CompareWidget.config()
-    ConfDictionaryShort(dictionaryCompare)
-
-    dictionaryCopy = copy(dictionaryWidget)
-
-    for n,e in dictionaryCopy.items():
-        if n == 'title':
-            if e =="": dictionaryWidget.pop(n,None)
-        elif n == 'link':
-             if e =="": dictionaryWidget.pop(n,None)
-        elif n == 'geometry':
-             if e =="": dictionaryWidget.pop(n,None)
-        elif n == 'text':
-            if thisClass =="Listbox" and e =="": dictionaryWidget.pop(n,None)
-        elif e == dictionaryCompare[n]: dictionaryWidget.pop(n,None)
-
-    filehandle.write(indent+thisClass+"('"+name+"'")
-    for n,e in dictionaryWidget.items():
-        if n == "text":
-            filehandle.write("," + n + '="""'+str(e)+'"""')
-        else: 
-            if n == "from": n = "from_"			
-            filehandle.write("," + n + "='"+str(e)+"'")
-    filehandle.write(")")
-
-    CompareWidget.destroy()
     CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
-
-    wasInside = False
-    if this().hasWidgets():
-        wasInside = True
-        filehandle.write("\n"+indent+"goIn()\n\n")
-
-        if this().onlysavecode and len(this().CODE) != 0:
-            filehandle.write("### CODE ===================================================\n")
-            filehandle.write(this().CODE)
-            filehandle.write("### ========================================================\n")
-        else:
-            goIn()
-            saveContainerOld(filehandle)
-            goOut()
-
-        filehandle.write("\n"+indent+"goOut()\n")
-        if this().Layout != PACKLAYOUT and this().Layout != PANELAYOUT: addNl=True
-        wasInContainer = True
-
-    if this().Layout & 6: # GRID OR PLACE
-        layoutWidget = layout_info()
-        layoutWidget.pop(".in",None)
-
-        first = True
-        layoutCompare=None
-        if this().Layout == GRIDLAYOUT:
-            if wasInside: filehandle.write(indent+"grid(")
-            else: filehandle.write(".grid(")
-            CompareWidget.grid()
-            layoutCompare = CompareWidget.grid_info()
-        else: 
-            if wasInside: filehandle.write(indent+"place(")
-            else: filehandle.write(".place(")
-            CompareWidget.place(x=-1,y=-1)
-            layoutCompare = CompareWidget.place_info()
-        
-        layoutCopy = copy(layoutWidget)
-        for n,e in layoutCopy.items():
-            if e == layoutCompare[n]: layoutWidget.pop(n,None)
-
-        for n,e in layoutWidget.items():
-            if not first: filehandle.write(",")			
-            filehandle.write(n+"='"+str(e)+"'")
-            first=False
-        filehandle.write(")\n")
-    else: filehandle.write("\n")
-
-    if addNl: filehandle.write("\n")
+    if this().Layout == GRIDLAYOUT:
+        CompareWidget.grid()
+        layoutCompare = dict(CompareWidget.grid_info())
+    else: 
+        CompareWidget.place(x=-1,y=-1)
+        layoutCompare = dict(CompareWidget.place_info())
     CompareWidget.destroy()
-    return wasInContainer
 
-    
-def saveContainerOld(filehandle):
-    dictionary = container().Dictionary.elements
-    
-    for n,e in dictionary.items():
-        for x in e:
-            setWidgetSelection(x)
-            saveOneElement(filehandle,n)
+    layoutDict = layout_info()
+    layoutDict.pop(".in",None)
+    for n,e in dict(layoutDict).items():
+        if e == layoutCompare[n]: layoutDict.pop(n,None)
+
+    for n,e in layoutDict.items(): layoutDict[n] = str(e)
+
+
+    return layoutDict
+
+def is_immediate_layout(): return this().Layout & (GRIDLAYOUT | PLACELAYOUT | MENULAYOUT)
+
+def save_immediate_layout(filehandle):
+    if not is_immediate_layout(): return
+
+    if this().Layout == GRIDLAYOUT:
+        filehandle.write(indent+"grid(")
+        layout = get_layout_dictionary()
+    elif this().Layout == PLACELAYOUT:
+        filehandle.write(indent+"place(")
+        layout = get_layout_dictionary()
+    elif this().Layout == MENULAYOUT:
+        filehandle.write(indent+"select_menu(")
+        layout = {}
+        
+    if len(layout) != 0: filehandle.write("**"+str(layout))
+    filehandle.write(")\n")
+
+def save_pack_entries(filehandle):
 
     packlist = container().PackList
-    if len(packlist) != 0:
-        filehandle.write("\n")
-        for e in packlist:
-            filehandle.write(indent+"widget('")
-            setWidgetSelection(e)
-            nameAndIndex = getNameAndIndex()
-            if nameAndIndex[1] == -1: filehandle.write(nameAndIndex[0]+"')")
-            else: filehandle.write(nameAndIndex[0]+"',"+str(nameAndIndex[1])+")")
+    if len(packlist) == 0: return
 
+    filehandle.write("\n")
+    item_index = 1
+    for e in packlist:
+        filehandle.write(indent+"widget('")
+        setWidgetSelection(e)
+        nameAndIndex = getNameAndIndex()
+        if nameAndIndex[1] == -1: filehandle.write(nameAndIndex[0]+"')")
+        else: filehandle.write(nameAndIndex[0]+"',"+str(nameAndIndex[1])+")")
+
+        if this().Layout == MENUITEMLAYOUT:
+            filehandle.write(".layout(index="+str(item_index)+")\n")
+            item_index += 1
+        else:
+       
             layoutWidget = layout_info()
 
             if this().Layout == PACKLAYOUT:
@@ -1633,34 +1616,102 @@ def saveContainerOld(filehandle):
                 CompareWidget.pack()
                 layoutCompare = dict(CompareWidget.pack_info())
                 CompareWidget.destroy()
-            else:
+            elif this().Layout == PANELAYOUT:
                 filehandle.write(".pane(")
                 layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
 
-            layoutCopy = copy(layoutWidget)
-            first = True
-            for n,e in layoutCopy.items():
+            for n,e in dict(layoutWidget).items():
                 if e == layoutCompare[n]: layoutWidget.pop(n,None)
 
+            first = True
             for n,e in layoutWidget.items():
                 if not first: filehandle.write(",")			
                 filehandle.write(n+"='"+str(e)+"'")
                 first=False
             filehandle.write(")\n")
-            
-        if container().tkClass == StatTkInter.PanedWindow:
+        
+    if container().tkClass == StatTkInter.PanedWindow:
 
-            index = 0
-            sash_list = []
-            while True:
-                try:
-                    sash_list.append(container().sash_coord(index))
-                    index += 1
-                except: break
-            for i in range(len(sash_list)):
-                filehandle.write(indent+"container().trigger_sash_place("+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+        index = 0
+        sash_list = []
+        while True:
+            try:
+                sash_list.append(container().sash_coord(index))
+                index += 1
+            except: break
+        for i in range(len(sash_list)):
+            filehandle.write(indent+"container().trigger_sash_place("+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
-    cdDir()
+def save_sub_container(filehandle):
+    if not this().hasWidgets(): return False
+
+    filehandle.write("\n"+indent+"goIn()\n\n")
+
+    # entweder nur der Code des Untercontainers
+    if this().onlysavecode and len(this().CODE) != 0:
+        filehandle.write("### CODE ===================================================\n")
+        filehandle.write(this().CODE)
+        filehandle.write("### ========================================================\n")
+
+    # oder den ganzen Container sichern
+    else:
+
+        goIn()
+        saveContainer(filehandle)
+        goOut()
+
+    filehandle.write("\n"+indent+"goOut()\n")
+    return True
+
+def get_save_config():
+
+    # get config ===============================
+    dictionaryConfig = getconfdict()
+    del_config_before_compare(dictionaryConfig)
+
+    dictionaryCompare = get_config_compare()
+
+    for n,e in dict(dictionaryConfig).items():
+        if n in dictionaryCompare:
+            if e == dictionaryCompare[n]: dictionaryConfig.pop(n,None)
+
+    for n,e in dictionaryConfig.items(): dictionaryConfig[n] = str(e)
+
+    return dictionaryConfig
+
+def save_widget(filehandle,name):
+    if not this().save: return
+
+    # write name ================================
+    thisClass = WidgetClass(this())
+ 
+    if isinstance(this(),MenuItem):
+        filehandle.write(indent+thisClass+"('"+name+"','"+this().mytype+"'")
+    else:
+        filehandle.write(indent+thisClass+"('"+name+"'")
+
+    conf_dict = get_save_config()
+    if len(conf_dict) != 0:
+        filehandle.write(",**"+str(get_save_config())+")")
+    else:
+         filehandle.write(")")
+
+    if not save_sub_container(filehandle) and is_immediate_layout(): filehandle.write('.')
+    save_immediate_layout(filehandle)
+    filehandle.write("\n")
+
+
+def saveContainer(filehandle):
+
+    dictionary = container().Dictionary.elements
+    
+    # hier werden die Elemente gesichert
+    for n,e in dictionary.items():
+        for x in e:
+            setWidgetSelection(x)
+            save_widget(filehandle,n)
+
+    save_pack_entries(filehandle)
 
     # was ist mit gelocktem code? Der Code sollte geschrieben werden, nur die widgets nicht
     if len(container().CODE) != 0:
@@ -1669,103 +1720,33 @@ def saveContainerOld(filehandle):
         filehandle.write("### ========================================================\n")
         
 
-# ===================================================
-#    Sicherung Container oder einzelnes Element
-#
-# Wenn wir es mit config sichern, dann ist nochmals dasselbe zu tun,
-# wie wir es beim Einzelelement hatten, doch warum?
-#
-# ===================================================
-
-
 def saveWidgets(filehandle,withConfig=False):
-    if not this().save: return	
-    wasInContainer = False
+
+    if not this().save: return	# if this shouldn't be saved
+
     if this() == container():
+
         if withConfig:
-            dictionaryCompare = None
-            CompareWidget = None
-            wdestroy = False
-            if this().isMainWindow:
-                dictionaryCompare = _AppConf
-            else:
-                thisClass = WidgetClass(this())
-                CompareWidget = eval("StatTkInter."+thisClass+"(container())")
-                dictionaryCompare = CompareWidget.config()
-                ConfDictionaryShort(dictionaryCompare)
-                wdestry = True
-            
-            dictionaryWidget = getconfdict()
-            dictionaryWidget.pop("command",None)
-            dictionaryWidget.pop("variable",None)
-            dictionaryWidget.pop("menu",None)
-            dictionaryCopy = copy(dictionaryWidget)
+            conf_dict = get_save_config()
+            if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
+        saveContainer(filehandle)
 
-            for n,e in dictionaryCopy.items():
-                if n == 'title':
-                    if e =="" or not this().title_changed: dictionaryWidget.pop(n,None)
-                elif n == 'link':
-                     if e =="": dictionaryWidget.pop(n,None)
-                elif n == 'geometry':
-                     if e =="" or not this().geometry_changed: dictionaryWidget.pop(n,None)
-                elif n == 'text':
-                    if thisClass =="Listbox" and e =="": dictionaryWidget.pop(n,None)
-                elif e == dictionaryCompare[n]: dictionaryWidget.pop(n,None)
-
-            if len(dictionaryWidget) != 0:
-                filehandle.write(indent+"config(")
-                first = True
-
-                for n,e in dictionaryWidget.items():
-                    if not first: filehandle.write(",")
-                    first = False
-                    if n == "text":
-                        filehandle.write(n + '="""'+str(e)+'"""')
-                    else: 
-                        if n == "from": n = "from_"			
-                        filehandle.write(n + "='"+str(e)+"'")
-                filehandle.write(")\n")
-
-            if wdestroy: CompareWidget.destroy()
-            
-        saveContainerOld(filehandle)
     else: 
-        wasInContainer = saveOneElement(filehandle,getNameAndIndex()[0])
-        if this().Layout == PACKLAYOUT or this().Layout == PANELAYOUT: 
-            CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
-            layoutWidget = layout_info()
-            if this().Layout == PACKLAYOUT:
-                layoutWidget.pop(".in",None)
-                filehandle.write(indent+"pack(")
-                CompareWidget.pack()
-                layoutCompare = CompareWidget.pack_info()
-            else:
-                filehandle.write(indent+"pane(")
-                container().add(CompareWidget)
-                layoutCompare = GuiElement.pane_info(CompareWidget)
-            layoutCopy = copy(layoutWidget)
-            first = True
-            for n,e in layoutCopy.items():
-                if e == layoutCompare[n]: layoutWidget.pop(n,None)
+        save_widget(filehandle,getNameAndIndex()[0])
 
-            for n,e in layoutWidget.items():
-                if not first: filehandle.write(",")			
-                filehandle.write(n+"='"+str(e)+"'")
-                first=False
-            filehandle.write(")\n")
-            if wasInContainer: filehandle.write("\n")
-    
+# ========== End save functions ===========================================================
+
 
 _code_list = []
 
+#def _store_code(fi):
+    #print("store",fi)
 def _store_code():
     container().CODE = _code_list.pop(0)
 
 def DynImportCode(filename):
     global LOADforEdit
     global _code_list
-    _code_list = []
-    #print("DynImport")
 
     ĥandle = None
     try:
@@ -1787,17 +1768,18 @@ def DynImportCode(filename):
             guicode+=line
         if isEnd: break
 
-        guicode+="\t_store_code()\n"	
+        #guicode+="_store_code('"+filename+"')\n"	
+        guicode+="_store_code()\n"	
 
         code = ""	
         while True:
             line = handle.readline()
             if not line:
                 handle.close()
-                print("Code end '### ' missing")
+                print("Code end '### =' missing in file: ",filename)
     
 
-            if line[0:4] == "### ": break
+            if line[0:5] == "### =": break
             code+=line
 
         if not LOADforEdit:	
@@ -1808,7 +1790,7 @@ def DynImportCode(filename):
     handle.close()
     evcode = compile(guicode,filename,'exec')
     eval(evcode)
-    _code_list = []
+    #_code_list = []
 
 
 
@@ -1908,3 +1890,5 @@ def _informLater(cmd): execute_lambda(cmd)
 def informLater(ms,widget,actionid,message=None): _Application.after(ms,_informLater,lambda wi = widget, actid=actionid, msg=message, funct=informImmediate: funct(wi,actid,msg))
 
 def gui(): DynLoad("guidesigner/Guidesigner.py")
+
+def select_menu(): this().select_menu()

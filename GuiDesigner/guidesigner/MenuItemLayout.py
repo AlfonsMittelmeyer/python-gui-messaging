@@ -25,4 +25,4 @@ def refresh_index(entry=widget('index')):
 
 do_receive('BASE_LAYOUT_VALUE_REFRESH',refresh_index)
 
-### CODE ===================================================
+### ===================================================

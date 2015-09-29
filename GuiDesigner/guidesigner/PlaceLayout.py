@@ -91,7 +91,7 @@ def main():
             diffy = me.winfo_pointery() - me.winfo_rooty()
             me.mydata[3] += diffx-me.mydata[0]
             me.mydata[4] += diffy-me.mydata[1]
-            yxplace(me.mydata[4],me.mydata[3])
+            me.yxplace(me.mydata[4],me.mydata[3])
             me.mydata[5] += step
             if me.mydata[5] >= 100:
                 me.mydata[5] = 0

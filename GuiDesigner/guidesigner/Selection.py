@@ -12,14 +12,12 @@ pack()
 def create_widget(msg):
     widget_type = msg[0]
 
-    if widget_type in ('cascade','radiobutton','command','separator','checkbutton'):
+    if widget_type in ('cascade','radiobutton','command','separator','checkbutton','delimiter'):
         if isinstance(container(),Menu):
             if widget_type == 'separator':
                 eval("MenuItem('"+msg[1]+"','"+widget_type+"')")
-                '''
-                elif widget_type == 'cascade':
-                    eval("MenuCascade('"+msg[1]+"','"+widget_type+"',label='"+msg[1]+"')")
-                '''
+            elif widget_type == 'delimiter':
+                eval("MenuDelimiter('"+msg[1]+"')")
             else:
                 eval("MenuItem('"+msg[1]+"','"+widget_type+"',label='"+msg[1]+"')")
             send('SELECTION_CHANGED')

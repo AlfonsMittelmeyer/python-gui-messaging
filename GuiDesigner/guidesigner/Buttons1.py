@@ -1,12 +1,6 @@
 Button("gotoRoot",text="\\\\")	
 pack(side=LEFT)
 
-Button("gotoTopLevel",text="\\\\\\\\")	
-pack(side=LEFT)
-
-Button("refresh",text="refresh")	
-pack(side=LEFT)
-
 Button("unlayout",text="unlayout")
 pack(side=LEFT,anchor=W)
 
@@ -23,15 +17,6 @@ def do_goRoot():
     send('SELECTION_CHANGED',this())
 
 widget("gotoRoot").do_command(do_goRoot)
-
-
-def go_TopRoot():
-    gotoTop()
-    send('SELECTION_CHANGED',this())
-
-widget("gotoTopLevel").do_command(go_TopRoot)
-
-widget("refresh").do_command(lambda: send('SELECTION_CHANGED',this()))
 
 def do_unlayout():
     if this().Layout & LAYOUTALL:
