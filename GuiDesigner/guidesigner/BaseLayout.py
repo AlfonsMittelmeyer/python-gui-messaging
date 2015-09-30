@@ -24,8 +24,9 @@ grid(sticky='ew',row='5')
 # the pack or grid portion will be hidden (unlayout)
 
 def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),placely=widget('PlaceLayout'),panely=widget('PaneLayout'),itemly=widget('ItemLayout'),menuly=widget('MenuLayout')):
-    #if True:
+
     if this().Layout != LAYOUTNEVER:
+
         if this().tkClass == StatTkInter.Menu:
             packly.unlayout()
             gridly.unlayout()
@@ -72,19 +73,5 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
             elif gridly.Layout == NOLAYOUT: gridly.grid()
 
 do_receive('BASE_LAYOUT_REFRESH', hide_pack_or_grid)
-
-# full action for new or changed widgets
-# for LAYOUTNEVER the LabelFrame LayoutShortShowHide has to be hidden and otherwise shown
-# sends a BASE_LAYOUT_REFRESH to inside for the pack, grid and place portions
-# sends a SHOW_LAYOUT for the layout details options
-# sends a SHOW_SELECTION for showing, which widget is selected 
-
-def base_layout_widget_changed(cont = container(),packly=widget('PackLayout'),gridly=widget('GridLayout'),placely=widget('PlaceLayout'),panely=widget('PaneLayout')):
-    if this().Layout == LAYOUTNEVER: cont.unlayout()
-    elif cont.Layout == NOLAYOUT: cont.grid()
-    send("BASE_LAYOUT_REFRESH",this())
-    send("SHOW_LAYOUT",this())
-
-do_receive('BASE_LAYOUT_WIDGET_CHANGED',base_layout_widget_changed)
 
 ### ========================================================

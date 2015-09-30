@@ -158,14 +158,14 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
             for entry in (
 "title",
 "geometry",
-"from",
-"to",
-"increment",
-"resolution",
-"bigincrement",
+"from", # Spinbox (decimal default 0.0)
+"to",   # Spinbox, Scale (decimal Spinbox default 0,0, Scale default 100.0)
+"increment", # Spinbox, (decimal default 1.0)
+"resolution", # Scale (decimal default 1.0)
+"bigincrement", # Scale (decimal default 0.0)
 "showvalue",
-"tickinterval",
-"digits",
+"tickinterval", # Scale (decimal default 0.0)
+"digits", # Scale (Integer default 0)
 "orient",
 "label",
 "text",
@@ -179,12 +179,12 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "overrelief",
 "buttondownrelief",
 "width",
+"height",
 "length",
 "sliderlength",
-"height",
 "wraplength",
-"padx",
-"pady",
+"padx", # often (Label: Integer default 0, Button ? default 3m)
+"pady", # often (Label: Integer default 0, Button ? default 1m)
 "bd",
 "anchor",
 "justify",
@@ -195,7 +195,6 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "troughcolor",
 "selectforeground",
 "selectbackground",
-"insertwidth",
 "insertwidth",
 "insertborderwidth",
 "insertontime",
@@ -231,6 +230,31 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                 goIn()
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
                 if entry[0] == "text": Text("Entry", height=3, width=20, font="TkDefaultFont").insert(END,entry[1])			
+                elif entry[0] in (
+"digits", # Scale (Integer default 0)
+"width", # often (Integer default 0)
+"height", # often (Integer default 0)
+"length", # Spinbox (Integer default 100)
+"sliderlength", # Spinbox (Integer default 30)
+"wraplength", # often (Integer default 0)
+"bd", # often (Integer default 1)
+"insertwidth", # Entry (Integer default 2)
+"insertborderwidth", # Entry (Integer default 0)
+"selectborderwidth", # Entry (Integer default 0)
+"highlightthickness",
+"sashwidth", # PanedWindow (Integer default 3)
+"sashpad", # PanedWindow (Integer default 0)
+"opaqueresize", # PanedWindow (Integer default 1)
+"handlesize", # PanedWindow (Integer default 8)
+"handlepad"): # PanedWindow (Integer default 8)
+                    Spinbox("Entry",from_=0,to=3000,increment=1)
+                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
+                elif entry[0] == "insertontime":
+                    Spinbox("Entry",from_=0,to=10000,increment=10)
+                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
+                elif entry[0] == "underline":
+                    Spinbox("Entry",from_=-1,to=300,increment=1)
+                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
                 else: Entry("Entry").insert(0,entry[1])
 
                 do_action('color',color_action,wishWidget=True,wishMessage=True)
@@ -256,9 +280,9 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                     elif entry[0] == 'width': thisframe.mydata[3] = this()
 
                     elif entry[0] == "state":
-                        if isinstance(msg,Spinbox) or isinstance(msg,Entry) : Listbox(width=7,height=3).fillList(("normal","disabled","readonly"))
-                        elif isinstance(msg,Text) or isinstance(msg,Canvas): Listbox(width=7,height=2).fillList(("normal","disabled"))
-                        else: Listbox(width=7,height=3).fillList(("normal","disabled","active"))
+                        if isinstance(msg,Spinbox) or isinstance(msg,Entry) : Listbox(width=8,height=3).fillList(("normal","disabled","readonly"))
+                        elif isinstance(msg,Text) or isinstance(msg,Canvas): Listbox(width=8,height=2).fillList(("normal","disabled"))
+                        else: Listbox(width=8,height=3).fillList(("normal","disabled","active"))
                         lbox_select()
 
                     elif entry[0] == "default":

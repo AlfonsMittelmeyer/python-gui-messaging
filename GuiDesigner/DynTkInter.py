@@ -182,8 +182,7 @@ class GuiElement:
 
     # used by the GUI Creator: it tries to take the name of the widget as text. So Labels, Buttons and LabelFrames may be easily identified when doing the layout
     def text(self,mytext):
-        try: self.config(text=mytext)
-        except TclError: pass
+        if 'text' in self.getconfdict(): self.config(text=mytext)
     
     # used by the save function: if a container doesn't have widgets then there is no need to look inside
     def hasWidgets(self):

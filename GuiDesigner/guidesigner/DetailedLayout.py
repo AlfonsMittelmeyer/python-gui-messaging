@@ -109,10 +109,10 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 "y",
 "column",
 "row",
-"side",
-"sticky",
 "columnspan",
 "rowspan",
+"side",
+"sticky",
 "width",
 "height",
 "anchor",
@@ -139,7 +139,30 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                 Frame()
                 goIn()
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
-                Entry("Entry")
+                if entry[0] in (
+"x", # Place Layout
+"y", # Place Layout
+"column", # Grid Layout
+"row", # Grid Layout
+"columnspan", # Grid Layout (Integer default 1)
+"rowspan", 
+"width", # Place Layout (Default leer "" oder Integer)
+"height", # Place Layout (Default leer "" oder Integer)
+"expand", # Pack Layout (Integer default 0)
+"padx", # Pack Layout und Grid Layout (Integer default 0)
+"pady", # Pack Layout und Grid Layout (Integer default 0)
+"ipadx", # Pack Layout und Grid Layout (Integer default 0)
+"ipady"): # Pack Layout und Grid Layout (Integer default 0)
+                    Spinbox("Entry",from_=0,to=3000,increment=1)
+                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
+                elif entry[0] in (
+"relx", # Place Layout (Integer default 0)
+"rely", # Place Layout (Integer default 0)
+"relwidth", # Place Layout (Default leer "" oder Integer)
+"relheight"):  # Place Layout (Default leer "" oder Integer): 
+                    Spinbox("Entry",from_=0,to=1,increment=0.01)
+                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
+                else: Entry("Entry")
                 do_action('color',lambda me = this(): me.config(bg='white'))
                 this().delete(0,END)	
                 this().insert(0,entry[1])
