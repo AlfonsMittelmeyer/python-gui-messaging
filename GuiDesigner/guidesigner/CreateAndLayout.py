@@ -49,5 +49,4 @@ def function(layout_before):
 
 do_receive('BASE_LAYOUT_CHANGED',function,wishMessage=True)
 
-
 ### ========================================================

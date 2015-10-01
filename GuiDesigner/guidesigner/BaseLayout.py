@@ -74,4 +74,47 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
 
 do_receive('BASE_LAYOUT_REFRESH', hide_pack_or_grid)
 
+
+def select_hili_on(me):
+
+    me.mydata=None
+    try:
+        me.mydata=[None,me["relief"],me["highlightthickness"],me["highlightbackground"]]
+        me.config(relief="solid",highlightthickness=1,highlightbackground="blue")
+        me.mydata[0]='hili_on'
+    except TclError: pass
+    if this() != me:
+        setWidgetSelection(me)
+        send('SELECTION_CHANGED')
+
+def hili_off(me):
+    if type(me.mydata) is list and me.mydata[0] == 'hili_on':
+        me.config(relief=me.mydata[1],highlightthickness=me.mydata[2],highlightbackground=me.mydata[3])
+
+def update_mouse_select_on(select_hili_on=select_hili_on,hili_off=hili_off):
+    if container().is_mouse_select_on:
+        do_event('<Button-1>',select_hili_on,this())
+        do_event('<ButtonRelease-1>',hili_off,this())
+
+do_receive('UPDATE_MOUSE_SELECT_ON',update_mouse_select_on)
+    
+def mouse_select_on(select_on,select_hili_on = select_hili_on,hili_off=hili_off):
+    widget_list = getAllWidgetsWithoutNoname(container())
+    if not select_on:
+        for wi in widget_list:
+            wi.unbind('<Button-1>')
+            wi.unbind('<ButtonRelease-1>')
+            wi.mydata = None
+    else:
+        for wi in widget_list:
+            if wi.Layout in (PACKLAYOUT,PANELAYOUT):
+                wi.do_event('<Button-1>',select_hili_on,wi)
+                wi.do_event('<ButtonRelease-1>',hili_off,wi)
+            elif wi.Layout == PLACELAYOUT:
+                send('PLACE_MOUSE_ON',wi)
+            elif wi.Layout == GRIDLAYOUT:
+                send('GRID_MOUSE_ON',wi)
+
+do_receive("MOUSE_SELECT_ON",mouse_select_on,wishMessage = True)
+
 ### ========================================================

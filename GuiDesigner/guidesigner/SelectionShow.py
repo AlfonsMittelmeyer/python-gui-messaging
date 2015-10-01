@@ -107,8 +107,10 @@ def for_names(frame_Selection = Selection(),button_command = do_button_command,f
 
     row = 0
     for name, entry in selection_before._container.Dictionary.elements.items():
-        for_entries(row,name,entry,selection_before)
-        row += 1
+
+        if name != NONAME:
+            for_entries(row,name,entry,selection_before)
+            row += 1
 
     frame_Selection._container.pack()	
     setSelection(selection_before) # restore the user selection

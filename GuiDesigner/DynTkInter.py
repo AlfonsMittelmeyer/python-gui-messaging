@@ -75,12 +75,36 @@ def widget_exists(widget): return widget in EXISTING_WIDGETS
 
 class Dummy: pass
 
+def grid_configure_cols(thiswidget,data):
+
+    cols = data[0]
+    col_width = data[1]
+    padvalue = data[2]
+    weightvalue=data[3]
+
+    for col in range(cols):
+        thiswidget.grid_columnconfigure(col,minsize = col_width,pad=padvalue,weight=weightvalue)
+
+def grid_configure_rows(thiswidget,data):
+
+    rows = data[0]
+    row_height = data[1]
+    padvalue = data[2]
+    weightvalue=data[3]
+
+    for row in range(rows):
+        thiswidget.grid_rowconfigure(row,minsize =row_height,pad=padvalue,weight=weightvalue)
+
+
 class GuiElement:
 
     def __init__(self,name="nn",select=True):
 
         EXISTING_WIDGETS[self] = None
-    
+        self.is_mouse_select_on = False
+        self.grid_conf_rows = None
+        self.grid_conf_cols = None
+
         if select: _Selection._widget = self
 
         if self.master != None: self.master.Dictionary.setElement(name,self)
@@ -641,7 +665,6 @@ class Tk(GuiElement,StatTkInter.Tk):
     def __init__(self,myname="Application",**kwargs):
 
         global proxy
-
         self.tkClass = StatTkInter.Tk 
         Stack= []
         ObjectStack = []
@@ -649,23 +672,14 @@ class Tk(GuiElement,StatTkInter.Tk):
         VAR.clear()
         EXISTING_WIDGETS.clear()
         ACTORS.clear()
-        self.link = ""
  
         self.config_menuitems = { 'command':None,'radiobutton':None,'checkbutton':None,'separator':None,'cascade':None,'delimiter':None,'menu':None }
         
-        if "link" in kwargs:
-            self.link = kwargs['link']
-            kwargs.pop('link',None)
-
-        mytitle = None
-        mygeometry = None
-        if "title" in kwargs:
-            mytitle = kwargs['title']
-            kwargs.pop('title',None)
-
-        if "geometry" in kwargs:
-            mygeometry = kwargs['geometry']
-            kwargs.pop('geometry',None)
+        grid_cols = kwargs.pop('grid_cols',None)
+        grid_rows = kwargs.pop('grid_rows',None)
+        self.link = kwargs.pop('link','')
+        mytitle = kwargs.pop('title',None)
+        mygeometry = kwargs.pop('geometry',None)
 
         self.tkClass.__init__(self,**kwargs)
         proxy = dynproxy.Proxy(self)
@@ -694,6 +708,14 @@ class Tk(GuiElement,StatTkInter.Tk):
         global LAYOUTNEVER
         self.Layout = LAYOUTNEVER
 
+        if grid_cols != None:
+            self.grid_conf_cols = eval(grid_cols)
+            grid_configure_cols(self,self.grid_conf_cols)
+
+        if grid_rows != None:
+            self.grid_conf_rows = eval(grid_rows)
+            grid_configure_rows(self,self.grid_conf_rows)
+        
         self.master = None
         self.isMainWindow = True
         
@@ -718,6 +740,17 @@ class Tk(GuiElement,StatTkInter.Tk):
             dictionary['link'] = (self.link,)
             return dictionary
         else:
+            grid_cols = kwargs.pop('grid_cols',None)
+            grid_rows = kwargs.pop('grid_rows',None)
+
+            if grid_cols != None:
+                self.grid_conf_cols = eval(grid_cols)
+                grid_configure_cols(self,self.grid_conf_cols)
+
+            if grid_rows != None:
+                self.grid_conf_rows = eval(grid_rows)
+                grid_configure_rows(self,self.grid_conf_rows)
+
             if 'title' in kwargs: 
                 self.title(kwargs['title'])
                 kwargs.pop('title',None)
@@ -769,6 +802,9 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         master,myname,select = _getMasterAndNameAndSelect(myname,"Toplevel")
         kwargs["master"] = master
 
+        grid_cols = kwargs.pop('grid_cols',None)
+        grid_rows = kwargs.pop('grid_rows',None)
+
         self.link = ""
         if "link" in kwargs:
             self.link = kwargs['link']
@@ -794,7 +830,17 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         master = self.master		
         self.master = _TopLevelRoot._container
         GuiElement.__init__(self,myname,select)
+
+        if grid_cols != None:
+            self.grid_conf_cols = eval(grid_cols)
+            grid_configure_cols(self,self.grid_conf_cols)
+
+        if grid_rows != None:
+            self.grid_conf_rows = eval(grid_rows)
+            grid_configure_rows(self,self.grid_conf_rows)
+
         global LAYOUTNEVER
+
         self.Layout = LAYOUTNEVER
         self.isMainWindow = True
         self.master = master
@@ -816,6 +862,17 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
             dictionary['link'] = (self.link,)
             return dictionary
         else:
+            grid_cols = kwargs.pop('grid_cols',None)
+            grid_rows = kwargs.pop('grid_rows',None)
+
+            if grid_cols != None:
+                self.grid_conf_cols = eval(grid_cols)
+                grid_configure_cols(self,self.grid_conf_cols)
+
+            if grid_rows != None:
+                self.grid_conf_rows = eval(grid_rows)
+                grid_configure_rows(self,self.grid_conf_rows)
+ 
             if 'title' in kwargs: 
                 self.title(kwargs['title'])
                 kwargs.pop('title',None)
@@ -839,8 +896,11 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
 
 # Achtung, auch App muss einen Namen haben, wegen Toplevel Fenstern
 
+NONAME = -1
+
 def _getMasterAndNameAndSelect(name,altname):
-    if type(name) == str: return _Selection._container,name,True
+    global NONAME
+    if type(name) == str or name == NONAME: return _Selection._container,name,True
     elif type(name) == tuple: return name[0],name[1],False
     else: return name,altname,False
 
@@ -857,12 +917,25 @@ class Button(GuiElement,StatTkInter.Button):
 
 class Canvas(GuiElement,StatTkInter.Canvas):
     def __init__(self,myname="Canvas",**kwargs):
+
         self.tkClass = StatTkInter.Canvas
         master,myname,select = _getMasterAndNameAndSelect(myname,"Canvas")
         kwargs["master"] = master
         StatTkInter.Canvas.__init__(self,**kwargs)
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
+
+        grid_cols = kwargs.pop('grid_cols',None)
+        grid_rows = kwargs.pop('grid_rows',None)
+
+        if grid_cols != None:
+            self.grid_conf_cols = eval(grid_cols)
+            grid_configure_cols(self,self.grid_conf_cols)
+
+        if grid_rows != None:
+            self.grid_conf_rows = eval(grid_rows)
+            grid_configure_rows(self,self.grid_conf_rows)
+
 
 class Checkbutton(GuiElement,StatTkInter.Checkbutton):
     def __init__(self,myname="Checkbutton",**kwargs):
@@ -887,6 +960,10 @@ class Frame(GuiElement,StatTkInter.Frame):
 
     def __init__(self,myname="Frame",**kwargs):
 
+
+        grid_cols = kwargs.pop('grid_cols',None)
+        grid_rows = kwargs.pop('grid_rows',None)
+
         self.link = ""
         if "link" in kwargs:
             self.link = kwargs['link']
@@ -898,6 +975,15 @@ class Frame(GuiElement,StatTkInter.Frame):
         StatTkInter.Frame.__init__(self,**kwargs)
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
+
+        if grid_cols != None:
+            self.grid_conf_cols = eval(grid_cols)
+            grid_configure_cols(self,self.grid_conf_cols)
+
+        if grid_rows != None:
+            self.grid_conf_rows = eval(grid_rows)
+            grid_configure_rows(self,self.grid_conf_rows)
+
         FileImportContainer(self)
 
     def config(self,**kwargs):
@@ -906,6 +992,16 @@ class Frame(GuiElement,StatTkInter.Frame):
             dictionary['link'] = (self.link,)
             return dictionary
         else:
+            grid_cols = kwargs.pop('grid_cols',None)
+            grid_rows = kwargs.pop('grid_rows',None)
+            if grid_cols != None:
+                self.grid_conf_cols = eval(grid_cols)
+                grid_configure_cols(self,self.grid_conf_cols)
+
+            if grid_rows != None:
+                self.grid_conf_rows = eval(grid_rows)
+                grid_configure_rows(self,self.grid_conf_rows)
+
             if 'title' in kwargs: kwargs.pop('title',None)
             if 'geometry' in kwargs: kwargs.pop('geometry',None)
             if 'link' in kwargs:
@@ -978,6 +1074,9 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
 
     def __init__(self,myname="LabelFrame",**kwargs):
 
+        grid_cols = kwargs.pop('grid_cols',None)
+        grid_rows = kwargs.pop('grid_rows',None)
+
         self.link = ""
         if "link" in kwargs:
             self.link = kwargs['link']
@@ -989,6 +1088,15 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
         StatTkInter.LabelFrame.__init__(self,**kwargs)
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
+
+        if grid_cols != None:
+            self.grid_conf_cols = eval(grid_cols)
+            grid_configure_cols(self,self.grid_conf_cols)
+
+        if grid_rows != None:
+            self.grid_conf_rows = eval(grid_rows)
+            grid_configure_rows(self,self.grid_conf_rows)
+
         FileImportContainer(self)
 
     def config(self,**kwargs):
@@ -997,6 +1105,17 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
             dictionary['link'] = (self.link,)
             return dictionary
         else:
+
+            grid_cols = kwargs.pop('grid_cols',None)
+            grid_rows = kwargs.pop('grid_rows',None)
+            if grid_cols != None:
+                self.grid_conf_cols = eval(grid_cols)
+                grid_configure_cols(self,self.grid_conf_cols)
+
+            if grid_rows != None:
+                self.grid_conf_rows = eval(grid_rows)
+                grid_configure_rows(self,self.grid_conf_rows)
+
             if 'title' in kwargs: kwargs.pop('title',None)
             if 'geometry' in kwargs: kwargs.pop('geometry',None)
             if 'link' in kwargs:
@@ -1300,6 +1419,7 @@ class Spinbox(GuiElement,StatTkInter.Spinbox):
 class PanedWindow(GuiElement,StatTkInter.PanedWindow):
 
     def __init__(self,myname="PanedWindow",**kwargs):
+
         self.tkClass = StatTkInter.PanedWindow
         master,myname,select = _getMasterAndNameAndSelect(myname,"PanedWindow")
         kwargs["master"] = master
@@ -1449,6 +1569,14 @@ def getContLayouts(container):
     allContainerEntries(container,GetContLayoutsCmd)
     return pop()
 
+def getAllWidgetsWithoutNoname(containerWidget):
+    dictionary=containerWidget.Dictionary.elements
+    elementlist = []
+    for key,entry in dictionary.items():
+        if key != NONAME:
+            for x in entry:
+                elementlist.append(x)
+    return elementlist
 
 def deleteAllWidgets(containerWidget):
     SelectionBefore=Selection()
@@ -1465,6 +1593,13 @@ def deleteAllWidgets(containerWidget):
     for x in elementlist: x.destroy()
     setSelection(SelectionBefore)
 
+def deleteWidgetsForName(containerWidget,name):
+    SelectionBefore=Selection()
+    dictionary=containerWidget.Dictionary.elements
+    elementlist=dictionary.pop(name,None)
+    if elementlist != None:
+        for x in elementlist: x.destroy()
+    setSelection(SelectionBefore)
 
 def eraseEntry(name,index):
     dictionary=_Selection._container.Dictionary.elements	
@@ -1585,7 +1720,7 @@ def save_immediate_layout(filehandle):
         layout = {}
         
     if len(layout) != 0: filehandle.write("**"+str(layout))
-    filehandle.write(")\n")
+    filehandle.write(")")
 
 def save_pack_entries(filehandle):
 
@@ -1676,6 +1811,13 @@ def get_save_config():
 
     for n,e in dictionaryConfig.items(): dictionaryConfig[n] = str(e)
 
+    if this().grid_conf_rows != None:
+        if this().grid_conf_rows[0] != 0:
+            dictionaryConfig['grid_rows'] = str(this().grid_conf_rows)
+    if this().grid_conf_cols != None:
+        if this().grid_conf_cols[0] != 0:
+            dictionaryConfig['grid_cols'] = str(this().grid_conf_cols)
+            
     return dictionaryConfig
 
 def save_widget(filehandle,name):
@@ -1706,9 +1848,10 @@ def saveContainer(filehandle):
     
     # hier werden die Elemente gesichert
     for n,e in dictionary.items():
-        for x in e:
-            setWidgetSelection(x)
-            save_widget(filehandle,n)
+        if n != NONAME:
+            for x in e:
+                setWidgetSelection(x)
+                save_widget(filehandle,n)
 
     save_pack_entries(filehandle)
 

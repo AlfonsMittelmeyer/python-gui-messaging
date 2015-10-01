@@ -79,6 +79,7 @@ def paned_win_event(event,sash_update=update_sash_values):
 
 def do_add():
     pane()
+    send('UPDATE_MOUSE_SELECT_ON')
     send("BASE_LAYOUT_CHANGED",NOLAYOUT) # NOLAYOUT because always trigger a sash_list_refreh via event BASE_LAYOUT_REFRESH
 
 def enable_motion(enable,panewin=container(),refresh=refresh_sash_list,paned_event=paned_win_event):

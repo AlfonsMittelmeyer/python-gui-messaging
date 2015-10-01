@@ -1,18 +1,14 @@
-Button('MouseOn',text="""ON""",state='disabled').grid(column='3',sticky='w',row='4')
-Spinbox('incX',from_='1.0',width='4',to='2000.0').grid(column='3',row='0')
-Spinbox('incY',increment='1.0',from_='1.0',width='4',to='2000.0').grid(column='3',row='1')
-Label('PlaceTitle',text="""place""",fg='blue').grid(sticky='w',row='0')
-Label('label',text="""inc x""").grid(column='4',row='0')
-Label('label',text="""y""",padx='3').grid(column='1',row='1')
-Label('label',text="""inc y""").grid(column='4',row='1')
-Button('MouseOff',text="""OFF""",state='disabled').grid(column='4',sticky='e',row='4')
-Button('Adjust',text="""adjust""",state='disabled').grid(row='1')
-Button('Place',text="""place at 0,0""",bg='green').grid(column='3',sticky='ew',columnspan='2',row='3')
-Spinbox('Y',increment='10.0',width='4',from_=0,to='2000.0').grid(column='2',row='1')
-Spinbox('X',increment='10.0',width='4',from_=0,to='2000.0').grid(column='2',row='0')
-Label('Label',text="""x""",padx='3').grid(column='1',row='0')
-Label('Label',text="""mouse move &""").grid(columnspan='3',row='3')
-Label('Label',text="""mouse move:""").grid(columnspan='3',row='4')
+Spinbox('incX',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'row': '0'})
+Spinbox('incY',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'row': '1'})
+Label('PlaceTitle',**{'text': 'place', 'font': 'TkDefaultFont 9 bold', 'bd': '3','fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
+Label('label',**{'text': 'inc x'}).grid(**{'column': '4', 'row': '0'})
+Label('label',**{'text': 'y', 'padx': '3'}).grid(**{'column': '1', 'row': '1'})
+Label('label',**{'text': 'inc y'}).grid(**{'column': '4', 'row': '1'})
+Button('Adjust',**{'text': 'adjust', 'state': 'disabled'}).grid(**{'row': '1'})
+Button('Place',**{'text': 'PLACE', 'bg': 'green','bd': '3', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '4', 'sticky': 'nsew', 'row': '3'})
+Spinbox('Y',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'row': '1'})
+Spinbox('X',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'row': '0'})
+Label('Label',**{'text': 'x', 'padx': '3'}).grid(**{'column': '1', 'row': '0'})
 
 ### CODE ===================================================
 
@@ -25,7 +21,6 @@ def main():
     widget('incY').insert(0,"10")
 
     # -------------- X,Y Spinbox commands and Return key events ----------------------------------
-
 
     # do the place layout and send a 'BASE_LAYOUT_CHANGED' message
 
@@ -84,7 +79,7 @@ def main():
     # if the widget isn't the selected widget, then it becomes the selected widget
 
 
-    def mouse_move(me):
+    def mouse_move(me,wi_row=widget('Row'),wi_col=widget('Col')):
         if me.mydata[6]:
             step = 10
             diffx = me.winfo_pointerx() - me.winfo_rootx()
@@ -115,51 +110,24 @@ def main():
         send('POSITION_CHANGED',me)
         send('LAYOUT_VALUES_REFRESH',me)
 
+    def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
+        me.mydata=(None,None,'mouse')
+        me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
+        me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
 
-
-    def do_mouse_on(mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        config(cursor="mouse")
-        this().mydata=(None,None,'mouse')
-        do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
-        do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
-
-
-    # by pressing the MouseOn button, we bind the mouse down and the mouse motion event to the selected widget
-    widget("MouseOn").do_command(do_mouse_on)
-
-    def do_mouse_off():
-        config(cursor="")
-        this().unbind('<Button-1>')
-        this().unbind('<ButtonRelease-1>')
-        this().mydata=None
-
-    # by pressing the MouseOff button, we unbind the mouse events
-    widget("MouseOff").do_command(do_mouse_off)
+    do_receive('PLACE_MOUSE_ON',do_mouse_on,wishMessage=True)
 
     def do_place_at00(mouse_on = do_mouse_on):
 
         layout_before = this().Layout
         yxplace(0,0)
-        mouse_on()
+        if container().is_mouse_select_on: mouse_on(this())
+        else: send("SWITCH_MOUSE_ON")
 
-        send('POSITION_CHANGED',this()) # show this in X an Y Spinbox
+        send('POSITION_CHANGED',this()) # show this in X an Y Spinbox, 'bd': '3'
         send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
     widget("Place").do_command(do_place_at00)
-
-
-    # used for pack and grid layout. the mouse events have to be destroyed
-
-    def switch_off_mousemove(mouse_off = do_mouse_off):
-
-        if type(this().mydata) is tuple or type(this().mydata) is list:
-            if len(this().mydata) >= 3:
-                if type(this().mydata[2]) is str:
-                    if this().mydata[2] == 'mouse': mouse_off()
-
-
-    do_receive('BASE_LAYOUT_PLACE_MOUSEOFF',switch_off_mousemove)
-
 
     # -------------- Receivers for refresh ----------------------------------
 
@@ -179,8 +147,6 @@ def main():
             title['bg'] = bg
             state = 'disabled'
 
-        MouseOn['state'] = state
-        MouseOff['state'] = state
         Adjust['state'] = state
 
     do_receive('BASE_LAYOUT_REFRESH',titlecolor_and_enable)
@@ -194,7 +160,6 @@ def main():
 
     # set X,Y spinboxes to X,Y layout values of the widget
     do_receive('POSITION_CHANGED',set_yx_entries)
-
 
 main()
 

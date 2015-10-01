@@ -18,9 +18,9 @@ widget('BOTTOM').pack(side='left')
 # and send a 'BASE_LAYOUT_CHANGED', which contains the current packed widget reference and the layout before
 
 def do_pack(packside):
-    send('BASE_LAYOUT_PLACE_MOUSEOFF')
     layout_before = this().Layout
     pack(side=packside)
+    send('UPDATE_MOUSE_SELECT_ON')
     send('BASE_LAYOUT_CHANGED',layout_before)
 
 widget("TOP").do_command(do_pack,TOP)
