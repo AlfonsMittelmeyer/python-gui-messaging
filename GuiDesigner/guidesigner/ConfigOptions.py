@@ -238,6 +238,8 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "sliderlength", # Spinbox (Integer default 30)
 "wraplength", # often (Integer default 0)
 "bd", # often (Integer default 1)
+"padx", # often (Label: Integer default 0, Button ? default 3m)
+"pady", # often (Label: Integer default 0, Button ? default 1m)
 "insertwidth", # Entry (Integer default 2)
 "insertborderwidth", # Entry (Integer default 0)
 "selectborderwidth", # Entry (Integer default 0)
@@ -247,15 +249,20 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "opaqueresize", # PanedWindow (Integer default 1)
 "handlesize", # PanedWindow (Integer default 8)
 "handlepad"): # PanedWindow (Integer default 8)
-                    Spinbox("Entry",from_=0,to=3000,increment=1)
-                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
+                    Spinbox("Entry",from_=0,to=3000,increment=1).delete(0,'end')
+                    widget('Entry').insert(0,entry[1])
+                    do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
                 elif entry[0] == "insertontime":
-                    Spinbox("Entry",from_=0,to=10000,increment=10)
-                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
+                    Spinbox("Entry",from_=0,to=10000,increment=10).delete(0,'end')
+                    widget('Entry').insert(0,entry[1])
+                    do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
                 elif entry[0] == "underline":
-                    Spinbox("Entry",from_=-1,to=300,increment=1)
-                    do_command(e_event,wishWidget=True) # via return key the option value can be changed
-                else: Entry("Entry").insert(0,entry[1])
+                    Spinbox("Entry",from_=-1,to=300,increment=1).delete(0,'end')
+                    widget('Entry').insert(0,entry[1])
+                    do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
+                else: 
+                    Entry("Entry").delete(0,'end')
+                    widget('Entry').insert(0,entry[1])
 
                 do_action('color',color_action,wishWidget=True,wishMessage=True)
                 rcgrid(0,1,sticky=E+W)

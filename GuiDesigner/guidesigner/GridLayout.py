@@ -1,38 +1,45 @@
+Entry('EntryRows',**{'width': '6'}).grid(**{'column': '1', 'row': '1'})
+Entry('EntryCols',**{'width': '6'}).grid(**{'column': '2', 'row': '1'})
+Spinbox('EntryRowHeight',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '2'})
+Spinbox('EntryColWidth',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '2'})
+Spinbox('EntryRowPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '3'})
+Spinbox('EntryColPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '3'})
+Spinbox('EntryRowWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '4'})
+Spinbox('EntryColWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'row': '4'})
+Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
+
 Button('ButtonHide',**{'text': 'Hide', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '4'})
 Button('Grid()',**{'text': 'Grid()', 'bd': '3', 'bg': 'green'}).grid(**{'row': '5'})
-Entry('EntryRows',**{'width': '6'}).grid(**{'column': '1', 'row': '1'})
 Label('lwidth',**{'text': 'Min Width'}).grid(**{'column': '3', 'sticky': 'w', 'row': '2'})
 Label('lweight',**{'text': 'weight'}).grid(**{'sticky': 'e', 'row': '4'})
-Spinbox('EntryRowPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '3'})
 Label('lrows',**{'text': 'Rows', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '0'})
-Spinbox('EntryColWidth',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '2'})
-Spinbox('EntryColWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'row': '4'})
 Button('ButtonGrid',**{'text': 'GRID', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '5'})
-Entry('EntryCols',**{'width': '6'}).grid(**{'column': '2', 'row': '1'})
 Label('lcols',**{'text': 'Columns', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '0'})
-Spinbox('EntryColPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '3'})
 Label('lpad',**{'text': 'pad'}).grid(**{'sticky': 'e', 'row': '3'})
 Label('lheight',**{'text': 'Min Height'}).grid(**{'sticky': 'e', 'row': '2'})
-Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green', 'cursor': 'mouse'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
-Spinbox('EntryRowHeight',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '2'})
-Spinbox('EntryRowWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '4'})
+Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
 Label('LableTitle',**{'text': 'grid', 'font': 'TkDefaultFont 9 bold', 'bd': '3','fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
 
 ### CODE ===================================================
 
-
 # -------- Receivers for message 'BASE_LAYOUT_REFRESH' ----------------------
+
+# Order of Entries for Tab
+
+#Entry('EntryRows',**{'width': '6'}).grid(**{'column': '1', 'row': '1'})
+#Entry('EntryCols',**{'width': '6'}).grid(**{'column': '2', 'row': '1'})
+#Spinbox('EntryRowHeight',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '2'})
+#Spinbox('EntryColWidth',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '2'})
+#Spinbox('EntryRowPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '3'})
+#Spinbox('EntryColPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '3'})
+#Spinbox('EntryRowWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '4'})
+#Spinbox('EntryColWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'row': '4'})
+#Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
+
 
 def main():
 
-    def do_grid0():
-        send('BASE_LAYOUT_PLACE_MOUSEOFF')
-        layout_before = this().Layout
-        grid()
-        send('BASE_LAYOUT_CHANGED',layout_before) # depending on the layout change we need less or more actions
-
-    widget('Grid()').do_command(do_grid0)
-
+    #Button('ButtonForget',**{'text': 'Forget'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '5'})
 
     # -------- Receivers for message 'BASE_LAYOUT_REFRESH' ----------------------
 
@@ -49,9 +56,14 @@ def main():
         deleteWidgetsForName(container(),NONAME)
         send("BASE_LAYOUT_REFRESH",this())
 
-
     widget('ButtonHide').do_command(hide_grid)
 
+    def do_grid_forget():
+        layout_before = this().Layout
+        this().grid_forget()
+        send('BASE_LAYOUT_CHANGED',layout_before) # depending on the layout change we need less or more actions
+
+    #widget('ButtonForget').do_command(do_grid_forget)
 
     def set_row_height(rows_widget=widget('EntryRows'),height_widget=widget('EntryRowHeight'),pad_widget = widget('EntryRowPad'),weight_widget=widget('EntryRowWeight')):
 
@@ -112,6 +124,16 @@ def main():
         except ValueError: return
 
         deleteWidgetsForName(container(),NONAME)
+
+        row_conf = container().grid_conf_rows
+        col_conf = container().grid_conf_cols
+        
+        for i in range(row_conf[0]):
+            container().grid_rowconfigure(i,minsize = 0,pad=0,weight=0)
+
+        for i in range(col_conf[0]):
+            container().grid_columnconfigure(i,minsize = 0,pad=0,weight=0)
+
         selection_before = Selection()
         for row in range(rows):
             fill_cell = {'height': '0', 'width': '0', 'relief': 'solid','bg':'#b3d9d9','padx':0,'pady':0}
@@ -148,21 +170,19 @@ def main():
             me.after(step,mouse_move,me)
 
 
-
     def on_mouse_up(me,event):
         me.mydata[6] = False # stop timer
         (col,row) = me.container().grid_location(me.winfo_rootx()-me.container().winfo_rootx(),me.winfo_rooty()-me.container().winfo_rooty())
         if col < 0: col = 0
         if row < 0: row = 0
         me.rcgrid(row,col)
-        send('BASE_LAYOUT_CHANGED',NOLAYOUT) # depending on the layout change we need less or more actions
+        send('BASE_LAYOUT_CHANGED',PLACELAYOUT) # depending on the layout change we need less or more actions
+        send('POSITION_CHANGED',me)
+        send('LAYOUT_VALUES_REFRESH',me)
 
-        #end('POSITION_CHANGED',me)
-        #send('LAYOUT_VALUES_REFRESH',me)
+    def on_mouse_down(me,event,me_root=container().myRoot()):
 
-
-    def on_mouse_down(me,event):
-
+        #me_root.iconify()
         xpos = me.winfo_rootx()-me.container().winfo_rootx()
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
         me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
@@ -201,6 +221,15 @@ def main():
     widget('ButtonGrid').do_command(do_grid)
 
 
+    def do_grid0():
+        layout_before = this().Layout
+        grid()
+        if container().is_mouse_select_on: do_mouse_on(this())
+        send('BASE_LAYOUT_CHANGED',layout_before) # depending on the layout change we need less or more actions
+
+    widget('Grid()').do_command(do_grid0)
+
+
     def update_grid_table_on_enter(
 
     Rows=widget('EntryRows'),
@@ -214,30 +243,29 @@ def main():
     set_row_height=set_row_height
     ,set_col_width=set_col_width):
 
-        if this() != container(): return
 
-        not_initialized = this().grid_conf_rows == None
+        not_initialized = container().grid_conf_rows == None
         if not_initialized:
-            this().grid_conf_rows = (0,25,0,0)
-            this().grid_conf_cols = (0,75,0,0)
+            container().grid_conf_rows = (0,25,0,0)
+            container().grid_conf_cols = (0,75,0,0)
         
         Rows.delete(0,'end')
-        Rows.insert(0,this().grid_conf_rows[0])
+        Rows.insert(0,container().grid_conf_rows[0])
         Height.delete(0,'end')
-        Height.insert(0,this().grid_conf_rows[1])
+        Height.insert(0,container().grid_conf_rows[1])
         RowPad.delete(0,'end')
-        RowPad.insert(0,this().grid_conf_rows[2])
+        RowPad.insert(0,container().grid_conf_rows[2])
         RowWeight.delete(0,'end')
-        RowWeight.insert(0,this().grid_conf_rows[3])
+        RowWeight.insert(0,container().grid_conf_rows[3])
 
         Cols.delete(0,'end')
-        Cols.insert(0,this().grid_conf_cols[0])
+        Cols.insert(0,container().grid_conf_cols[0])
         Width.delete(0,'end')
-        Width.insert(0,this().grid_conf_cols[1])
+        Width.insert(0,container().grid_conf_cols[1])
         ColPad.delete(0,'end')
-        ColPad.insert(0,this().grid_conf_cols[2])
+        ColPad.insert(0,container().grid_conf_cols[2])
         ColWeight.delete(0,'end')
-        ColWeight.insert(0,this().grid_conf_cols[3])
+        ColWeight.insert(0,container().grid_conf_cols[3])
 
         set_row_height()
         set_col_width()
@@ -247,88 +275,5 @@ def main():
 
 main()
 
-'''
-def do_ok(rows_wi=widget('Rows'),cols_wi=widget('Cols'),RowHeight = widget('RowHeight'), ColWidth = widget('ColWidth'),show_row=widget('row'),show_col=widget('col'),clear_button=widget('Clear')):
-
-
-    grid_container = container()
- 
-    deleteWidgetsForName(grid_container,NONAME)
- 
-    selection_before = Selection()
-    
-
-    rows_limit = int(rows_wi.get())
-    cols_limit = int(cols_wi.get())
-
-
-
-    set_row_height()
-    set_col_width()
-
-    RowHeight.do_command(set_row_height)
-    RowHeight.do_event('<Return>',set_row_height)
-    ColWidth.do_command(set_col_width)
-    ColWidth.do_event('<Return>',set_col_width)
-
-    for row in range(rows_limit):
-        for col in range(cols_limit):
-            Label(NONAME,**fill_cell).rcgrid(row,col,sticky='news')
-            this().lower()
-  
-    clear_button.do_command(lambda cont = grid_container: deleteWidgetsForName(cont,NONAME))
-
-    setSelection(selection_before)
-
-widget('OK').do_command(do_ok)
-'''
-
-'''
-    SpecialGrid = True
-
-    
-    GridEntries = [None,None]
-
- 
-    def store_grid_entries(message,entries=GridEntries):
-        entries[0] = message[0]
-        entries[1] = message[1]
-        
-    do_receive("BASELAYOUT_GRIDENTRIES",store_grid_entries,wishMessage=True)
-
-    send("BASELAYOUT_GET_GRIDENTRIES") # GridLayout exists earlier, so we have to request the information
-
-
-        if SpecialGrid: grid_mouse_on()
-
-    def grid_mouse_on():
-        this().mydata=(None,None,'mouse')
-        do_event('<Button-1>',grid_mouse_down,wishWidget=True,wishEvent=True)
-        do_event('<ButtonRelease-1>',grid_mouse_up,wishWidget=True,wishEvent=True)
-
-
-
-    def grid_mouse_down(me,event):
-
-        xpos = me.winfo_rootx()-me.container().winfo_rootx()
-        ypos = me.winfo_rooty()-me.container().winfo_rooty()
-        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
-        me.yxplace(ypos,xpos)
-        mouse_move(me)
-
-        if this() != me:
-            setWidgetSelection(me)
-            send('SELECTION_CHANGED')
-
-                # this we should send to grid, how do we get it?
-                (col,row) = me.container().grid_location(me.winfo_rootx()-me.container().winfo_rootx(),me.winfo_rooty()-me.container().winfo_rooty())
-                wi_row.text(str(row))
-                wi_col.text(str(col))
-                GridEntries[0].delete(0,'end')
-                GridEntries[0].insert(0,str(row))
-                GridEntries[1].delete(0,'end')
-                GridEntries[1].insert(0,str(col))
-
-'''
 
 ### ========================================================

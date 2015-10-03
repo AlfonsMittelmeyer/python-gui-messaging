@@ -78,7 +78,7 @@ def entry_event(me):
 
 enable_flag = [False]
 
-def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("LayoutOptions"),e_event=entry_event,lbox_select=listbox_selection):
+def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("LayoutOptions"),e_event=entry_event,lbox_select=listbox_selection,entry_width=7):
     if isinstance(msg,bool):
         if msg:
             if not onflag[0]:
@@ -93,7 +93,7 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
         # reset references for value refresh  to not active
         thisframe.mydata = [None,None,None,None,None,None]
         # if the widget has a layout, then show it
-        if msg.Layout & LAYOUTALL:
+        if msg.Layout & LAYOUTALL and msg.Layout != MENULAYOUT:
             current_selection = Selection() # save current selection
             cont.grid()			
 
@@ -105,12 +105,12 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
             # make a list of tuples of the layout dictionary and sort important options at the beginning
             layoutlist = []
             for entry in (
-"x",
 "y",
-"column",
+"x",
 "row",
-"columnspan",
+"column",
 "rowspan",
+"columnspan",
 "side",
 "sticky",
 "width",
@@ -140,10 +140,10 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                 goIn()
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
                 if entry[0] in (
-"x", # Place Layout
 "y", # Place Layout
-"column", # Grid Layout
+"x", # Place Layout
 "row", # Grid Layout
+"column", # Grid Layout
 "columnspan", # Grid Layout (Integer default 1)
 "rowspan", 
 "width", # Place Layout (Default leer "" oder Integer)
@@ -153,16 +153,16 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 "pady", # Pack Layout und Grid Layout (Integer default 0)
 "ipadx", # Pack Layout und Grid Layout (Integer default 0)
 "ipady"): # Pack Layout und Grid Layout (Integer default 0)
-                    Spinbox("Entry",from_=0,to=3000,increment=1)
+                    Spinbox("Entry",from_=0,to=3000,increment=1,width=entry_width)
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
                 elif entry[0] in (
 "relx", # Place Layout (Integer default 0)
 "rely", # Place Layout (Integer default 0)
 "relwidth", # Place Layout (Default leer "" oder Integer)
 "relheight"):  # Place Layout (Default leer "" oder Integer): 
-                    Spinbox("Entry",from_=0,to=1,increment=0.01)
+                    Spinbox("Entry",from_=0,to=1,increment=0.01,width=entry_width)
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
-                else: Entry("Entry")
+                else: Entry("Entry",width=entry_width)
                 do_action('color',lambda me = this(): me.config(bg='white'))
                 this().delete(0,END)	
                 this().insert(0,entry[1])

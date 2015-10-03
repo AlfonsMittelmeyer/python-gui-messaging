@@ -1,14 +1,14 @@
-Spinbox('incX',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'row': '0'})
-Spinbox('incY',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'row': '1'})
+Spinbox('incX',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'row': '1'})
+Spinbox('incY',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'row': '0'})
 Label('PlaceTitle',**{'text': 'place', 'font': 'TkDefaultFont 9 bold', 'bd': '3','fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
-Label('label',**{'text': 'inc x'}).grid(**{'column': '4', 'row': '0'})
-Label('label',**{'text': 'y', 'padx': '3'}).grid(**{'column': '1', 'row': '1'})
-Label('label',**{'text': 'inc y'}).grid(**{'column': '4', 'row': '1'})
+Label('label',**{'text': 'inc x'}).grid(**{'column': '4', 'row': '1'})
+Label('label',**{'text': 'y', 'padx': '3'}).grid(**{'column': '1', 'row': '0'})
+Label('label',**{'text': 'inc y'}).grid(**{'column': '4', 'row': '0'})
 Button('Adjust',**{'text': 'adjust', 'state': 'disabled'}).grid(**{'row': '1'})
 Button('Place',**{'text': 'PLACE', 'bg': 'green','bd': '3', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '4', 'sticky': 'nsew', 'row': '3'})
-Spinbox('Y',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'row': '1'})
-Spinbox('X',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'row': '0'})
-Label('Label',**{'text': 'x', 'padx': '3'}).grid(**{'column': '1', 'row': '0'})
+Spinbox('Y',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'row': '0'})
+Spinbox('X',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'row': '1'})
+Label('Label',**{'text': 'x', 'padx': '3'}).grid(**{'column': '1', 'row': '1'})
 
 ### CODE ===================================================
 
@@ -19,20 +19,6 @@ def main():
     widget('incX').insert(0,"10")
     widget('incY').delete(0,END)
     widget('incY').insert(0,"10")
-
-    # -------------- X,Y Spinbox commands and Return key events ----------------------------------
-
-    # do the place layout and send a 'BASE_LAYOUT_CHANGED' message
-
-    def do_place(yentry = widget("Y"), xentry = widget("X")):
-        layout_before = this().Layout
-        yxplace(yentry.get(),xentry.get())
-        send('BASE_LAYOUT_CHANGED',layout_before)
-
-    widget("Y").do_command(do_place)
-    widget("X").do_command(do_place)
-    widget("Y").do_event("<Return>",do_place)
-    widget("X").do_event("<Return>",do_place)
 
     # -------------- incX,incY Spinbox commands and Return key events ----------------------------------
 
@@ -96,8 +82,11 @@ def main():
             me.after(step,mouse_move,me)
 
     def on_mouse_down(me,event):
-        xpos = int(me.getlayout("x"))
-        ypos = int(me.getlayout("y"))
+        #xpos = int(me.getlayout("x"))
+        #ypos = int(me.getlayout("y"))
+        xpos = me.winfo_rootx()-me.container().winfo_rootx()
+        ypos = me.winfo_rooty()-me.container().winfo_rooty()
+
         me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
         mouse_move(me)
 
@@ -127,7 +116,44 @@ def main():
         send('POSITION_CHANGED',this()) # show this in X an Y Spinbox, 'bd': '3'
         send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
-    widget("Place").do_command(do_place_at00)
+    #widget("Place").do_command(do_place_at00)
+
+
+    def do_place_dependent(mouse_on = do_mouse_on):
+
+        layout_before = this().Layout
+
+        if layout_before == NOLAYOUT: yxplace(0,0)
+        elif layout_before != PLACELAYOUT:
+            (x,y) = this().winfo_rootx()-container().winfo_rootx(),this().winfo_rooty()-container().winfo_rooty()
+            yxplace(y,x)
+        
+        if container().is_mouse_select_on: mouse_on(this())
+        else: send("SWITCH_MOUSE_ON")
+
+        send('POSITION_CHANGED',this()) # show this in X an Y Spinbox, 'bd': '3'
+        send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
+
+    widget("Place").do_command(do_place_dependent)
+
+
+
+    # -------------- X,Y Spinbox commands and Return key events ----------------------------------
+
+    # do the place layout and send a 'BASE_LAYOUT_CHANGED' message
+
+    def do_place(yentry = widget("Y"), xentry = widget("X"),mouse_on=do_mouse_on):
+        layout_before = this().Layout
+        yxplace(yentry.get(),xentry.get())
+
+        if container().is_mouse_select_on: mouse_on(this())
+        send('BASE_LAYOUT_CHANGED',layout_before)
+
+    widget("Y").do_command(do_place)
+    widget("X").do_command(do_place)
+    widget("Y").do_event("<Return>",do_place)
+    widget("X").do_event("<Return>",do_place)
+
 
     # -------------- Receivers for refresh ----------------------------------
 

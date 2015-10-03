@@ -28,7 +28,7 @@ widget("unlayout").do_command(do_unlayout)
 
 def enable_unlayout(button=widget("unlayout")):
 
-    if this().Layout == NOLAYOUT or this().Layout == LAYOUTNEVER: button['state'] = 'disabled'
+    if this().Layout in (NOLAYOUT,LAYOUTNEVER,MENUITEMLAYOUT): button['state'] = 'disabled'
     else: button['state'] = 'normal'
 
 do_receive('SELECTION_LAYOUT_CHANGED',enable_unlayout)

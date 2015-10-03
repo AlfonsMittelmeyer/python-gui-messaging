@@ -1,5 +1,3 @@
-goIn()
-
 MenuItem('Special','cascade',**{'label': 'Special', 'activebackground': ''})
 goIn()
 
@@ -21,10 +19,33 @@ widget('Refresh').layout(index=2)
 
 def go_TopRoot():
     gotoTop()
-    send('SELECTION_CHANGED',this())
+    send('SELECTION_CHANGED')
 
 widget('Toproot').do_command(go_TopRoot)
-widget("Refresh").do_command(lambda: send('SELECTION_CHANGED',this()))
+
+def do_refresh():
+    selection_before = Selection()
+
+    gotoTop() # go into the TopRoot
+    goto('DynTkInterGuiDesigner')
+
+    my_geo = this().geometry()
+    find_plus = my_geo.find("+")
+    find_minus = my_geo.find("-")
+    if find_plus < 0: begin = find_minus
+    elif find_minus < 0: begin = find_plus
+    else: begin = min(find_plus,find_minus)
+    my_geo = my_geo[begin:]
+    
+    this().geometry('') # refresh the geometry of the GUI Designer
+    this().withdraw()
+    this().geometry(my_geo)
+    this().deiconify()
+
+    setSelection(selection_before)
+    send('SELECTION_CHANGED') # refresh display of the current selection
+
+widget("Refresh").do_command(do_refresh)
 
 ### ========================================================
 
@@ -44,8 +65,8 @@ MenuItem('Load & Run','command',**{'label': 'Load & Run'})
 MenuItem('Save','command',**{'label': 'Save'})
 
 widget('Save').layout(index=1)
-widget('Load & Run').layout(index=2)
-widget('Load & Edit').layout(index=3)
+widget('Load & Edit').layout(index=2)
+widget('Load & Run').layout(index=3)
 
 
 ### CODE ===================================================
@@ -92,11 +113,11 @@ goOut()
 widget('File').layout(index=1)
 widget('Special').layout(index=2)
 
+### CODE ===================================================
+
 def enable_file(wi=widget('File')):
     wi.config(state = 'disabled' if isinstance(container(),_CreateTopLevelRoot) else 'normal')
 
 do_receive("SELECTION_CHANGED",enable_file)
 
-
-goOut()
-
+### ========================================================

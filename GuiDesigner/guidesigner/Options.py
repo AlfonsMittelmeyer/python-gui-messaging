@@ -41,4 +41,18 @@ def switch_mouse_on(mouse_button=widget("Mouse"),funct=function_callback):
 
 do_receive("SWITCH_MOUSE_ON",switch_mouse_on)
 
+
+def set_option_buttons(message,buttons=(widget("Config"),widget("Layout"),widget("Create"),widget("Mouse"))):
+    for i in range(len(message)):
+        if message[i] != buttons[i].mydata: buttons[i].invoke()
+
+do_receive('SET_OPTION_BUTTONS',set_option_buttons,wishMessage=True)
+
+
+def check_mouse_on(mouse=widget('Mouse')):
+    if container().is_mouse_select_on != mouse.mydata: mouse.invoke()
+
+    
+do_receive('SELECTION_CHANGED',check_mouse_on)
+
 ### ========================================================

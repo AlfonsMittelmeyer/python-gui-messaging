@@ -384,7 +384,7 @@ class GuiElement:
 
     def setconfig(self,name,value):
         if name == 'title': self.title_changed = True
-        elif name == 'geometry': self.geometry_changed = True
+        elif name == 'geometry': self.geometry_changed = value != ''
         confdict={}
         confdict[name] = value
         try: self.config(**confdict)
