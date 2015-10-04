@@ -17,7 +17,6 @@ Button('ButtonGrid',**{'text': 'GRID', 'font': 'TkDefaultFont 9 bold', 'bd': '3'
 Label('lcols',**{'text': 'Columns', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '0'})
 Label('lpad',**{'text': 'pad'}).grid(**{'sticky': 'e', 'row': '3'})
 Label('lheight',**{'text': 'Min Height'}).grid(**{'sticky': 'e', 'row': '2'})
-Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
 Label('LableTitle',**{'text': 'grid', 'font': 'TkDefaultFont 9 bold', 'bd': '3','fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
 
 ### CODE ===================================================

@@ -1,10 +1,10 @@
-Button("gotoRoot",text="\\\\")	
+Button("gotoRoot",text="/")	
 pack(side=LEFT)
 
-Button("unlayout",text="unlayout")
+Button("rename",text="rename")
 pack(side=LEFT,anchor=W)
 
-Button("rename",text="rename")
+Button("unlayout",text="unlayout")
 pack(side=LEFT,anchor=W)
 
 Button("destroy",text="destroy")

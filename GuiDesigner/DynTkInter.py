@@ -1639,6 +1639,8 @@ def Lock(): this().isLocked=True
 
 indent = ""
 
+SAVE_ALL = False
+
 def WidgetClass(widget):
     if isinstance(widget,MenuItem) or isinstance(widget,MenuDelimiter): classString = str(type(widget))
     else: classString = str(widget.tkClass)
@@ -1656,7 +1658,11 @@ def del_config_before_compare(dictionaryWidget):
         if not this().title_changed: del dictionaryWidget['title']
     if 'geometry' in dictionaryWidget:
         if not this().geometry_changed: del dictionaryWidget['geometry']
-    dictionaryWidget.pop('link',None) # links shouldn'd be saved. Otherwise we would have the widgets twice
+    if 'link' in dictionaryWidget:
+        if dictionaryWidget['link'] == '': del dictionaryWidget['link']
+    if 'cursor' in dictionaryWidget:
+        if dictionaryWidget['cursor'] == '': del dictionaryWidget['cursor']
+    #dictionaryWidget.pop('link',None) # links shouldn'd be saved. Otherwise we would have the widgets twice
     if isinstance(this(),Listbox) and dictionaryWidget['text'] == '': del dictionaryWidget['text']
     
 def get_config_compare():
@@ -1832,12 +1838,17 @@ def save_widget(filehandle,name):
         filehandle.write(indent+thisClass+"('"+name+"'")
 
     conf_dict = get_save_config()
+    if SAVE_ALL: conf_dict.pop('link',None)
+    
     if len(conf_dict) != 0:
-        filehandle.write(",**"+str(get_save_config())+")")
+        filehandle.write(",**"+str(conf_dict)+")")
     else:
          filehandle.write(")")
 
-    if not save_sub_container(filehandle) and is_immediate_layout(): filehandle.write('.')
+    if 'link' in conf_dict:
+        if is_immediate_layout(): filehandle.write('.')
+    else:
+        if not save_sub_container(filehandle) and is_immediate_layout(): filehandle.write('.')
     save_immediate_layout(filehandle)
     filehandle.write("\n")
 
@@ -1845,28 +1856,39 @@ def save_widget(filehandle,name):
 def saveContainer(filehandle):
 
     dictionary = container().Dictionary.elements
-    
-    # hier werden die Elemente gesichert
-    for n,e in dictionary.items():
-        if n != NONAME:
-            for x in e:
-                setWidgetSelection(x)
-                save_widget(filehandle,n)
+ 
+    # sorted name list
+    namelist = []
+    for name in dictionary:
+        if name != NONAME: namelist.append(name)
+    namelist.sort()
+
+    # now we save the widgets in the container
+    for name in namelist:
+        e = dictionary[name]
+        for x in e:
+            setWidgetSelection(x)
+            save_widget(filehandle,name)
 
     save_pack_entries(filehandle)
 
     # was ist mit gelocktem code? Der Code sollte geschrieben werden, nur die widgets nicht
-    if len(container().CODE) != 0:
+    code_len = len(container().CODE)
+    if code_len != 0:
         filehandle.write("\n### CODE ===================================================\n")
+        if container().CODE[code_len-1] != '\n': container().CODE = container().CODE + '\n'
         filehandle.write(container().CODE)
-        filehandle.write("### ========================================================\n")
         
+        filehandle.write("### ========================================================\n")
 
-def saveWidgets(filehandle,withConfig=False):
+def saveWidgets(filehandle,withConfig=False,saveAll=False):
 
+    global SAVE_ALL
     if not this().save: return	# if this shouldn't be saved
 
-    if this() == container():
+    SAVE_ALL = saveAll
+
+    if this() == container() and not isinstance(this(),Toplevel): 
 
         if withConfig:
             conf_dict = get_save_config()
@@ -1875,6 +1897,8 @@ def saveWidgets(filehandle,withConfig=False):
 
     else: 
         save_widget(filehandle,getNameAndIndex()[0])
+        
+    SAVE_ALL = False
 
 # ========== End save functions ===========================================================
 

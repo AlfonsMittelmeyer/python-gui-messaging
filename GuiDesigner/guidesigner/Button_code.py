@@ -1,3 +1,5 @@
+### CODE ===================================================
+
 def test_syntax(me,textwidget):
     result = True
     selection = Selection()
@@ -27,7 +29,7 @@ def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax):
             setWidgetSelection(me)
             widget("Syntax").config(text="IOError: couldn't open file 'tempcode.txt'",fg="red")
         if is_open:
-            fh.write(current_selection._widget.CODE)
+            fh.write(textwidget.get("1.0",'end-1c'))
             fh.close()
             undo_receiveAll(current_selection._widget)
             setWidgetSelection(current_selection._widget)
@@ -69,16 +71,12 @@ def load_from_file(me,textwidget):
         widget('IOError').pack(side=LEFT)
     setSelection(selection)
 
-def create_toplevel(ok_command = do_OK,load_frame=create_LoadFrame,load_execute = load_from_file,run_code=execute_code,do_test=test_syntax):
+def create_toplevel(message,ok_command = do_OK,load_frame=create_LoadFrame,load_execute = load_from_file,run_code=execute_code,do_test=test_syntax):
+
     current_selection = Selection()
-    if this() == _AppRoot._widget:
-        name_index = ("Application",-1)
-    else:
-        if this() == container(): goOut()
-        name_index = getNameAndIndex()
 
     code = this().CODE
-    Toplevel("ToplevelCodeEdit",title = "Code Edit for "+ name_index[0])
+    Toplevel("ToplevelCodeEdit",title = "Code Edit for "+ message)
     Text('CodeText',width=120,font=('Courier New',11)).insert(END,code)
     textwidget = widget('CodeText')
 
@@ -106,11 +104,8 @@ def create_toplevel(ok_command = do_OK,load_frame=create_LoadFrame,load_execute 
     goIn()
     send('SELECTION_CHANGED',this())
 
-do_command(create_toplevel)
 
-def enable_button(code = widget("code")):
-    if this().isContainer: code.config(state = 'normal') 
-    else: code.config(state = 'disabled')
+do_receive('EDIT_CODE',create_toplevel,wishMessage=True)
 
-do_receive('SELECTION_CHANGED',enable_button)
 
+### ========================================================

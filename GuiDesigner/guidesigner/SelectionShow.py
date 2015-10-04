@@ -105,12 +105,17 @@ def for_names(frame_Selection = Selection(),button_command = do_button_command,f
     if selection_before._container is selection_before._widget: config(bg="yellow") # if the container is already selected, mark it with yellow background
     if len(selection_before._container.CODE) != 0: config(highlightthickness=1, highlightbackground = "blue", relief="solid")
 
-    row = 0
-    for name, entry in selection_before._container.Dictionary.elements.items():
+    # sorted names
+    namelist = []
+    for name in selection_before._container.Dictionary.elements:
+        if name != NONAME: namelist.append(name)
+    namelist.sort()
 
-        if name != NONAME:
-            for_entries(row,name,entry,selection_before)
-            row += 1
+    row = 0
+    for name in namelist:
+        entry = selection_before._container.Dictionary.elements[name]
+        for_entries(row,name,entry,selection_before)
+        row += 1
 
     frame_Selection._container.pack()	
     setSelection(selection_before) # restore the user selection
