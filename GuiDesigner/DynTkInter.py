@@ -75,25 +75,46 @@ def widget_exists(widget): return widget in EXISTING_WIDGETS
 
 class Dummy: pass
 
-def grid_configure_cols(thiswidget,data):
+def grid_configure_multi(data):
+    count = data[0]
+    multi = []
+    for i in range(count): multi.append([False,None])
+    for i in range(len(data)):
+        if i != 0:
+            multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3]}]
+    return multi
 
-    cols = data[0]
-    col_width = data[1]
-    padvalue = data[2]
-    weightvalue=data[3]
+
+def grid_configure_cols(cont):
+
+    cols = cont.grid_conf_cols[0]
+
+    if len(cont.grid_multi_conf_cols) == 0:
+        for i in range(cols): cont.grid_multi_conf_cols.append([False,None])
+
+    to_insert =  {'minsize':cont.grid_conf_cols[1],'pad':cont.grid_conf_cols[2],'weight':cont.grid_conf_cols[3]}
+    
+    for col in range(cols):
+        if cont.grid_multi_conf_cols[col][0] == False:
+            cont.grid_multi_conf_cols[col][1] = dict(to_insert)
 
     for col in range(cols):
-        thiswidget.grid_columnconfigure(col,minsize = col_width,pad=padvalue,weight=weightvalue)
+        cont.grid_columnconfigure(col,**(cont.grid_multi_conf_cols[col][1]))
 
-def grid_configure_rows(thiswidget,data):
+def grid_configure_rows(cont):
 
-    rows = data[0]
-    row_height = data[1]
-    padvalue = data[2]
-    weightvalue=data[3]
+    rows = cont.grid_conf_rows[0]
+
+    if len(cont.grid_multi_conf_rows) == 0:
+        for i in range(rows): cont.grid_multi_conf_rows.append([False,None])
+
+    to_insert =  {'minsize':cont.grid_conf_rows[1],'pad':cont.grid_conf_rows[2],'weight':cont.grid_conf_rows[3]}
+    
+    for row in range(rows):
+        if cont.grid_multi_conf_rows[row][0] == False: cont.grid_multi_conf_rows[row][1] = dict(to_insert)
 
     for row in range(rows):
-        thiswidget.grid_rowconfigure(row,minsize =row_height,pad=padvalue,weight=weightvalue)
+        cont.grid_rowconfigure(row,**(cont.grid_multi_conf_rows[row][1]))
 
 
 class GuiElement:
@@ -102,8 +123,15 @@ class GuiElement:
 
         EXISTING_WIDGETS[self] = None
         self.is_mouse_select_on = False
+
         self.grid_conf_rows = None
         self.grid_conf_cols = None
+        self.grid_conf_individual_wish = False
+        self.grid_conf_individual_has = False
+        self.grid_conf_individual_done = False
+        self.grid_multi_conf_cols = []
+        self.grid_multi_conf_rows = []
+
 
         if select: _Selection._widget = self
 
@@ -677,6 +705,8 @@ class Tk(GuiElement,StatTkInter.Tk):
         
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
+        grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+        grid_multi_cols = kwargs.pop('grid_multi_cols',None)
         self.link = kwargs.pop('link','')
         mytitle = kwargs.pop('title',None)
         mygeometry = kwargs.pop('geometry',None)
@@ -708,13 +738,21 @@ class Tk(GuiElement,StatTkInter.Tk):
         global LAYOUTNEVER
         self.Layout = LAYOUTNEVER
 
+        if grid_multi_rows != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+        if grid_multi_cols != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+
         if grid_cols != None:
             self.grid_conf_cols = eval(grid_cols)
-            grid_configure_cols(self,self.grid_conf_cols)
+            grid_configure_cols(self)
 
         if grid_rows != None:
             self.grid_conf_rows = eval(grid_rows)
-            grid_configure_rows(self,self.grid_conf_rows)
+            grid_configure_rows(self)
         
         self.master = None
         self.isMainWindow = True
@@ -742,14 +780,24 @@ class Tk(GuiElement,StatTkInter.Tk):
         else:
             grid_cols = kwargs.pop('grid_cols',None)
             grid_rows = kwargs.pop('grid_rows',None)
+            grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+            grid_multi_cols = kwargs.pop('grid_multi_cols',None)
+
+            if grid_multi_rows != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+            if grid_multi_cols != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
 
             if grid_cols != None:
                 self.grid_conf_cols = eval(grid_cols)
-                grid_configure_cols(self,self.grid_conf_cols)
+                grid_configure_cols(self)
 
             if grid_rows != None:
                 self.grid_conf_rows = eval(grid_rows)
-                grid_configure_rows(self,self.grid_conf_rows)
+                grid_configure_rows(self)
 
             if 'title' in kwargs: 
                 self.title(kwargs['title'])
@@ -804,6 +852,8 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
 
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
+        grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+        grid_multi_cols = kwargs.pop('grid_multi_cols',None)
 
         self.link = ""
         if "link" in kwargs:
@@ -831,13 +881,21 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         self.master = _TopLevelRoot._container
         GuiElement.__init__(self,myname,select)
 
+        if grid_multi_rows != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+        if grid_multi_cols != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+
         if grid_cols != None:
             self.grid_conf_cols = eval(grid_cols)
-            grid_configure_cols(self,self.grid_conf_cols)
+            grid_configure_cols(self)
 
         if grid_rows != None:
             self.grid_conf_rows = eval(grid_rows)
-            grid_configure_rows(self,self.grid_conf_rows)
+            grid_configure_rows(self)
 
         global LAYOUTNEVER
 
@@ -864,14 +922,24 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         else:
             grid_cols = kwargs.pop('grid_cols',None)
             grid_rows = kwargs.pop('grid_rows',None)
+            grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+            grid_multi_cols = kwargs.pop('grid_multi_cols',None)
+
+            if grid_multi_rows != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+            if grid_multi_cols != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
 
             if grid_cols != None:
                 self.grid_conf_cols = eval(grid_cols)
-                grid_configure_cols(self,self.grid_conf_cols)
+                grid_configure_cols(self)
 
             if grid_rows != None:
                 self.grid_conf_rows = eval(grid_rows)
-                grid_configure_rows(self,self.grid_conf_rows)
+                grid_configure_rows(self)
  
             if 'title' in kwargs: 
                 self.title(kwargs['title'])
@@ -927,14 +995,24 @@ class Canvas(GuiElement,StatTkInter.Canvas):
 
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
+        grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+        grid_multi_cols = kwargs.pop('grid_multi_cols',None)
+
+        if grid_multi_rows != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+        if grid_multi_cols != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
 
         if grid_cols != None:
             self.grid_conf_cols = eval(grid_cols)
-            grid_configure_cols(self,self.grid_conf_cols)
+            grid_configure_cols(self)
 
         if grid_rows != None:
             self.grid_conf_rows = eval(grid_rows)
-            grid_configure_rows(self,self.grid_conf_rows)
+            grid_configure_rows(self)
 
 
 class Checkbutton(GuiElement,StatTkInter.Checkbutton):
@@ -963,6 +1041,8 @@ class Frame(GuiElement,StatTkInter.Frame):
 
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
+        grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+        grid_multi_cols = kwargs.pop('grid_multi_cols',None)
 
         self.link = ""
         if "link" in kwargs:
@@ -976,13 +1056,21 @@ class Frame(GuiElement,StatTkInter.Frame):
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
 
+        if grid_multi_rows != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+        if grid_multi_cols != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+
         if grid_cols != None:
             self.grid_conf_cols = eval(grid_cols)
-            grid_configure_cols(self,self.grid_conf_cols)
+            grid_configure_cols(self)
 
         if grid_rows != None:
             self.grid_conf_rows = eval(grid_rows)
-            grid_configure_rows(self,self.grid_conf_rows)
+            grid_configure_rows(self)
 
         FileImportContainer(self)
 
@@ -994,13 +1082,24 @@ class Frame(GuiElement,StatTkInter.Frame):
         else:
             grid_cols = kwargs.pop('grid_cols',None)
             grid_rows = kwargs.pop('grid_rows',None)
+            grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+            grid_multi_cols = kwargs.pop('grid_multi_cols',None)
+
+            if grid_multi_rows != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+            if grid_multi_cols != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+            
             if grid_cols != None:
                 self.grid_conf_cols = eval(grid_cols)
-                grid_configure_cols(self,self.grid_conf_cols)
+                grid_configure_cols(self)
 
             if grid_rows != None:
                 self.grid_conf_rows = eval(grid_rows)
-                grid_configure_rows(self,self.grid_conf_rows)
+                grid_configure_rows(self)
 
             if 'title' in kwargs: kwargs.pop('title',None)
             if 'geometry' in kwargs: kwargs.pop('geometry',None)
@@ -1076,6 +1175,8 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
 
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
+        grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+        grid_multi_cols = kwargs.pop('grid_multi_cols',None)
 
         self.link = ""
         if "link" in kwargs:
@@ -1089,13 +1190,21 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
 
+        if grid_multi_rows != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+        if grid_multi_cols != None:
+            self.grid_conf_individual_has = True
+            self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+
         if grid_cols != None:
             self.grid_conf_cols = eval(grid_cols)
-            grid_configure_cols(self,self.grid_conf_cols)
+            grid_configure_cols(self)
 
         if grid_rows != None:
             self.grid_conf_rows = eval(grid_rows)
-            grid_configure_rows(self,self.grid_conf_rows)
+            grid_configure_rows(self)
 
         FileImportContainer(self)
 
@@ -1108,13 +1217,24 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
 
             grid_cols = kwargs.pop('grid_cols',None)
             grid_rows = kwargs.pop('grid_rows',None)
+            grid_multi_rows = kwargs.pop('grid_multi_rows',None)
+            grid_multi_cols = kwargs.pop('grid_multi_cols',None)
+
+            if grid_multi_rows != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+            if grid_multi_cols != None:
+                self.grid_conf_individual_has = True
+                self.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+            
             if grid_cols != None:
                 self.grid_conf_cols = eval(grid_cols)
-                grid_configure_cols(self,self.grid_conf_cols)
+                grid_configure_cols(self)
 
             if grid_rows != None:
                 self.grid_conf_rows = eval(grid_rows)
-                grid_configure_rows(self,self.grid_conf_rows)
+                grid_configure_rows(self)
 
             if 'title' in kwargs: kwargs.pop('title',None)
             if 'geometry' in kwargs: kwargs.pop('geometry',None)
@@ -1803,6 +1923,14 @@ def save_sub_container(filehandle):
     filehandle.write("\n"+indent+"goOut()\n")
     return True
 
+def check_individual_grid(multi_list):
+    is_individual = False
+    for entry in multi_list:
+        if entry[0]:
+            is_individual = True
+            break
+    return is_individual
+
 def get_save_config():
 
     # get config ===============================
@@ -1819,9 +1947,26 @@ def get_save_config():
 
     if this().grid_conf_rows != None:
         if this().grid_conf_rows[0] != 0:
+            if this().grid_conf_individual_has:
+                if check_individual_grid(this().grid_multi_conf_rows):
+                    conf_list = [len(this().grid_multi_conf_rows)]
+                    index = 0
+                    for entry in this().grid_multi_conf_rows:
+                        if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
+                        index += 1
+                    dictionaryConfig['grid_multi_rows'] = str(conf_list)
             dictionaryConfig['grid_rows'] = str(this().grid_conf_rows)
+
     if this().grid_conf_cols != None:
         if this().grid_conf_cols[0] != 0:
+            if this().grid_conf_individual_has:
+                if check_individual_grid(this().grid_multi_conf_cols):
+                    conf_list = [len(this().grid_multi_conf_cols)]
+                    index = 0
+                    for entry in this().grid_multi_conf_cols:
+                        if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
+                        index += 1
+                    dictionaryConfig['grid_multi_cols'] = str(conf_list)
             dictionaryConfig['grid_cols'] = str(this().grid_conf_cols)
             
     return dictionaryConfig

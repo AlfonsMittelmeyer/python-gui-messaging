@@ -1,25 +1,31 @@
+config(**{'grid_cols': '(4, 50, 0, 0)', 'grid_rows': '(6, 20, 0, 0)'})
+
 Entry('EntryRows',**{'width': '6'}).grid(**{'column': '1', 'row': '1'})
 Entry('EntryCols',**{'width': '6'}).grid(**{'column': '2', 'row': '1'})
-Spinbox('EntryRowHeight',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '2'})
-Spinbox('EntryColWidth',**{'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '2'})
-Spinbox('EntryRowPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '1', 'row': '3'})
-Spinbox('EntryColPad',**{'from': '0.0', 'width': '4', 'to': '1000.0', 'cursor': ''}).grid(**{'column': '2', 'row': '3'})
+Checkbutton('Individual',**{'highlightthickness': '0', 'text': 'Indi-\nvidual', 'highlightbackground': '#ff8000'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '4'})
+Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '5'})
+Spinbox('EntryRowHeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '2'})
+Spinbox('EntryColWidth',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'row': '2'})
+Spinbox('EntryRowPad',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '3'})
+Spinbox('EntryColPad',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'row': '3'})
 Spinbox('EntryRowWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '4'})
 Spinbox('EntryColWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'row': '4'})
-Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
-
-Button('ButtonHide',**{'text': 'Hide', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '4'})
-Button('Grid()',**{'text': 'Grid()', 'bd': '3', 'bg': 'green'}).grid(**{'row': '5'})
-Label('lwidth',**{'text': 'Min Width'}).grid(**{'column': '3', 'sticky': 'w', 'row': '2'})
-Label('lweight',**{'text': 'weight'}).grid(**{'sticky': 'e', 'row': '4'})
-Label('lrows',**{'text': 'Rows', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '0'})
-Button('ButtonGrid',**{'text': 'GRID', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '5'})
+Button('ButtonGrid',**{'text': 'GRID', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'green'}).grid(**{'sticky': 'nesw', 'row': '5'})
+Button('ButtonHide',**{'text': 'Hide', 'padx': '1m', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '5'})
+Button('Grid()',**{'text': 'Grid()', 'padx': '1m', 'bd': '3', 'bg': 'green'}).grid(**{'column': '1', 'row': '5'})
+Label('LableTitle',**{'text': 'grid', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
 Label('lcols',**{'text': 'Columns', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '0'})
-Label('lpad',**{'text': 'pad'}).grid(**{'sticky': 'e', 'row': '3'})
 Label('lheight',**{'text': 'Min Height'}).grid(**{'sticky': 'e', 'row': '2'})
-Label('LableTitle',**{'text': 'grid', 'font': 'TkDefaultFont 9 bold', 'bd': '3','fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
+Label('lpad',**{'text': 'pad'}).grid(**{'sticky': 'e', 'row': '3'})
+Label('lrows',**{'text': 'Rows', 'font': 'TkDefaultFont 9 bold'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '0'})
+Label('lweight',**{'text': 'weight'}).grid(**{'sticky': 'e', 'row': '4'})
+Label('lwidth',**{'text': 'Min Width'}).grid(**{'column': '3', 'sticky': 'w', 'row': '2'})
 
 ### CODE ===================================================
+
+var = IntVar()
+widget('Individual').config(variable = var, onvalue = 1, offvalue = 0)
+widget('Individual').mydata=var
 
 # -------- Receivers for message 'BASE_LAYOUT_REFRESH' ----------------------
 
@@ -53,6 +59,14 @@ def main():
 
     def hide_grid():
         deleteWidgetsForName(container(),NONAME)
+        if container().grid_conf_individual_done:
+            cols = container().grid_conf_cols[0]
+            rows = container().grid_conf_rows[0]
+            container().grid_columnconfigure(cols,minsize = 0,pad=0,weight=0)
+            container().grid_rowconfigure(rows,minsize = 0,pad=0,weight=0)
+            container().grid_conf_individual_done = False
+        
+        send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
         send("BASE_LAYOUT_REFRESH",this())
 
     widget('ButtonHide').do_command(hide_grid)
@@ -64,7 +78,7 @@ def main():
 
     #widget('ButtonForget').do_command(do_grid_forget)
 
-    def set_row_height(rows_widget=widget('EntryRows'),height_widget=widget('EntryRowHeight'),pad_widget = widget('EntryRowPad'),weight_widget=widget('EntryRowWeight')):
+    def update_rows(rows_widget=widget('EntryRows'),height_widget=widget('EntryRowHeight'),pad_widget = widget('EntryRowPad'),weight_widget=widget('EntryRowWeight')):
 
         try:
             rows = int(rows_widget.get())
@@ -73,24 +87,42 @@ def main():
             rows_widget.insert(0,10)
             rows = 10
 
-        row_height = height_widget.get()
-        padvalue = pad_widget.get()
-        weightvalue = weight_widget.get()
+        row_height = int(height_widget.get())
+        padvalue = int(pad_widget.get())
+        weightvalue = int(weight_widget.get())
 
         container().grid_conf_rows = (rows,row_height,padvalue,weightvalue)
 
+
+    def set_row_height():
+
+        rows = container().grid_conf_rows[0]
+        to_insert =  {'minsize':container().grid_conf_rows[1],'pad':container().grid_conf_rows[2],'weight':container().grid_conf_rows[3]}
+        
         for row in range(rows):
-            container().grid_rowconfigure(row,minsize =row_height,pad=padvalue,weight=weightvalue)
+            if container().grid_multi_conf_rows[row][0] == False: container().grid_multi_conf_rows[row][1] = dict(to_insert)
+ 
+        for row in range(rows):
+            container().grid_rowconfigure(row,**(container().grid_multi_conf_rows[row][1]))
 
-    widget('EntryRowHeight').do_command(set_row_height)
-    widget('EntryRowHeight').do_event('<Return>',set_row_height)
-    widget('EntryRowWeight').do_command(set_row_height)
-    widget('EntryRowWeight').do_event('<Return>',set_row_height)
-    widget('EntryRowPad').do_command(set_row_height)
-    widget('EntryRowPad').do_event('<Return>',set_row_height)
+    def update_row_values():
+        update_rows()
+        set_row_height()
 
-    def set_col_width(cols_widget=widget('EntryCols'),width_widget=widget('EntryColWidth'),pad_widget = widget('EntryColPad'),weight_widget=widget('EntryColWeight')):
+    widget('EntryRowHeight').do_command(update_row_values)
+    widget('EntryRowHeight').do_event('<Return>',update_row_values)
+    widget('EntryRowWeight').do_command(update_row_values)
+    widget('EntryRowWeight').do_event('<Return>',update_row_values)
+    widget('EntryRowPad').do_command(update_row_values)
+    widget('EntryRowPad').do_event('<Return>',update_row_values)
 
+    def update_indiv_wish(wi = widget('Individual')):
+        container().grid_conf_individual_wish = wi.mydata.get() == 1
+
+    widget('Individual').do_command(update_indiv_wish)
+
+
+    def update_cols(cols_widget=widget('EntryCols'),width_widget=widget('EntryColWidth'),pad_widget = widget('EntryColPad'),weight_widget=widget('EntryColWeight')):
         try:
             cols = int(cols_widget.get())
         except ValueError: 
@@ -98,47 +130,256 @@ def main():
             cols_widget.insert(0,10)
             cols = 6
 
-        col_width = width_widget.get()
-        padvalue = pad_widget.get()
-        weightvalue = weight_widget.get()
+        col_width = int(width_widget.get())
+        padvalue = int(pad_widget.get())
+        weightvalue = int(weight_widget.get())
         
         container().grid_conf_cols = (cols,col_width,padvalue,weightvalue)
+       
+
+    def set_col_width():
+
+        cols = container().grid_conf_cols[0]
+        to_insert =  {'minsize':container().grid_conf_cols[1],'pad':container().grid_conf_cols[2],'weight':container().grid_conf_cols[3]}
         
         for col in range(cols):
-            container().grid_columnconfigure(col,minsize = col_width,pad=padvalue,weight=weightvalue)
+            if container().grid_multi_conf_cols[col][0] == False: container().grid_multi_conf_cols[col][1] = dict(to_insert)
+ 
+        for col in range(cols):
+            container().grid_columnconfigure(col,**(container().grid_multi_conf_cols[col][1]))
+
+    def update_col_values():
+        update_cols()
+        set_col_width()
 
 
-    widget('EntryColWidth').do_command(set_col_width)
-    widget('EntryColWidth').do_event('<Return>',set_col_width)
-    widget('EntryColPad').do_command(set_col_width)
-    widget('EntryColPad').do_event('<Return>',set_col_width)
-    widget('EntryColWeight').do_command(set_col_width)
-    widget('EntryColWeight').do_event('<Return>',set_col_width)
+    widget('EntryColWidth').do_command(update_col_values)
+    widget('EntryColWidth').do_event('<Return>',update_col_values)
+    widget('EntryColPad').do_command(update_col_values)
+    widget('EntryColPad').do_event('<Return>',update_col_values)
+    widget('EntryColWeight').do_command(update_col_values)
+    widget('EntryColWeight').do_event('<Return>',update_col_values)
 
-    def show_grid(rows_widget=widget('EntryRows'),cols_widget=widget('EntryCols'),set_col_width=set_col_width,set_row_height=set_row_height):
+
+    def shop_grid_top(x,y,ref_label,bg,index,grid_conf,update_function,item_text):
+
+        selection_before = Selection()
+
+        Toplevel('GridTop',title='',geometry='+'+str(x)+'+'+str(y))
+
+        Label('showRowCol',**{'text': str(index),'bg':'white','relief':'solid','width':4}).grid(**{'column': '1', 'row': '0','pady':5,'ipadx':5})
+        Spinbox('EntrySize',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '1'})
+        this().delete(0,'end')
+        this().insert(0,grid_conf['minsize'])
+        Spinbox('EntryPad',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '2'})
+        this().delete(0,'end')
+        this().insert(0,grid_conf['pad'])
+        Spinbox('EntryWeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'row': '3'})
+        this().delete(0,'end')
+        this().insert(0,grid_conf['weight'])
+        Button('OK',**{'text':'OK'}).grid(**{'column': '1','row': '4'})
+        do_command(lambda func=container().destroy: func())
+        
+        Label('lRowCol',**{'text': item_text}).grid(**{'sticky': 'e', 'row': '0'})
+        Label('lpad',**{'text': 'pad'}).grid(**{'sticky': 'e', 'row': '2'})
+        Label('lsize',**{'text': 'size'}).grid(**{'sticky': 'e', 'row': '1'})
+        Label('lweight',**{'text': 'weight'}).grid(**{'sticky': 'e', 'row': '3'})
+
+        top_window=container()
+
+        def update_values(elabel=ref_label,function=update_function,row_or_column=index,esize = widget('EntrySize'),epad = widget('EntryPad'), eweight = widget('EntryWeight')):
+            if widget_exists(elabel): function(elabel,row_or_column,{'minsize':int(esize.get()),'pad':int(epad.get()),'weight':int(eweight.get())},bg)
+            else: top_window.destroy()
+
+        def update_size(message,elabel=ref_label,wi_size=widget('EntrySize')):
+            if message[1] == elabel:
+                wi_size.delete(0,'end')
+                wi_size.insert(0,message[0])
+
+        do_receive('UPDATE_INDIVIDUAL_GRID',update_size,wishMessage=True)
+        do_receive('DESTROY_INDIVIDUAL_GRID_TOPLEVEL',lambda funct = top_window.destroy: funct())
+
+        widget('EntrySize').do_command(update_values)
+        widget('EntrySize').do_event('<Return>',update_values)
+        widget('EntryPad').do_command(update_values)
+        widget('EntryPad').do_event('<Return>',update_values)
+        widget('EntryWeight').do_command(update_values)
+        widget('EntryWeight').do_event('<Return>',update_values)
+        
+        top_window.transient(ref_label.myRoot())
+        widget('EntrySize').focus_set()
+        #top_window.wait_visibility()
+        #top_window.grab_set()
+        setSelection(selection_before)
+        return top_window
+
+    def update_individual(cont,wi=widget('Individual')):
+        hilimark = 2 if cont.grid_conf_individual_has else 0
+        wi['highlightthickness'] = hilimark
+ 
+    def update_individual_mark(cont):
+
+        mark = False
+
+        grid_cols=cont.grid_multi_conf_cols
+        for entry in grid_cols:
+            if entry[0]:
+                mark=True
+                break
+
+        grid_rows=cont.grid_multi_conf_rows
+        for entry in grid_rows:
+            if entry[0]:
+                mark=True
+                break
+                
+        cont.grid_conf_individual_has = mark
+        update_individual(cont)
+        
+
+    def update_col(me,column,grid_conf,bg):
+        cont = me.master
+        cont.grid_multi_conf_cols[column][1] = grid_conf
+        cont.grid_columnconfigure(column,**grid_conf)
+        if grid_conf['minsize'] == cont.grid_conf_cols[1] and grid_conf['pad'] == cont.grid_conf_cols[2] and grid_conf['weight'] == cont.grid_conf_cols[3]:
+            me['bg'] = bg
+            cont.grid_multi_conf_cols[column][0] = False
+        else:
+            me['bg'] = 'orange'
+            cont.grid_multi_conf_cols[column][0] = True
+        update_individual_mark(cont)
+
+    def update_row(me,row,grid_conf,bg):
+        cont = me.master
+        cont.grid_multi_conf_rows[row][1] = grid_conf
+        cont.grid_rowconfigure(row,**grid_conf)
+        if grid_conf['minsize'] == cont.grid_conf_rows[1] and grid_conf['pad'] == cont.grid_conf_rows[2] and grid_conf['weight'] == cont.grid_conf_rows[3]:
+            me['bg'] = bg
+            cont.grid_multi_conf_rows[row][0] = False
+        else:
+            me['bg'] = 'orange'
+            cont.grid_multi_conf_rows[row][0] = True
+        update_individual_mark(cont)
+
+    def mouse_wheel_row(me,event,row,bg):
+        grid_conf=me.master.grid_multi_conf_rows[row][1]
+        if event.num == 5 or event.delta == -120:
+            grid_conf['minsize'] -= 1
+        if event.num == 4 or event.delta == 120:
+            grid_conf['minsize'] += 1
+        update_row(me,row,grid_conf,bg)
+        send('UPDATE_INDIVIDUAL_GRID',(grid_conf['minsize'],me))
+
+    def mouse_wheel_col(me,event,column,bg):
+        grid_conf=me.master.grid_multi_conf_cols[column][1]
+        if event.num == 5 or event.delta == -120:
+            grid_conf['minsize'] -= 1
+        if event.num == 4 or event.delta == 120:
+            grid_conf['minsize'] += 1
+        update_col(me,column,grid_conf,bg)
+        send('UPDATE_INDIVIDUAL_GRID',(grid_conf['minsize'],me))
+
+    def button3_event_col(me,column,bg,function=update_col,grid_top=shop_grid_top):
+        xpos = me.winfo_rootx()
+        ypos = me.winfo_rooty() - 130
+        grid_conf=me.master.grid_multi_conf_cols[column][1]
+        grid_top(xpos,ypos,me,bg,column,grid_conf,function,'Column')
+        #me.myRoot().wait_window(grid_top(xpos,ypos,me,bg,column,grid_conf,function))
+ 
+    def button3_event_row(me,row,bg,function=update_row,grid_top=shop_grid_top):
+        xpos = me.winfo_rootx() - 100
+        ypos = me.winfo_rooty()
+        grid_conf=me.master.grid_multi_conf_rows[row][1]
+        grid_top(xpos,ypos,me,bg,row,grid_conf,function,'Row')
+
+    def button1_grid_help(me):
+        messagebox.showinfo("Individual Grid","By MouseWheel you change the 'size'.\nBy Button-3 (right mouse button) you may also change 'pad' and 'weight'.",parent=me.myRoot())
+
+    def show_grid(event=None,rows_widget=widget('EntryRows'),cols_widget=widget('EntryCols'),individual=widget('Individual'),set_col_width=set_col_width,set_row_height=set_row_height):
+
+        send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
 
         try:
             cols = int(cols_widget.get())
             rows = int(rows_widget.get())
         except ValueError: return
 
+        # delete old configuration ================
+
         deleteWidgetsForName(container(),NONAME)
 
         row_conf = container().grid_conf_rows
         col_conf = container().grid_conf_cols
         
-        for i in range(row_conf[0]):
+        old_rows = row_conf[0]
+        old_cols = col_conf[0]
+            
+        unconf_rows = old_rows
+        unconf_cols = old_cols
+        
+        if container().grid_conf_individual_done:
+            unconf_rows += 1
+            unconf_cols += 1
+        
+        for i in range(unconf_rows):
             container().grid_rowconfigure(i,minsize = 0,pad=0,weight=0)
 
-        for i in range(col_conf[0]):
+        for i in range(unconf_cols):
             container().grid_columnconfigure(i,minsize = 0,pad=0,weight=0)
 
+        # decide about new configuration ================
+
+        update_cols()
+        update_rows()
+
+        if cols <= old_cols:
+            container().grid_multi_conf_cols = container().grid_multi_conf_cols[:cols]
+        else:
+            for i in range(cols-old_cols): container().grid_multi_conf_cols.append([False,None])
+ 
+        if rows <= old_rows:
+            container().grid_multi_conf_rows = container().grid_multi_conf_rows[:rows]
+        else:
+            for i in range(rows-old_rows): container().grid_multi_conf_rows.append([False,None])
+
+        # fill cells - or not ============================
+
         selection_before = Selection()
+        fill_cell = {'height': '0', 'width': '0','relief': 'solid','bg':'#b3d9d9','padx':0,'pady':0}
+
+        individ = container().grid_conf_individual_wish
+
         for row in range(rows):
-            fill_cell = {'height': '0', 'width': '0', 'relief': 'solid','bg':'#b3d9d9','padx':0,'pady':0}
             for col in range(cols):
                 Label(NONAME,**fill_cell).rcgrid(row,col,sticky='news')
                 this().lower()
+
+            if individ:
+                Label(NONAME,relief='raised',cursor='sizing').rcgrid(row,cols,sticky='news')
+                do_event("<MouseWheel>", mouse_wheel_row,(row,this()['bg']),True,True)
+                do_event("<Button-4>", mouse_wheel_row,(row,this()['bg']),True,True)
+                do_event("<Button-5>", mouse_wheel_row,(row,this()['bg']),True,True)
+                do_event("<Button-3>", button3_event_row,(row,this()['bg']),True)
+                do_event("<Button-1>", button1_grid_help,wishWidget=True)
+                if container().grid_multi_conf_rows[row][0]:
+                        this()['bg'] = 'orange'
+
+        if individ:
+            for col in range(cols):
+                Label(NONAME,relief='raised',cursor='sizing').rcgrid(rows,col,sticky='news')
+                do_event("<MouseWheel>", mouse_wheel_col,(col,this()['bg']),True,True)
+                do_event("<Button-4>", mouse_wheel_col,(col,this()['bg']),True,True)
+                do_event("<Button-5>", mouse_wheel_col,(col,this()['bg']),True,True)
+                do_event("<Button-3>", button3_event_col,(col,this()['bg']),True)
+                do_event("<Button-1>", button1_grid_help,wishWidget=True)
+                if container().grid_multi_conf_cols[col][0]:
+                    this()['bg'] = 'orange'
+
+        if individ:
+            container().grid_columnconfigure(cols,minsize = 10,pad=0,weight=0)
+            container().grid_rowconfigure(rows,minsize = 10,pad=0,weight=0)
+            container().grid_conf_individual_done = True
+
         setSelection(selection_before)
 
         set_col_width()
@@ -146,9 +387,10 @@ def main():
 
         send("BASE_LAYOUT_REFRESH",this())
         
-    widget('ButtonShow').do_command(show_grid)
-    widget('EntryRows').do_event('<Return>',show_grid)
-    widget('EntryCols').do_event('<Return>',show_grid)
+    # we take this form, because we want, that send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL') will be executet immediately
+    widget('ButtonShow')['command'] = show_grid
+    widget('EntryRows').bind('<Return>',show_grid)
+    widget('EntryCols').bind('<Return>',show_grid)
 
 
 
@@ -168,7 +410,6 @@ def main():
             me.mydata[5] += step
             me.after(step,mouse_move,me)
 
-
     def on_mouse_up(me,event):
         me.mydata[6] = False # stop timer
         (col,row) = me.container().grid_location(me.winfo_rootx()-me.container().winfo_rootx(),me.winfo_rooty()-me.container().winfo_rooty())
@@ -181,7 +422,6 @@ def main():
 
     def on_mouse_down(me,event,me_root=container().myRoot()):
 
-        #me_root.iconify()
         xpos = me.winfo_rootx()-me.container().winfo_rootx()
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
         me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
@@ -201,6 +441,7 @@ def main():
 
     def do_grid(do_mouse_on=do_mouse_on):
 
+        send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
         layout_before = this().Layout
 
         if this().Layout == NOLAYOUT: rcgrid(0,0)
@@ -230,44 +471,53 @@ def main():
 
 
     def update_grid_table_on_enter(
+Rows=widget('EntryRows'),
+Height=widget('EntryRowHeight'),
+RowPad=widget('EntryRowPad'),
+RowWeight=widget('EntryRowWeight'),
+Cols=widget('EntryCols'),
+Width=widget('EntryColWidth'),
+ColPad=widget('EntryColPad'),
+ColWeight=widget('EntryColWeight'),
+set_row_height=set_row_height,
+set_col_width=set_col_width,
+individual = widget('Individual')):
 
-    Rows=widget('EntryRows'),
-    Height=widget('EntryRowHeight'),
-    RowPad=widget('EntryRowPad'),
-    RowWeight=widget('EntryRowWeight'),
-    Cols=widget('EntryCols'),
-    Width=widget('EntryColWidth'),
-    ColPad=widget('EntryColPad'),
-    ColWeight=widget('EntryColWeight'),
-    set_row_height=set_row_height
-    ,set_col_width=set_col_width):
 
+        if this().Layout != LAYOUTNEVER:
+            
+            if not (container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT or isinstance(this(),Menu) or isinstance(container(),PanedWindow)):
 
-        not_initialized = container().grid_conf_rows == None
-        if not_initialized:
-            container().grid_conf_rows = (0,25,0,0)
-            container().grid_conf_cols = (0,75,0,0)
-        
-        Rows.delete(0,'end')
-        Rows.insert(0,container().grid_conf_rows[0])
-        Height.delete(0,'end')
-        Height.insert(0,container().grid_conf_rows[1])
-        RowPad.delete(0,'end')
-        RowPad.insert(0,container().grid_conf_rows[2])
-        RowWeight.delete(0,'end')
-        RowWeight.insert(0,container().grid_conf_rows[3])
+                    not_initialized = container().grid_conf_rows == None
+                    if not_initialized:
+                        container().grid_conf_rows = (0,25,0,0)
+                        container().grid_conf_cols = (0,75,0,0)
+                    
+                    Rows.delete(0,'end')
+                    Rows.insert(0,container().grid_conf_rows[0])
+                    Height.delete(0,'end')
+                    Height.insert(0,container().grid_conf_rows[1])
+                    RowPad.delete(0,'end')
+                    RowPad.insert(0,container().grid_conf_rows[2])
+                    RowWeight.delete(0,'end')
+                    RowWeight.insert(0,container().grid_conf_rows[3])
 
-        Cols.delete(0,'end')
-        Cols.insert(0,container().grid_conf_cols[0])
-        Width.delete(0,'end')
-        Width.insert(0,container().grid_conf_cols[1])
-        ColPad.delete(0,'end')
-        ColPad.insert(0,container().grid_conf_cols[2])
-        ColWeight.delete(0,'end')
-        ColWeight.insert(0,container().grid_conf_cols[3])
+                    Cols.delete(0,'end')
+                    Cols.insert(0,container().grid_conf_cols[0])
+                    Width.delete(0,'end')
+                    Width.insert(0,container().grid_conf_cols[1])
+                    ColPad.delete(0,'end')
+                    ColPad.insert(0,container().grid_conf_cols[2])
+                    ColWeight.delete(0,'end')
+                    ColWeight.insert(0,container().grid_conf_cols[3])
+                    
+                    if container().grid_conf_individual_wish: individual.select()
+                    else: individual.deselect()
 
-        set_row_height()
-        set_col_width()
+                    update_individual(container())
+
+                    #set_row_height()
+                    #set_col_width()
 
     do_receive("SELECTION_CHANGED",update_grid_table_on_enter)
 
