@@ -100,11 +100,17 @@ def main():
         send('LAYOUT_VALUES_REFRESH',me)
 
     def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        me.mydata=(None,None,'mouse')
+        me.mydata=[0,0,'mouse',0,0,0,True]
         me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
         me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
 
-    do_receive('PLACE_MOUSE_ON',do_mouse_on,wishMessage=True)
+    def place_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
+        if type(me.mydata) != list or me.mydata[2]!= 'mouse':
+            me.mydata=([0,0,'mouse',0,0,0,True])
+            me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
+            me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
+
+    do_receive('PLACE_MOUSE_ON',place_mouse_on,wishMessage=True)
 
     def do_place_at00(mouse_on = do_mouse_on):
 
@@ -135,7 +141,6 @@ def main():
         send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
     widget("Place").do_command(do_place_dependent)
-
 
 
     # -------------- X,Y Spinbox commands and Return key events ----------------------------------
