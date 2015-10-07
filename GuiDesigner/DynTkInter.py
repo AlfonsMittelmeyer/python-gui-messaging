@@ -2033,7 +2033,7 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
 
     SAVE_ALL = saveAll
 
-    if this() == container() and not isinstance(this(),Toplevel): 
+    if this() == container():
 
         if withConfig:
             conf_dict = get_save_config()
