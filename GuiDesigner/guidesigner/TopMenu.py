@@ -61,7 +61,7 @@ def get_part_name():
 
 widget("Save").do_command(lambda name=get_part_name: send('SAVE_WIDGET_PART',name()))
 widget('Load & Edit').do_command(lambda name=get_part_name: send('LOAD_EDIT_PART',name()))
-widget('Load & Run').do_command(lambda name=get_part_name: send('LOAD_WIDGET_PART',name()))
+widget('Load & Run').do_command(lambda name=get_part_name: send('LOAD_RUN_PART',name()))
 
 ### ========================================================
 
@@ -134,8 +134,7 @@ def help_code(menu=widget('Help')):
     messagebox.showinfo("Write Code and modify Code during program is running","The option 'Code' is predistined for causing program crash. So you should save your work before experimenting with this option.\n\nBut there is no problem, if you had saved your work. Simply start anew. Choose this option again and press button 'Load'. Then look, what you typed wrong.",parent=menu.myRoot())
 
 widget('Help').do_command(help_code)
-
-widget("Code").do_command(lambda name=get_root_name: send('EDIT_CODE',name()))
+widget("Code").do_command(lambda name=get_part_name: send('EDIT_CODE',name()))
 
 def enable_code(code = widget("Code")):
     if this().isContainer: code.config(state = 'normal') 

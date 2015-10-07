@@ -74,7 +74,6 @@ def load_from_file(me,textwidget):
 def create_toplevel(message,ok_command = do_OK,load_frame=create_LoadFrame,load_execute = load_from_file,run_code=execute_code,do_test=test_syntax):
 
     current_selection = Selection()
-
     code = this().CODE
     Toplevel("ToplevelCodeEdit",title = "Code Edit for "+ message)
     Text('CodeText',width=120,font=('Courier New',11)).insert(END,code)

@@ -20,7 +20,7 @@ def function(msg,wname,wtype):
     wname.delete(0,END)
     wname.insert(0,msg)
     wtype['text'] = msg
-    wtype.focus_set()
+    wname.focus_set()
 
 do_receive('CREATE_CLASS_SELECTED',function,(widget('Name'),widget('Type')),wishMessage=True)
 

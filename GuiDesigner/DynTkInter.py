@@ -2048,16 +2048,9 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
 # ========== End save functions ===========================================================
 
 
-_code_list = []
-
-#def _store_code(fi):
-    #print("store",fi)
-def _store_code():
-    container().CODE = _code_list.pop(0)
 
 def DynImportCode(filename):
     global LOADforEdit
-    global _code_list
 
     ĥandle = None
     try:
@@ -2077,34 +2070,26 @@ def DynImportCode(filename):
             if line[0:9] == "### CODE ": break
 
             guicode+=line
-        if isEnd: break
 
-        #guicode+="_store_code('"+filename+"')\n"	
-        guicode+="_store_code()\n"	
+        evcode = compile(guicode,filename,'exec')
+        eval(evcode)
+        if isEnd: break
 
         code = ""	
         while True:
             line = handle.readline()
-            if not line:
-                handle.close()
-                print("Code end '### =' missing in file: ",filename)
     
+            if not line or line[0:5] == "### =":
+                if not line: print("Code end '### =' missing in file: ",filename)
+                container().CODE = code
+                if not LOADforEdit:	
+                    evcode = compile(code,filename,'exec')
+                    eval(evcode)
+                break
 
-            if line[0:5] == "### =": break
             code+=line
-
-        if not LOADforEdit:	
-            guicode += code
-        _code_list.append(code)
-        code = ""
-            
+        guicode = ""
     handle.close()
-    evcode = compile(guicode,filename,'exec')
-    eval(evcode)
-    #_code_list = []
-
-
-
 
 LOADwithCODE = False
 LOADforEdit = False
@@ -2118,8 +2103,6 @@ def setLoadForEdit(flag):
 def setLoadWithCode(flag):
     global LOADwithCODE
     LOADwithCODE = flag;
-
-
 
 def clean_eval(evcode):
     glob_before = globals().keys()

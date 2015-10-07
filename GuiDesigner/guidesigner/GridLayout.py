@@ -66,7 +66,6 @@ def main():
             container().grid_rowconfigure(rows,minsize = 0,pad=0,weight=0)
             container().grid_conf_individual_done = False
         
-        send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
         send("BASE_LAYOUT_REFRESH",this())
 
     widget('ButtonHide').do_command(hide_grid)
@@ -161,9 +160,12 @@ def main():
     widget('EntryColWeight').do_event('<Return>',update_col_values)
 
 
-    def shop_grid_top(x,y,ref_label,bg,index,grid_conf,update_function,item_text):
+    def shop_grid_top(x,y,indivmark,bg,index,grid_conf,update_function,item_text):
 
         selection_before = Selection()
+        
+        setWidgetSelection(indivmark) # the Frame should be the tkinter parent of the Toplevel Window
+        goIn()
 
         Toplevel('GridTop',title='',geometry='+'+str(x)+'+'+str(y))
 
@@ -187,12 +189,11 @@ def main():
 
         top_window=container()
 
-        def update_values(elabel=ref_label,function=update_function,row_or_column=index,esize = widget('EntrySize'),epad = widget('EntryPad'), eweight = widget('EntryWeight')):
-            if widget_exists(elabel): function(elabel,row_or_column,{'minsize':int(esize.get()),'pad':int(epad.get()),'weight':int(eweight.get())},bg)
-            else: top_window.destroy()
+        def update_values(mark=indivmark,function=update_function,row_or_column=index,esize = widget('EntrySize'),epad = widget('EntryPad'), eweight = widget('EntryWeight')):
+            function(mark,row_or_column,{'minsize':int(esize.get()),'pad':int(epad.get()),'weight':int(eweight.get())},bg)
 
-        def update_size(message,elabel=ref_label,wi_size=widget('EntrySize')):
-            if message[1] == elabel:
+        def update_size(message,mark=indivmark,wi_size=widget('EntrySize')):
+            if message[1] == mark:
                 wi_size.delete(0,'end')
                 wi_size.insert(0,message[0])
 
@@ -206,10 +207,8 @@ def main():
         widget('EntryWeight').do_command(update_values)
         widget('EntryWeight').do_event('<Return>',update_values)
         
-        top_window.transient(ref_label.myRoot())
+        top_window.transient(indivmark.myRoot())
         widget('EntrySize').focus_set()
-        #top_window.wait_visibility()
-        #top_window.grab_set()
         setSelection(selection_before)
         return top_window
 
@@ -297,8 +296,6 @@ def main():
 
     def show_grid(event=None,rows_widget=widget('EntryRows'),cols_widget=widget('EntryCols'),individual=widget('Individual'),set_col_width=set_col_width,set_row_height=set_row_height):
 
-        send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
-
         try:
             cols = int(cols_widget.get())
             rows = int(rows_widget.get())
@@ -345,17 +342,17 @@ def main():
         # fill cells - or not ============================
 
         selection_before = Selection()
-        fill_cell = {'height': '0', 'width': '0','relief': 'solid','bg':'#b3d9d9','padx':0,'pady':0}
+        fill_cell = {'height': '0', 'width': '0','relief': 'solid','bd':'1','bg':'#b3d9d9','padx':0,'pady':0}
 
         individ = container().grid_conf_individual_wish
 
         for row in range(rows):
             for col in range(cols):
-                Label(NONAME,**fill_cell).rcgrid(row,col,sticky='news')
+                Frame(NONAME,**fill_cell).rcgrid(row,col,sticky='news')
                 this().lower()
 
             if individ:
-                Label(NONAME,relief='raised',cursor='sizing').rcgrid(row,cols,sticky='news')
+                Frame(NONAME,relief='raised',cursor='sizing',bd=1).rcgrid(row,cols,sticky='news')
                 do_event("<MouseWheel>", mouse_wheel_row,(row,this()['bg']),True,True)
                 do_event("<Button-4>", mouse_wheel_row,(row,this()['bg']),True,True)
                 do_event("<Button-5>", mouse_wheel_row,(row,this()['bg']),True,True)
@@ -366,7 +363,7 @@ def main():
 
         if individ:
             for col in range(cols):
-                Label(NONAME,relief='raised',cursor='sizing').rcgrid(rows,col,sticky='news')
+                Frame(NONAME,relief='raised',bd=1,cursor='sizing').rcgrid(rows,col,sticky='news')
                 do_event("<MouseWheel>", mouse_wheel_col,(col,this()['bg']),True,True)
                 do_event("<Button-4>", mouse_wheel_col,(col,this()['bg']),True,True)
                 do_event("<Button-5>", mouse_wheel_col,(col,this()['bg']),True,True)
@@ -376,8 +373,8 @@ def main():
                     this()['bg'] = 'orange'
 
         if individ:
-            container().grid_columnconfigure(cols,minsize = 10,pad=0,weight=0)
-            container().grid_rowconfigure(rows,minsize = 10,pad=0,weight=0)
+            container().grid_columnconfigure(cols,minsize = 15,pad=0,weight=0)
+            container().grid_rowconfigure(rows,minsize = 15,pad=0,weight=0)
             container().grid_conf_individual_done = True
 
         setSelection(selection_before)
@@ -387,7 +384,6 @@ def main():
 
         send("BASE_LAYOUT_REFRESH",this())
         
-    # we take this form, because we want, that send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL') will be executet immediately
     widget('ButtonShow')['command'] = show_grid
     widget('EntryRows').bind('<Return>',show_grid)
     widget('EntryCols').bind('<Return>',show_grid)
@@ -469,6 +465,7 @@ def main():
 
 
     def do_grid0():
+        send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
         layout_before = this().Layout
         grid()
         if container().is_mouse_select_on: do_mouse_on(this())
