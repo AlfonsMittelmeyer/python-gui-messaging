@@ -10,6 +10,8 @@ LabelFrame("LoadEditPart",text='Load & Edit (part)',link="guidesigner/LoadAndEdi
 LabelFrame("LoadRunPart",text='Load & Run (part)',link="guidesigner/LoadAndRunPart.py") # the frame with the save part dialog
 LabelFrame("AcessWidgets",text='Save Access All - Widget Depth',link="guidesigner/SaveAccessWidgetsAll.py") # the frame with the save part dialog
 LabelFrame("AcessContainers",text='Save Access All - Container Depth',link="guidesigner/SaveAccessContainersAll.py") # the frame with the save part dialog
+LabelFrame("ExportAll",text='Export as extended tk - With Names',link="guidesigner/ExportAll.py") # the frame with the save part dialog
+LabelFrame("ExportAllTk",text='Export as extended tk - Without Names',link="guidesigner/ExportAllTk.py") # the frame with the save part dialog
 
 Frame('Dummy',link="guidesigner/Button_code.py") 
 

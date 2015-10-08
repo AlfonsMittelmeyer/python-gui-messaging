@@ -715,7 +715,7 @@ class Tk(GuiElement,StatTkInter.Tk):
         mygeometry = kwargs.pop('geometry',None)
 
         self.tkClass.__init__(self,**kwargs)
-        proxy = dynproxy.Proxy(self)
+        proxy = dynproxy.Proxy()
 
         if mytitle != None: self.title(mytitle)
         if mygeometry != None: self.geometry(mygeometry)
@@ -2050,7 +2050,7 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
 
 # ========== End save functions ===========================================================
 
-# ========== End save Access ===========================================================
+# ========== Save Access ===========================================================
 
 
 AccessDictionary = {}
@@ -2151,11 +2151,177 @@ def saveAccess(filehandle,isWidgets=False):
     AccessDictionary.clear()
     ACCESS_DEPTH_WIDGET = False
     
-
-
 # ========== End save Access ===========================================================
 
+# ========== Save Export ===========================================================
 
+EXPORT_NAME = False
+
+def makeCamelCase(word):
+    return ''.join(x.capitalize() or '_' for x in word.split('_'))
+
+def export_pack_entries(filehandle):
+
+    packlist = container().PackList
+    if len(packlist) == 0: return
+
+    item_index = 1
+    for e in packlist:
+        filehandle.write(indent+"        self.")
+        setWidgetSelection(e)
+        nameAndIndex = getNameAndIndex()
+        filehandle.write(nameAndIndex[0])
+
+        if this().Layout == MENUITEMLAYOUT:
+            filehandle.write(".layout(index="+str(item_index)+")\n")
+            item_index += 1
+        else:
+       
+            layoutWidget = layout_info()
+
+            if this().Layout == PACKLAYOUT:
+                CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
+                layoutWidget.pop(".in",None)
+                filehandle.write(".pack(")
+                CompareWidget.pack()
+                layoutCompare = dict(CompareWidget.pack_info())
+                CompareWidget.destroy()
+            elif this().Layout == PANELAYOUT:
+                filehandle.write(".pane(")
+                layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
+
+            for n,e in dict(layoutWidget).items():
+                if e == layoutCompare[n]: layoutWidget.pop(n,None)
+
+            first = True
+            for n,e in layoutWidget.items():
+                if not first: filehandle.write(",")			
+                filehandle.write(n+"='"+str(e)+"'")
+                first=False
+            filehandle.write(")\n")
+        
+    if container().tkClass == StatTkInter.PanedWindow:
+
+        index = 0
+        sash_list = []
+        while True:
+            try:
+                sash_list.append(container().sash_coord(index))
+                index += 1
+            except: break
+        for i in range(len(sash_list)):
+            filehandle.write(indent+"container().trigger_sash_place("+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+
+
+def export_immediate_layout(filehandle,name):
+    if not is_immediate_layout(): return
+
+    filehandle.write('        self.'+name+'.')
+
+    if this().Layout == GRIDLAYOUT:
+        filehandle.write("grid(")
+        layout = get_layout_dictionary()
+    elif this().Layout == PLACELAYOUT:
+        filehandle.write("place(")
+        layout = get_layout_dictionary()
+    elif this().Layout == MENULAYOUT:
+        filehandle.write("select_menu(")
+        layout = {}
+        
+    if len(layout) != 0: filehandle.write("**"+str(layout))
+    filehandle.write(")\n")
+
+def exportWidget(filehandle,name):
+    if not this().save: return
+
+    # write name ================================
+    thisClass = WidgetClass(this())
+
+    if this().hasWidgets(): class_name = makeCamelCase(name)
+    else: class_name = 'tk.'+thisClass
+    
+    if EXPORT_NAME:
+        if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"'),'"+this().mytype+"'")
+        else: filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"')")
+    else:
+        if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"(self,'"+this().mytype+"'")
+        else: filehandle.write('        self.'+name+' = '+class_name+"(self")
+
+    conf_dict = get_save_config()
+    if SAVE_ALL: conf_dict.pop('link',None)
+    
+    if len(conf_dict) != 0:
+        filehandle.write(",**"+str(conf_dict)+")\n")
+    else:
+         filehandle.write(")\n")
+
+    export_immediate_layout(filehandle,name)
+
+
+def exportContainer(filehandle):
+
+    dictionary = container().Dictionary.elements
+ 
+    # sorted name list
+    namelist = []
+    for name in dictionary:
+        if name != NONAME: namelist.append(name)
+    namelist.sort()
+
+    # now we save the widgets in the container
+    for name in namelist:
+        e = dictionary[name]
+        for x in e:
+            setWidgetSelection(x)
+            exportWidget(filehandle,name)
+
+    export_pack_entries(filehandle)
+
+    # now we save sub containers
+    for name in namelist:
+        e = dictionary[name]
+        for x in e:
+            setWidgetSelection(x)
+            if this().hasWidgets(): exportSubcontainer(filehandle,name)
+
+def exportSubcontainer(filehandle,name):
+    class_name = makeCamelCase(name)
+    thisClass = WidgetClass(this())
+    
+    if isinstance(this(),Tk): thisMaster = ''
+    else: thisMaster = ',master'
+        
+    filehandle.write('\nclass '+class_name+'(tk.'+thisClass+'):\n\n')
+    filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
+    filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
+ 
+    goIn()
+    exportContainer(filehandle)
+    goOut()
+    
+def saveExport(filehandle,flag=False):
+
+    global SAVE_ALL
+    SAVE_ALL = True
+
+    filehandle.write('import DynTkInter as tk\n')
+
+    name = getNameAndIndex()[0]
+    exportSubcontainer(filehandle,name)
+
+    '''
+    filehandle.write('class Application(tk.Tk):\n\n')
+    filehandle.write('    def __init__(self):\n')
+    filehandle.write('        tk.Tk.__init__(self)\n')
+    exportContainer(filehandle)
+    '''
+
+    if this() == _Application: filehandle.write('\n'+makeCamelCase(name)+'().mainloop()\n')
+   
+    SAVE_ALL = False
+ 
+ # ========== Save Export ===========================================================
+   
 
 def DynImportCode(filename):
     global LOADforEdit

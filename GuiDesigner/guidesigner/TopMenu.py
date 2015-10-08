@@ -36,6 +36,47 @@ select_menu()
 
 goOut()
 
+MenuItem('Export','cascade',**{'label': 'Export (tk)'})
+goIn()
+
+Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+goIn()
+
+MenuItem('Help','command',**{'label': 'Help'})
+MenuItem('With Names','command',**{'label': 'With Names'})
+MenuItem('Without Names','command',**{'label': 'Without Names'})
+MenuItem('separator','separator')
+
+widget('Help').layout(index=1)
+widget('separator').layout(index=2)
+widget('With Names').layout(index=3)
+widget('Without Names').layout(index=4)
+
+### CODE ===================================================
+
+def get_root_name_3():
+    selection_before = Selection()
+    gotoRoot()
+    _Selection._container = _TopLevelRoot._container
+    name = '//'+getNameAndIndex()[0]+'/'
+    setSelection(selection_before)
+    return name
+
+widget("With Names").do_command(lambda name=get_root_name_3: send('EXPORT_ALL_NAMES',name()))
+widget("Without Names").do_command(lambda name=get_root_name_3: send('EXPORT_ALL_TK',name()))
+
+def export_help(menu=widget('Help')):
+    messagebox.showinfo("Export as tk or extended tk","If you export 'With Names' you may edit the GUI using the exported File. If you export 'Without Names', the exported File is nearly full tkinter compatible.",parent=menu.myRoot())
+
+widget("Help").do_command(export_help)
+
+### ========================================================
+
+goOut()
+select_menu()
+
+goOut()
+
 MenuItem('Load & Edit','command',**{'label': 'Load & Edit'})
 MenuItem('Load & Run','command',**{'label': 'Load & Run'})
 MenuItem('Save','command',**{'label': 'Save'})
@@ -105,11 +146,12 @@ goOut()
 MenuItem('separator','separator')
 
 widget('Save').layout(index=1)
-widget('Access').layout(index=2)
-widget('Load & Edit').layout(index=3)
-widget('Load & Run').layout(index=4)
-widget('separator').layout(index=5)
-widget('Split & Join').layout(index=6)
+widget('Export').layout(index=2)
+widget('Access').layout(index=3)
+widget('Load & Edit').layout(index=4)
+widget('Load & Run').layout(index=5)
+widget('separator').layout(index=6)
+widget('Split & Join').layout(index=7)
 
 ### CODE ===================================================
 
