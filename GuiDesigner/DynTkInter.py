@@ -411,8 +411,7 @@ class GuiElement:
     # config settings with the options as a string - is used by the GUI Creator
 
     def setconfig(self,name,value):
-        if name == 'title': self.title_changed = True
-        elif name == 'geometry': self.geometry_changed = value != ''
+        if name == 'geometry': self.geometry_changed = value != ''
         confdict={}
         confdict[name] = value
         try: self.config(**confdict)
@@ -804,6 +803,7 @@ class Tk(GuiElement,StatTkInter.Tk):
 
             if 'title' in kwargs: 
                 self.title(kwargs['title'])
+                self.title_changed = True
                 kwargs.pop('title',None)
             if 'geometry' in kwargs: 
                 self.geometry(kwargs['geometry'])
@@ -849,6 +849,7 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
     def __init__(self,myname="Toplevel",**kwargs):
 
         self.tkClass = StatTkInter.Toplevel
+        self.title_changed = False
 
         master,myname,select = _getMasterAndNameAndSelect(myname,"Toplevel")
         kwargs["master"] = master
@@ -875,7 +876,9 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
 
         self.tkClass.__init__(self,**kwargs)
 
-        if mytitle != None: self.title(mytitle)
+        if mytitle != None:
+            self.title(mytitle)
+            self.title_changed = True
         if mygeometry != None: self.geometry(mygeometry)
 
         global _TopLevelRoot
@@ -908,7 +911,6 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         goIn()
         FileImportContainer(self)
         self.geometry_changed = False
-        self.title_changed = False
 
     def destroy(self):
         selection = Selection()
@@ -944,8 +946,9 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
                 self.grid_conf_rows = eval(grid_rows)
                 grid_configure_rows(self)
  
-            if 'title' in kwargs: 
+            if 'title' in kwargs:
                 self.title(kwargs['title'])
+                self.title_changed = True
                 kwargs.pop('title',None)
 
                 kwargs.pop('title',None)
@@ -1777,7 +1780,7 @@ def del_config_before_compare(dictionaryWidget):
     for entry in ("command","variable","image","menu"): dictionaryWidget.pop(entry,None)
 
     # delete empty or unchanged special cases
-    if 'title' in dictionaryWidget:
+    if 'title' in dictionaryWidget and not isinstance(this(),Menu):
         if not this().title_changed: del dictionaryWidget['title']
     if 'geometry' in dictionaryWidget:
         if not this().geometry_changed: del dictionaryWidget['geometry']
