@@ -646,8 +646,11 @@ def goto(name,nr=-1):
     if widget != None: 
         _Selection._widget = widget
 
-def widget(name,nr=-1): return _Selection._container.Dictionary.getEntry(name,nr)
+#def widget(name,nr=-1): return _Selection._container.Dictionary.getEntry(name,nr)
 
+def widget(name,nr=-1,par3=-1):
+    if type(name) == str or name == NONAME: return _Selection._container.Dictionary.getEntry(name,nr)
+    else: return name.Dictionary.getEntry(nr,par3)
 
 _FileImportCmdImport = EvDataCmd("""
 setWidgetSelection(Data()[0])
@@ -2047,6 +2050,111 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
 
 # ========== End save functions ===========================================================
 
+# ========== End save Access ===========================================================
+
+
+AccessDictionary = {}
+
+ACCESS_DEPTH_WIDGET = False
+
+def set_AccessDepth_Widgets(flag):
+    global ACCESS_DEPTH_WIDGET
+    ACCESS_DEPTH_WIDGET = flag
+
+def saveAccessSubContainer(filehandle):
+    if not this().hasWidgets(): return False
+
+    filehandle.write("        goIn()\n")
+
+    # entweder nur der Code des Untercontainers
+    if this().onlysavecode and len(this().CODE) != 0: pass
+    else:
+        goIn()
+        saveAccessContainer(filehandle)
+        goOut()
+
+    filehandle.write("        goOut()\n")
+    return True
+
+
+def getAccessName(name):
+    newname = name
+    if newname in AccessDictionary:
+        nr = 1
+        while True:
+            newname = name+'_'+ str(nr)
+            if newname not in AccessDictionary:
+                break
+            nr+=1
+
+    AccessDictionary[newname] = None
+    return newname
+
+def saveAccessWidget(filehandle,name_index):
+    if not this().save: return
+
+    # write name ================================
+    
+    savename = getAccessName(name_index[0])
+    if this().isContainer:
+        if name_index[1] == -1:
+            filehandle.write("        goto('"+name_index[0]+"')\n")
+        else:
+            filehandle.write("        goto('"+name_index[0]+"',"+str(name_index[1])+")\n")
+        filehandle.write("        self."+savename+" = this()\n")
+        saveAccessSubContainer(filehandle)
+    else:
+        if name_index[1] == -1:
+            filehandle.write('        self.'+savename+" = widget('"+name_index[0]+"')\n")
+        else:
+            filehandle.write('        self.'+savename+" = widget('"+name_index[0]+"',"+str(name_index[1])+")\n")
+
+def saveAccessContainer(filehandle):
+
+    dictionary = container().Dictionary.elements
+ 
+    # sorted name list
+    namelist = []
+    for name in dictionary:
+        if name != NONAME: namelist.append(name)
+    namelist.sort()
+
+    # now we save the widgets in the container
+    for name in namelist:
+        e = dictionary[name]
+        index = 0
+        for x in e:
+            if x.isContainer or ACCESS_DEPTH_WIDGET:
+                setWidgetSelection(x)
+                if len(e) == 1: saveAccessWidget(filehandle,(name,-1))
+                else:saveAccessWidget(filehandle,(name,index))
+            index += 1
+ 
+def saveAccess(filehandle,isWidgets=False):
+    global ACCESS_DEPTH_WIDGET
+
+    if not this().save: return	# if this shouldn't be saved
+
+    ACCESS_DEPTH_WIDGET = isWidgets
+    AccessDictionary.clear()
+
+    filehandle.write('class Access:\n\n    def __init__(self):\n\n')
+   
+    if this() == container():
+        saveAccessContainer(filehandle)
+    else:
+        if isinstance(container(),_CreateTopLevelRoot):
+            filehandle.write('        gotoTop()\n')
+            
+        saveAccessWidget(filehandle,getNameAndIndex())
+
+    AccessDictionary.clear()
+    ACCESS_DEPTH_WIDGET = False
+    
+
+
+# ========== End save Access ===========================================================
+
 
 
 def DynImportCode(filename):
@@ -2144,6 +2252,23 @@ def DynLoad(filename):
 
 _DynLoad = DynLoad
 
+
+def DynAccess(filename):
+    try:
+        handle = open(filename,'r')
+    except: 
+        print("Couldn't open file: " + filename)
+        return
+    code = handle.read()
+    selection_before = Selection()
+    evcode = compile(code,filename,'exec')
+    exec(evcode)
+    retval = locals()['Access']()
+    setSelection(selection_before)
+    return retval
+
+
+
 '''
 def load_Script(parent,filename):
     try:
@@ -2159,8 +2284,9 @@ def load_Script(parent,filename):
 
 def DynLink(filename):
     goIn()
-    DynLoad(filename)
+    retval = DynLoad(filename)
     goOut()
+    return retval
 
 def quit(): _Application.quit()
 

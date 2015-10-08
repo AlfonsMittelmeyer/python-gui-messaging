@@ -4,13 +4,45 @@ goIn()
 Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
+MenuItem('Access','cascade',**{'label': 'Save Access'})
+goIn()
+
+Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+goIn()
+
+MenuItem('Container','command',**{'label': 'Container Depth'})
+MenuItem('Widget','command',**{'label': 'Widget Depth'})
+
+widget('Widget').layout(index=1)
+widget('Container').layout(index=2)
+
+### CODE ===================================================
+
+def get_root_name_2():
+    selection_before = Selection()
+    gotoRoot()
+    _Selection._container = _TopLevelRoot._container
+    name = '//'+getNameAndIndex()[0]+'/'
+    setSelection(selection_before)
+    return name
+
+widget('Widget').do_command(lambda name=get_root_name_2: send("SAVE_ACCESS_WIDGETS_ALL",name()))
+widget('Container').do_command(lambda name=get_root_name_2: send("SAVE_ACCESS_CONTAINERS_ALL",name()))
+
+### ========================================================
+
+goOut()
+select_menu()
+
+goOut()
+
 MenuItem('Load & Edit','command',**{'label': 'Load & Edit'})
 MenuItem('Load & Run','command',**{'label': 'Load & Run'})
 MenuItem('Save','command',**{'label': 'Save'})
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#ececec'})
+Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -73,10 +105,11 @@ goOut()
 MenuItem('separator','separator')
 
 widget('Save').layout(index=1)
-widget('Load & Edit').layout(index=2)
-widget('Load & Run').layout(index=3)
-widget('separator').layout(index=4)
-widget('Split & Join').layout(index=5)
+widget('Access').layout(index=2)
+widget('Load & Edit').layout(index=3)
+widget('Load & Run').layout(index=4)
+widget('separator').layout(index=5)
+widget('Split & Join').layout(index=6)
 
 ### CODE ===================================================
 
@@ -116,7 +149,7 @@ goIn()
 MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#ececec'})
+Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -197,6 +230,7 @@ select_menu()
 
 goOut()
 
+
 widget('File').layout(index=1)
 widget('Special').layout(index=2)
 
@@ -210,4 +244,3 @@ def enable_file(wi=widget('File')):
 do_receive("SELECTION_CHANGED",enable_file)
 
 ### ========================================================
-
