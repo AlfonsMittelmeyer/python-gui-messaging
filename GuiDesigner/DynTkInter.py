@@ -2295,6 +2295,10 @@ def exportSubcontainer(filehandle,name):
     filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
     filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
  
+    if isinstance(this(),Tk) or isinstance(this(),Toplevel):
+        conf_dict = get_save_config()
+        if len(conf_dict) != 0: filehandle.write('        self.config(**'+str(conf_dict)+")\n")
+ 
     goIn()
     exportContainer(filehandle)
     goOut()
