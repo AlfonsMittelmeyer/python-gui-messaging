@@ -1,3 +1,20 @@
+# encoding: UTF-8
+#
+# Copyright 2015 Alfons Mittelmeyer
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/>.
+
+
 import tkinter as StatTkInter
 from tkinter import *
 from tkinter import messagebox
@@ -411,7 +428,6 @@ class GuiElement:
     # config settings with the options as a string - is used by the GUI Creator
 
     def setconfig(self,name,value):
-        if name == 'geometry': self.geometry_changed = value != ''
         confdict={}
         confdict[name] = value
         try: self.config(**confdict)
@@ -695,6 +711,10 @@ class Tk(GuiElement,StatTkInter.Tk):
     def __init__(self,myname="Application",**kwargs):
 
         global proxy
+
+        self.geometry_changed = False
+        self.title_changed = False
+
         self.tkClass = StatTkInter.Tk 
         Stack= []
         ObjectStack = []
@@ -716,8 +736,13 @@ class Tk(GuiElement,StatTkInter.Tk):
         self.tkClass.__init__(self,**kwargs)
         proxy = dynproxy.Proxy()
 
-        if mytitle != None: self.title(mytitle)
-        if mygeometry != None: self.geometry(mygeometry)
+        if mytitle != None:
+            self.title(mytitle)
+            self.title_changed = True
+
+        if mygeometry != None:
+            self.geometry(mygeometry)
+            self.geometry_changed = True
 
         global _Application
         _Application = self
@@ -766,9 +791,6 @@ class Tk(GuiElement,StatTkInter.Tk):
         _AppConf.pop("title",None)
         _AppConf.pop("geometry",None)
         _AppConf.pop("link",None)
-        self.geometry_changed = False
-        self.title_changed = False
-
         FileImportContainer(self)
         cdApp()
         
@@ -807,6 +829,7 @@ class Tk(GuiElement,StatTkInter.Tk):
                 kwargs.pop('title',None)
             if 'geometry' in kwargs: 
                 self.geometry(kwargs['geometry'])
+                self.geometry_changed = kwargs['geometry'] != ''
                 kwargs.pop('geometry',None)
             if 'link' in kwargs:
                 self.link = kwargs['link']
@@ -850,6 +873,7 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
 
         self.tkClass = StatTkInter.Toplevel
         self.title_changed = False
+        self.geometry_changed = False
 
         master,myname,select = _getMasterAndNameAndSelect(myname,"Toplevel")
         kwargs["master"] = master
@@ -868,10 +892,12 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         mygeometry = None
         if "title" in kwargs:
             mytitle = kwargs['title']
+            self.title_changed = True
             kwargs.pop('title',None)
 
         if "geometry" in kwargs:
             mygeometry = kwargs['geometry']
+            self.geometry_changed = True
             kwargs.pop('geometry',None)
 
         self.tkClass.__init__(self,**kwargs)
@@ -910,7 +936,6 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
         self.master = master
         goIn()
         FileImportContainer(self)
-        self.geometry_changed = False
 
     def destroy(self):
         selection = Selection()
@@ -954,6 +979,7 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
                 kwargs.pop('title',None)
             if 'geometry' in kwargs: 
                 self.geometry(kwargs['geometry'])
+                self.geometry_changed = kwargs['geometry'] != ''
                 kwargs.pop('geometry',None)
 
             if 'link' in kwargs:
@@ -1284,7 +1310,6 @@ class Listbox(GuiElement,StatTkInter.Listbox):
         self.delete(0,END)		
         for e in string.split("\n"): self.insert(END,e)
 
-
     def fillList(self,elements):
         self.delete(0,END)		
         for e in elements: self.insert(END,e)
@@ -1435,6 +1460,16 @@ class Menu(GuiElement,StatTkInter.Menu):
         self.tkClass = StatTkInter.Menu
         master,myname,select = _getMasterAndNameAndSelect(myname,"Menu")
  
+        if isinstance(master,MenuItem):
+            push(Selection())
+            setWidgetSelection(master)
+            gotoRoot()
+            rootwidget=this()
+            setSelection(pop())
+            kwargs["master"] = rootwidget
+        else: kwargs["master"] = master
+            
+        '''
         if isinstance(container(),MenuItem):
             push(Selection())
             setWidgetSelection(container())
@@ -1443,6 +1478,8 @@ class Menu(GuiElement,StatTkInter.Menu):
             setSelection(pop())
             kwargs["master"] = rootwidget
         else: kwargs["master"] = master
+        '''
+
 
         self.link = ""
         if "link" in kwargs:
@@ -1450,7 +1487,8 @@ class Menu(GuiElement,StatTkInter.Menu):
             kwargs.pop('link',None)
 
         StatTkInter.Menu.__init__(self,**kwargs)
-        self.master = container()
+        #self.master = container()
+        self.master = master
         self.isContainer = True
         GuiElement.__init__(self,myname,select)
 
@@ -1831,7 +1869,7 @@ def get_layout_dictionary():
     for n,e in dict(layoutDict).items():
         if e == layoutCompare[n]: layoutDict.pop(n,None)
 
-    for n,e in layoutDict.items(): layoutDict[n] = str(e)
+    for n,e in layoutDict.items(): layoutDict[n] = repr(e)
 
 
     return layoutDict
@@ -1851,7 +1889,7 @@ def save_immediate_layout(filehandle):
         filehandle.write(indent+"select_menu(")
         layout = {}
         
-    if len(layout) != 0: filehandle.write("**"+str(layout))
+    if len(layout) != 0: filehandle.write("**"+repr(layout))
     filehandle.write(")")
 
 def save_pack_entries(filehandle):
@@ -1888,12 +1926,10 @@ def save_pack_entries(filehandle):
 
             for n,e in dict(layoutWidget).items():
                 if e == layoutCompare[n]: layoutWidget.pop(n,None)
-
-            first = True
-            for n,e in layoutWidget.items():
-                if not first: filehandle.write(",")			
-                filehandle.write(n+"='"+str(e)+"'")
-                first=False
+            
+            if len(layoutWidget) != 0:
+                filehandle.write('**'+repr(layoutWidget))
+           
             filehandle.write(")\n")
         
     if container().tkClass == StatTkInter.PanedWindow:
@@ -1992,7 +2028,7 @@ def save_widget(filehandle,name):
     if SAVE_ALL: conf_dict.pop('link',None)
     
     if len(conf_dict) != 0:
-        filehandle.write(",**"+str(conf_dict)+")")
+        filehandle.write(",**"+repr(conf_dict)+")")
     else:
          filehandle.write(")")
 
@@ -2160,6 +2196,14 @@ def saveAccess(filehandle,isWidgets=False):
 
 EXPORT_NAME = False
 
+def get_grid_dict(confdict):
+    grid_dict = {}
+    for entry in ('grid_cols','grid_rows','grid_multi_cols','grid_multi_rows'):
+        value = confdict.pop(entry,None)
+        if value != None: grid_dict[entry] = value
+    return grid_dict
+
+
 def makeCamelCase(word):
     return ''.join(x.capitalize() or '_' for x in word.split('_'))
 
@@ -2173,7 +2217,8 @@ def export_pack_entries(filehandle):
         filehandle.write(indent+"        self.")
         setWidgetSelection(e)
         nameAndIndex = getNameAndIndex()
-        filehandle.write(nameAndIndex[0])
+
+        if this().Layout != PANELAYOUT: filehandle.write(nameAndIndex[0])
 
         if this().Layout == MENUITEMLAYOUT:
             filehandle.write(".layout(index="+str(item_index)+")\n")
@@ -2190,18 +2235,18 @@ def export_pack_entries(filehandle):
                 layoutCompare = dict(CompareWidget.pack_info())
                 CompareWidget.destroy()
             elif this().Layout == PANELAYOUT:
-                filehandle.write(".pane(")
+                filehandle.write("add(self."+nameAndIndex[0]) # point already written 'self.'
                 layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
 
             for n,e in dict(layoutWidget).items():
                 if e == layoutCompare[n]: layoutWidget.pop(n,None)
+ 
+            if len(layoutWidget) != 0:
+                if this().Layout == PANELAYOUT: filehandle.write(",")
+                filehandle.write('**'+repr(layoutWidget))
 
-            first = True
-            for n,e in layoutWidget.items():
-                if not first: filehandle.write(",")			
-                filehandle.write(n+"='"+str(e)+"'")
-                first=False
             filehandle.write(")\n")
+
         
     if container().tkClass == StatTkInter.PanedWindow:
 
@@ -2213,7 +2258,7 @@ def export_pack_entries(filehandle):
                 index += 1
             except: break
         for i in range(len(sash_list)):
-            filehandle.write(indent+"container().trigger_sash_place("+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+            filehandle.write("        ext.trigger_sash_place(self,"+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 
 def export_immediate_layout(filehandle,name):
@@ -2245,18 +2290,32 @@ def exportWidget(filehandle,name):
     
     if EXPORT_NAME:
         if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"'),'"+this().mytype+"'")
+        elif isinstance(this(),MenuDelimiter): filehandle.write('        self.entryconfig(0')
         else: filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"')")
     else:
-        if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"(self,'"+this().mytype+"'")
+        if isinstance(this(),MenuItem):
+            if this().hasWidgets(): filehandle.write('        self.'+name+' = '+class_name+"(self,'"+this().mytype+"'")
+            else: filehandle.write('        self.'+name+' = ext.'+thisClass+"(self,'"+this().mytype+"'")
+        elif isinstance(this(),Menu) and not this().hasWidgets(): filehandle.write('        self.'+name+' = ext.'+thisClass+"(self")
+        elif isinstance(this(),MenuDelimiter): filehandle.write('        self.entryconfig(0')
         else: filehandle.write('        self.'+name+' = '+class_name+"(self")
 
     conf_dict = get_save_config()
     if SAVE_ALL: conf_dict.pop('link',None)
     
+    lbtext = None
+    if isinstance(this(),Listbox): lbtext = conf_dict.pop('text',None)
+
+    grid_dict = get_grid_dict(conf_dict)
+    if len(grid_dict) != 0: filehandle.write('        ext.grid_table(**'+repr(grid_dict)+')\n')
+
     if len(conf_dict) != 0:
         filehandle.write(",**"+str(conf_dict)+")\n")
     else:
          filehandle.write(")\n")
+
+    if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self.'+name+',**'+repr(grid_dict)+')\n')
+    if lbtext != None: filehandle.write('        ext.fill_listbox_with_string(self.'+name+','+repr(lbtext)+')\n')
 
     export_immediate_layout(filehandle,name)
 
@@ -2294,13 +2353,38 @@ def exportSubcontainer(filehandle,name):
     if isinstance(this(),Tk): thisMaster = ''
     else: thisMaster = ',master'
         
-    filehandle.write('\nclass '+class_name+'(tk.'+thisClass+'):\n\n')
-    filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
-    filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
+
+    if isinstance(this(),MenuItem):
+        if EXPORT_NAME:
+            filehandle.write('\nclass '+class_name+'(tk.'+thisClass+'):\n\n')
+        else:
+            filehandle.write('\nclass '+class_name+'(ext.'+thisClass+'):\n\n')
+
+        filehandle.write('    def __init__(self'+thisMaster+',item,**kwargs):\n')
+        if EXPORT_NAME:
+            filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',item,**kwargs)\n')
+        else:
+            filehandle.write('        ext.'+thisClass+'.__init__(self'+thisMaster+',item,**kwargs)\n')
+    elif isinstance(this(),Menu) and not EXPORT_NAME:
+        filehandle.write('\nclass '+class_name+'(ext.'+thisClass+'):\n\n')
+        filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
+        filehandle.write('        ext.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
+    else:
+        filehandle.write('\nclass '+class_name+'(tk.'+thisClass+'):\n\n')
+        filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
+        filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
  
     if isinstance(this(),Tk) or isinstance(this(),Toplevel):
         conf_dict = get_save_config()
-        if len(conf_dict) != 0: filehandle.write('        self.config(**'+str(conf_dict)+")\n")
+
+        tit = conf_dict.pop('title',None)
+        if tit != None: filehandle.write('        self.title('+repr(tit)+")\n")
+        geo = conf_dict.pop('geometry',None)
+        if geo != None: filehandle.write('        self.geometry('+repr(geo)+")\n")
+        
+        grid_dict = get_grid_dict(conf_dict)
+        if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self,**'+repr(grid_dict)+')\n')
+        if len(conf_dict) != 0: filehandle.write('        self.config(**'+repr(conf_dict)+")\n")
  
     goIn()
     exportContainer(filehandle)
@@ -2309,9 +2393,17 @@ def exportSubcontainer(filehandle,name):
 def saveExport(filehandle,flag=False):
 
     global SAVE_ALL
+    global EXPORT_NAME
+    
+    EXPORT_NAME = flag
     SAVE_ALL = True
 
-    filehandle.write('import DynTkInter as tk\n')
+    if EXPORT_NAME:
+        filehandle.write('import DynTkInter as tk\n')
+    else:
+        filehandle.write('import tkinter as tk\n')
+
+    filehandle.write('import DynTkExtend as ext\n')
 
     name = getNameAndIndex()[0]
     exportSubcontainer(filehandle,name)
@@ -2325,6 +2417,7 @@ def saveExport(filehandle,flag=False):
 
     if this() == _Application: filehandle.write('\n'+makeCamelCase(name)+'().mainloop()\n')
    
+    EXPORT_NAME = False
     SAVE_ALL = False
  
  # ========== Save Export ===========================================================
@@ -2485,3 +2578,9 @@ def informLater(ms,widget,actionid,message=None): _Application.after(ms,_informL
 def gui(): DynLoad("guidesigner/Guidesigner.py")
 
 def select_menu(): this().select_menu()
+
+# ========== For Listbox =============
+
+def fill_listbox_with_string(listbox,string):
+    listbox.delete(0,END)		
+    for e in string.split("\n"): listbox.insert(END,e)
