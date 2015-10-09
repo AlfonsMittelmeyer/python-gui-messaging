@@ -1869,7 +1869,7 @@ def get_layout_dictionary():
     for n,e in dict(layoutDict).items():
         if e == layoutCompare[n]: layoutDict.pop(n,None)
 
-    for n,e in layoutDict.items(): layoutDict[n] = repr(e)
+    for n,e in layoutDict.items(): layoutDict[n] = str(e)
 
 
     return layoutDict
@@ -1996,8 +1996,8 @@ def get_save_config():
                     for entry in this().grid_multi_conf_rows:
                         if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
                         index += 1
-                    dictionaryConfig['grid_multi_rows'] = str(conf_list)
-            dictionaryConfig['grid_rows'] = str(this().grid_conf_rows)
+                    dictionaryConfig['grid_multi_rows'] = repr(conf_list)
+            dictionaryConfig['grid_rows'] =repr(this().grid_conf_rows)
 
     if this().grid_conf_cols != None:
         if this().grid_conf_cols[0] != 0:
@@ -2008,8 +2008,8 @@ def get_save_config():
                     for entry in this().grid_multi_conf_cols:
                         if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
                         index += 1
-                    dictionaryConfig['grid_multi_cols'] = str(conf_list)
-            dictionaryConfig['grid_cols'] = str(this().grid_conf_cols)
+                    dictionaryConfig['grid_multi_cols'] = repr(conf_list)
+            dictionaryConfig['grid_cols'] = repr(this().grid_conf_cols)
             
     return dictionaryConfig
 
@@ -2276,7 +2276,7 @@ def export_immediate_layout(filehandle,name):
         filehandle.write("select_menu(")
         layout = {}
         
-    if len(layout) != 0: filehandle.write("**"+str(layout))
+    if len(layout) != 0: filehandle.write("**"+repr(layout))
     filehandle.write(")\n")
 
 def exportWidget(filehandle,name):
