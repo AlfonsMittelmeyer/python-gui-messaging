@@ -1869,8 +1869,8 @@ def get_layout_dictionary():
     for n,e in dict(layoutDict).items():
         if e == layoutCompare[n]: layoutDict.pop(n,None)
 
-    for n,e in layoutDict.items(): layoutDict[n] = str(e)
-
+    # Causes bug for tuple - padx, do we have some pixel object?
+    #for n,e in layoutDict.items(): layoutDict[n] = str(e)
 
     return layoutDict
 
