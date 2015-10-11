@@ -1944,12 +1944,13 @@ def save_pack_entries(filehandle):
             filehandle.write(indent+"container().trigger_sash_place("+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 def save_sub_container(filehandle):
-    if not this().hasWidgets(): return False
+    if not this().isContainer: return False
+    if not this().hasWidgets() and len(this().CODE) == 0: return False
 
     filehandle.write("\n"+indent+"goIn()\n\n")
 
     # entweder nur der Code des Untercontainers
-    if this().onlysavecode and len(this().CODE) != 0:
+    if (not this().hasWidgets() or this().onlysavecode) and len(this().CODE) != 0:
         filehandle.write("### CODE ===================================================\n")
         filehandle.write(this().CODE)
         filehandle.write("### ========================================================\n")

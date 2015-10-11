@@ -71,7 +71,10 @@ def listbox_selection(helpbutton = listbox_helpbutton):
 def entry_event(me):
     setlayout(me.mydata,me.get())
     me.delete(0,END)
-    me.insert(0,str(getlayout(me.mydata)))
+    value = getlayout(me.mydata)
+    if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
+    else: strval = str(value) 
+    me.insert(0,strval)
     me['bg']='gray'
     informLater(300,me,'color')
     send("LAYOUT_OPTIONS_CHANGED",this())
