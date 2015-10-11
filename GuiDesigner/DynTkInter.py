@@ -2076,12 +2076,17 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
     SAVE_ALL = saveAll
 
     if this() == container():
+        
+        if saveAll and isinstance(this(),Toplevel):
+            _Selection._container = _TopLevelRoot._container
+            save_widget(filehandle,getNameAndIndex()[0])
+        else:
 
-        if withConfig:
-            conf_dict = get_save_config()
-            conf_dict.pop('link',None)
-            if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
-        saveContainer(filehandle)
+            if withConfig:
+                conf_dict = get_save_config()
+                conf_dict.pop('link',None)
+                if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
+            saveContainer(filehandle)
 
     else: 
         save_widget(filehandle,getNameAndIndex()[0])
