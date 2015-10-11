@@ -28,9 +28,9 @@ def geometry_refresh(me,widget):
     informLater(1000,me,'refresh')
 
 
-this().mydata=[None,None,None,None,None]
+widget('Frame').mydata=[None,None,None,None,None]
 
-def undo_refresh(thisframe=this()):
+def undo_refresh(thisframe=widget('Frame')):
     if thisframe.mydata[4] != None: undo_action(thisframe.mydata[4],'refresh')
     thisframe.mydata=[None,None,None,None,None]
 
