@@ -1,6 +1,8 @@
-Label('PaneTitle',text="""pane""",bg='yellow',fg='blue',anchor='n').grid(sticky='w',row='0')
-Button('ADD',text="""ADD""",pady='2',padx='1',bg='green',anchor='n').grid(column='1',sticky='w',row='0')
-LabelFrame('Sashes',text="""Sashes""",pady='2',padx='1').grid(columnspan='3',row='1')
+config(**{'grid_cols': '(2, 75, 0, 0)','grid_rows': '(1, 25, 0, 0)'})
+
+Button('ADD',**{'text': 'ADD', 'pady': '2', 'padx': '1m', 'bd': '3', 'bg': 'green', 'anchor': 'n'}).grid(**{'column': '1', 'sticky': 'nesw', 'padx': '5', 'row': '0'})
+Label('PaneTitle',**{'text': 'pane', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'yellow', 'fg': 'blue', 'relief': 'ridge', 'anchor': 'n'}).grid(**{'sticky': 'ew', 'row': '0'})
+LabelFrame('Sashes',**{'text': 'Sashes', 'pady': '2', 'padx': '1'}).grid(**{'columnspan': '3', 'row': '1'})
 
 ### CODE ===================================================
 

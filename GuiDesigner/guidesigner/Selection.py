@@ -1,8 +1,8 @@
 Frame("Buttons",link="guidesigner/Buttons.py")
-pack()
+pack(anchor='nw')
 
 Frame("SelectionShow",bg="white",link="guidesigner/SelectionShow.py")
-pack()
+pack(anchor='nw')
 
 ### CODE ===================================================
 

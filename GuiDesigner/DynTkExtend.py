@@ -59,11 +59,9 @@ def grid_table(container,grid_rows = None, grid_cols = None, grid_multi_rows = N
     grid_multi_conf_rows = []
 
     if grid_multi_rows != None:
-        grid_conf_individual_has = True
         grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
 
     if grid_multi_cols != None:
-        grid_conf_individual_has = True
         grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
 
     if grid_cols != None:
@@ -99,9 +97,18 @@ class Menu(tk.Menu):
         self.master = master
         self.itemlist = []
 
+
+
     def select_menu(self):
         menubase = self.master if (isinstance(self.master,MenuItem) or isinstance(self.master,tk.Menubutton)) else find_root(self)
         menubase.config(menu=self)
+
+    def selectmenu_forget(self):
+        menubase = self.master if (isinstance(self.master,MenuItem) or isinstance(self.master,tk.Menubutton)) else find_root(self)
+        menubase.config(menu='')
+
+    def layout(self): self.select_menu()
+    def unlayout(self): self.selectmenu_forget()
 
     def add_to_itemlist(self,menu_item):
         self.itemlist.append(menu_item)
@@ -197,4 +204,13 @@ class MenuItem:
                 dictionary[entry] = self.master.entrycget(index,entry)
             except tk.TclError: pass
         return dictionary
+
+class MenuDelimiter():
+    def __init__(self,master,**kwargs):
+
+        self.master = master
+        self.master.entryconfig(0,**kwargs)
+
+    def config(self,**kwargs):
+        self.master.entryconfig(0,**kwargs)
 

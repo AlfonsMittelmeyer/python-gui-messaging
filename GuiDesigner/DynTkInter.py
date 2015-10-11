@@ -356,7 +356,6 @@ class GuiElement:
         elif layout == PANELAYOUT: self.pane_forget()
         elif layout == MENULAYOUT: self.selectmenu_forget()
 
-
     def item_change_index(self,index):
 
         old_index = self.getPackListIndex()
@@ -2079,6 +2078,7 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
 
         if withConfig:
             conf_dict = get_save_config()
+            conf_dict.pop('link',None)
             if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
         saveContainer(filehandle)
 
@@ -2290,14 +2290,16 @@ def exportWidget(filehandle,name):
     
     if EXPORT_NAME:
         if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"'),'"+this().mytype+"'")
-        elif isinstance(this(),MenuDelimiter): filehandle.write('        self.entryconfig(0')
+        #elif isinstance(this(),MenuDelimiter): filehandle.write('        self.entryconfig(0')
         else: filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"')")
     else:
         if isinstance(this(),MenuItem):
             if this().hasWidgets(): filehandle.write('        self.'+name+' = '+class_name+"(self,'"+this().mytype+"'")
             else: filehandle.write('        self.'+name+' = ext.'+thisClass+"(self,'"+this().mytype+"'")
         elif isinstance(this(),Menu) and not this().hasWidgets(): filehandle.write('        self.'+name+' = ext.'+thisClass+"(self")
-        elif isinstance(this(),MenuDelimiter): filehandle.write('        self.entryconfig(0')
+        elif isinstance(this(),MenuDelimiter):
+            #filehandle.write('        self.entryconfig(0')
+            filehandle.write('        self.'+name+' = ext.'+thisClass+"(self")
         else: filehandle.write('        self.'+name+' = '+class_name+"(self")
 
     conf_dict = get_save_config()
@@ -2579,8 +2581,27 @@ def gui(): DynLoad("guidesigner/Guidesigner.py")
 
 def select_menu(): this().select_menu()
 
-# ========== For Listbox =============
+# ========== For Compatibility with Export with Names =============
 
 def fill_listbox_with_string(listbox,string):
     listbox.delete(0,END)		
     for e in string.split("\n"): listbox.insert(END,e)
+    
+def grid_table(container,grid_rows = None, grid_cols = None, grid_multi_rows = None, grid_multi_cols = None):
+    if grid_multi_rows != None:
+        container.grid_conf_individual_has = True
+        container.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
+
+    if grid_multi_cols != None:
+        container.grid_conf_individual_has = True
+        container.grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
+
+    if grid_cols != None:
+        container.grid_conf_cols = eval(grid_cols)
+        grid_configure_cols(container)
+
+    if grid_rows != None:
+        container.grid_conf_rows = eval(grid_rows)
+        grid_configure_rows(container)
+
+

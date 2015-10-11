@@ -1,3 +1,5 @@
+MenuItem('Config','command',**{'label': 'Config ON', 'background': 'green'})
+MenuItem('Create','command',**{'label': 'Create ON', 'columnbreak': '1', 'background': 'green'})
 MenuItem('File','cascade',**{'label': 'File'})
 goIn()
 
@@ -182,6 +184,8 @@ select_menu()
 
 goOut()
 
+MenuItem('Layout','command',**{'label': 'Layout ON', 'background': 'green'})
+MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'green'})
 MenuItem('Special','cascade',**{'label': 'Special'})
 goIn()
 
@@ -272,9 +276,19 @@ select_menu()
 
 goOut()
 
+MenuItem('space','command',**{'label': ''})
+MenuItem('space','command',**{'label': ''})
+MenuItem('space','command',**{'label': ''})
 
 widget('File').layout(index=1)
 widget('Special').layout(index=2)
+widget('Create').layout(index=3)
+widget('space',0).layout(index=4)
+widget('Config').layout(index=5)
+widget('space',1).layout(index=6)
+widget('Layout').layout(index=7)
+widget('space',2).layout(index=8)
+widget('Mouse').layout(index=9)
 
 ### CODE ===================================================
 
@@ -284,5 +298,51 @@ def enable_file(wi=widget('File')):
     wi.config(state = state)
 
 do_receive("SELECTION_CHANGED",enable_file)
+
+
+# ----
+
+widget("Config").mydata = False
+widget("Layout").mydata = False
+widget("Create").mydata = False
+widget("Mouse").mydata = False
+
+def function_callback(me,message_to_send,thisText=None):
+    me.mydata = not me.mydata
+    if message_to_send == "MOUSE_SELECT_ON": container().is_mouse_select_on = me.mydata
+    send(message_to_send,me.mydata)
+    if me.mydata: me.config(label=thisText+" OFF",background="orange")
+    else: me.config(label=thisText+" ON",background="green")
+
+def call(widget_name,message_to_send,callback=function_callback):
+    widget(widget_name).do_command(callback,(message_to_send,widget_name),True)
+
+call("Config","SHOW_CONFIG")
+call("Layout","SHOW_LAYOUT")
+call("Create","SHOW_CREATE")
+call("Mouse","MOUSE_SELECT_ON")
+
+send("SHOW_CREATE",False)
+
+def switch_mouse_on(mouse_button=widget("Mouse"),funct=function_callback):
+    if not mouse_button.mydata: funct(mouse_button,"MOUSE_SELECT_ON",'Mouse')
+
+do_receive("SWITCH_MOUSE_ON",switch_mouse_on)
+
+
+def set_option_buttons(message,buttons=(widget("Config"),widget("Layout"),widget("Create"),widget("Mouse"))):
+    for i in range(len(message)):
+        if message[i] != buttons[i].mydata: buttons[i].invoke()
+
+do_receive('SET_OPTION_BUTTONS',set_option_buttons,wishMessage=True)
+
+
+def check_mouse_on(mouse=widget('Mouse'),func=function_callback):
+    #if container().is_mouse_select_on != mouse.mydata: mouse.invoke()
+    if container().is_mouse_select_on != mouse.mydata: func(mouse,"MOUSE_SELECT_ON",'Mouse')
+
+    
+do_receive('SELECTION_CHANGED',check_mouse_on)
+
 
 ### ========================================================

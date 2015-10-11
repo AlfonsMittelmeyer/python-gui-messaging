@@ -1,9 +1,10 @@
+config(**{'text': 'Create Widget', 'grid_cols': '(4, 43, 0, 0)', 'grid_multi_cols': '[4, (1, 64, 0, 0), (2, 3, 0, 0), (3, 26, 0, 0)]', 'grid_rows': '(2, 25, 0, 0)'})
 
-Button('Create',text="""Create""",bg='green').grid(column='3',sticky='e',row='0')
-Label('Type',text="""Button""",bg='yellow',fg='blue').grid(column='1',sticky='w',row='0')
-Entry('Name').grid(column='1',columnspan='3',row='1')
-Label('Label',text="""Class""").grid(row='0')
-Label('Label',text="""Name""").grid(row='1')
+Button('Create',**{'text': 'Create', 'pady': '1', 'padx': '1', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nes', 'row': '0'})
+Label('Label',**{'text': 'Class'}).grid(**{'row': '0'})
+Label('Label',**{'text': 'Name'}).grid(**{'row': '1'})
+Entry('Name').grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '3', 'row': '1'})
+Label('Type',**{'text': 'Button', 'font': 'TkDefaultFont 9 bold', 'bg': 'yellow', 'fg': 'blue', 'relief': 'ridge'}).grid(**{'column': '1', 'sticky': 'ew', 'row': '0'})
 
 ### CODE ===================================================
 
