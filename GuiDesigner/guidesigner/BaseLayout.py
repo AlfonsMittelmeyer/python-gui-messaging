@@ -149,7 +149,7 @@ def mouse_select_on(select_on,select_hili_on = select_hili_on,hili_off=hili_off)
             if wi.Layout in (PACKLAYOUT,PANELAYOUT,GRIDLAYOUT,PLACELAYOUT):
                 wi.unbind('<Button-1>')
                 wi.unbind('<ButtonRelease-1>')
-                wi.mydata = None
+                wi.mydata = [0,0,0,0,0,0,False]
     else:
         for wi in widget_list:
             if wi.Layout in (PACKLAYOUT,PANELAYOUT):

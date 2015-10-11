@@ -84,13 +84,18 @@ def do_add():
     send('UPDATE_MOUSE_SELECT_ON')
     send("BASE_LAYOUT_CHANGED",NOLAYOUT) # NOLAYOUT because always trigger a sash_list_refreh via event BASE_LAYOUT_REFRESH
 
-def enable_motion(enable,panewin=container(),refresh=refresh_sash_list,paned_event=paned_win_event):
+sashid_list = [False,None]
+
+def enable_motion(enable,panewin=container(),refresh=refresh_sash_list,paned_event=paned_win_event,sashlist = sashid_list):
     if enable:
         panewin.mydata = container()
         refresh()
-        container().bind('<B1-Motion>',paned_event)
+        sashlist[1] = container().bind('<B1-Motion>',paned_event)
+        sashlist[0] = True
     elif panewin.mydata != None:
-        panewin.mydata.unbind('<B1-Motion>')
+        if sashlist[0]:
+            panewin.mydata.unbind('<B1-Motion>',sashlist[1])
+            sashlist[0] = False
 
 widget("ADD").do_command(do_add)
 do_receive('BASE_LAYOUT_REFRESH',refresh_sash_list)
