@@ -3,8 +3,8 @@ goIn()
 LabelFrame('WidgetPath',**{'text': 'Path'})
 goIn()
 #Label('message_path',**{'width': '70', 'anchor': 'w','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x'})
-Message('message_path',**{'width': '500', 'anchor': 'nw','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x','expand':'1'})
-Frame('Frame',**{'width': '500'}).pack(anchor = 'nw')
+Message('message_path',**{'width': '550', 'anchor': 'nw','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x','expand':'1'})
+Frame('Frame',**{'width': '550'}).pack(anchor = 'nw')
 
 
 ### CODE ===================================================
@@ -66,6 +66,12 @@ LabelFrame("Selection",text="Selection",link="guidesigner/Selection.py")
 rcgrid(0,4,sticky='nw')
 
 ### CODE ===================================================
+
+def hide_gui(message,cont = container()):
+    if message: cont.unlayout()
+    else: cont.pack(anchor='nw') # GuiFrame
+
+do_receive('HIDE_GUI',hide_gui,wishMessage=True)
 
 widget("ConfigOptions").unlayout()
 widget("DetailedLayout").unlayout()

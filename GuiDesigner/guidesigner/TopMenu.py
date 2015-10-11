@@ -1,3 +1,5 @@
+config(**{'activebackground': '#ececec'})
+
 MenuItem('Config','command',**{'label': 'Config ON', 'background': 'green'})
 MenuItem('Create','command',**{'label': 'Create ON', 'columnbreak': '1', 'background': 'green'})
 MenuItem('File','cascade',**{'label': 'File'})
@@ -184,6 +186,7 @@ select_menu()
 
 goOut()
 
+MenuItem('Hide','command',**{'label': 'Hide'})
 MenuItem('Layout','command',**{'label': 'Layout ON', 'background': 'green'})
 MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'green'})
 MenuItem('Special','cascade',**{'label': 'Special'})
@@ -289,8 +292,11 @@ widget('space',1).layout(index=6)
 widget('Layout').layout(index=7)
 widget('space',2).layout(index=8)
 widget('Mouse').layout(index=9)
+widget('Hide').layout(index=10)
 
 ### CODE ===================================================
+
+widget('Hide').mydata = False
 
 def enable_file(wi=widget('File')):
 
@@ -335,6 +341,19 @@ def set_option_buttons(message,buttons=(widget("Config"),widget("Layout"),widget
         if message[i] != buttons[i].mydata: buttons[i].invoke()
 
 do_receive('SET_OPTION_BUTTONS',set_option_buttons,wishMessage=True)
+
+
+def hide_gui(me,buttons=((widget("Config"),"SHOW_CONFIG"),(widget("Layout"),"SHOW_LAYOUT"),(widget("Create"),"SHOW_CREATE"))):
+    me.mydata = not me.mydata
+    me.config(label = 'Show' if me.mydata else 'Hide')
+    send("HIDE_GUI",me.mydata)
+    enable_state = 'disabled' if me.mydata else 'normal'
+    for entry in buttons:
+        entry[0].config(state = enable_state)
+        if me.mydata and entry[0].mydata: send(entry[1],False)
+        elif not me.mydata and entry[0].mydata: send(entry[1],True)
+
+widget('Hide').do_command(hide_gui,wishWidget=True)
 
 
 def check_mouse_on(mouse=widget('Mouse'),func=function_callback):
