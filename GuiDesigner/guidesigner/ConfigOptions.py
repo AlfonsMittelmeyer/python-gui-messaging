@@ -184,6 +184,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "label",
 "text",
 "link",
+"type",
 "selectmode",
 "state",
 "underline",
@@ -308,6 +309,10 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 
                     elif entry[0] == "default":
                         Listbox(width=7,height=2).fillList(("active","disabled"))
+                        lbox_select()
+
+                    elif entry[0] == "type":
+                        Listbox(width=7,height=3).fillList(("normal","menubar","tearoff"))
                         lbox_select()
 
                     elif entry[0] in ["relief","buttonuprelief","sashrelief"]:

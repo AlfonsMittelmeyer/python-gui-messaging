@@ -148,6 +148,7 @@ def look_up_refs(RefDict=RefDict,for_names=for_names,Default_bg=Default_bg,RefCo
                 button['bg'] = Default_bg[0]
 
 do_receive('SHOW_SELECTION',look_up_refs)
+do_receive('SHOW_SELECTION_RENAME',for_names)
 
 ### ========================================================
 

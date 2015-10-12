@@ -438,6 +438,11 @@ def main():
         xpos = me.winfo_rootx()-me.container().winfo_rootx()
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
         me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True,False]
+        
+        # SHOW_CONFIG geht nicht - müsste das wohl als event und nicht als message machen - also mit bind statt do_event
+        #send('SHOW_LAYOUT',(None,True))
+        #send('SHOW_CONFIG',(None,True))
+
         me.yxplace(ypos,xpos)
         app_id[0] =_Application.bind('<ButtonRelease-1>',lambda event=event, wi = me, func=on_app_mouse_up: func(wi))
         mouse_move(me)
