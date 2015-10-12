@@ -2,7 +2,7 @@ config(**{'grid_cols': '(4, 50, 0, 0)', 'grid_rows': '(6, 20, 0, 0)'})
 
 Entry('EntryRows',**{'width': '6'}).grid(**{'column': '1', 'sticky': 'ns', 'row': '1'})
 Entry('EntryCols',**{'width': '6'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '1'})
-Checkbutton('Individual',**{'highlightthickness': '0', 'text': 'Indi-\nvidual', 'highlightbackground': '#ff8000'}).grid(**{'rowspan': '2', 'column': '3', 'sticky': 'esw', 'row': '3'})
+Checkbutton('Individual',**{'highlightthickness':'2','text': 'Indi-\nvidual'}).grid(**{'rowspan': '2', 'column': '3', 'sticky': 'esw', 'row': '3'})
 Button('ButtonShow',**{'text': 'Show', 'bd': '3', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '5'})
 Spinbox('EntryRowHeight',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '1', 'sticky': 'ns', 'row': '2'})
 Spinbox('EntryColWidth',**{'width': '4', 'to': '1000.0'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '2'})
@@ -43,6 +43,8 @@ widget('Individual').mydata=var
 
 
 def main():
+
+    indiv_hilibg = [widget('Individual')['highlightbackground']]
 
     #Button('ButtonForget',**{'text': 'Forget'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '5'})
 
@@ -212,9 +214,8 @@ def main():
         setSelection(selection_before)
         return top_window
 
-    def update_individual(cont,wi=widget('Individual')):
-        hilimark = 2 if cont.grid_conf_individual_has else 0
-        wi['highlightthickness'] = hilimark
+    def update_individual(cont,wi=widget('Individual'),hili_bg = indiv_hilibg[0]):
+        wi['highlightbackground'] = '#ff8000' if cont.grid_conf_individual_has else hili_bg
  
     def update_individual_mark(cont):
 
@@ -385,6 +386,7 @@ def main():
         send("BASE_LAYOUT_REFRESH",this())
         
     widget('ButtonShow')['command'] = show_grid
+    widget('ButtonShow').bind('<Return>',show_grid)
     widget('EntryRows').bind('<Return>',show_grid)
     widget('EntryCols').bind('<Return>',show_grid)
 
