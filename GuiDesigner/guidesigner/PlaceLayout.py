@@ -89,26 +89,35 @@ def main():
         xpos = me.winfo_rootx()-me.container().winfo_rootx()
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
 
-        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
+        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True,False]
         mouse_move(me)
 
         if this() != me:
             setWidgetSelection(me)
+            me.mydata[7] = True
+            send('SHOW_LAYOUT',(None,False))
+            send('SHOW_CONFIG',(None,False))
             send('SELECTION_CHANGED')
 
     def on_mouse_up(me,event):
         me.mydata[6] = False # stop timer
-        send('POSITION_CHANGED',me)
-        send('LAYOUT_VALUES_REFRESH',me)
+        if me.mydata[7]:
+            me.mydata[7] = False
+            send('SHOW_LAYOUT',(None,True))
+            send('SHOW_CONFIG',(None,True))
+            send('SELECTION_CHANGED')
+        else:
+            send('POSITION_CHANGED',me)
+            send('LAYOUT_VALUES_REFRESH',me)
 
     def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        me.mydata=[0,0,'mouse',0,0,0,True]
+        me.mydata=[0,0,'mouse',0,0,0,True,False]
         me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
         me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
 
     def place_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
         if type(me.mydata) != list or me.mydata[2]!= 'mouse':
-            me.mydata=([0,0,'mouse',0,0,0,True])
+            me.mydata=([0,0,'mouse',0,0,0,True,False])
             me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
             me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
 

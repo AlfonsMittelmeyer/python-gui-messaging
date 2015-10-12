@@ -406,6 +406,15 @@ def main():
             me.mydata[5] += step
             me.after(step,mouse_move,me)
 
+    def after_mouse_up(me):
+        if me.mydata[7]:
+            me.mydata[7] = False
+            send('SHOW_LAYOUT',(None,True))
+            send('SHOW_CONFIG',(None,True))
+            send('SELECTION_CHANGED')
+        else:
+            send('POSITION_CHANGED',me)
+            send('LAYOUT_VALUES_REFRESH',me)
 
 
     def on_mouse_up(me):
@@ -415,9 +424,7 @@ def main():
             if col < 0: col = 0
             if row < 0: row = 0
             me.rcgrid(row,col)
-            send('BASE_LAYOUT_CHANGED',PLACELAYOUT) # depending on the layout change we need less or more actions
-            send('POSITION_CHANGED',me)
-            send('LAYOUT_VALUES_REFRESH',me)
+            me.after(50,after_mouse_up,me)
 
     apprelease_id_list = [None]
 
@@ -430,24 +437,26 @@ def main():
 
         xpos = me.winfo_rootx()-me.container().winfo_rootx()
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
-        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True]
+        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True,False]
         me.yxplace(ypos,xpos)
         app_id[0] =_Application.bind('<ButtonRelease-1>',lambda event=event, wi = me, func=on_app_mouse_up: func(wi))
         mouse_move(me)
 
         if this() != me:
             setWidgetSelection(me)
+            me.mydata[7] = True
+            send('SHOW_LAYOUT',(None,False))
+            send('SHOW_CONFIG',(None,False))
             send('SELECTION_CHANGED')
 
-
     def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        me.mydata=([0,0,'mouse',0,0,0,True])
+        me.mydata=([0,0,'mouse',0,0,0,True,False])
         me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
         me.do_event('<ButtonRelease-1>',mouse_up,me)
 
     def grid_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
         if type(me.mydata) != list or me.mydata[2]!= 'mouse':
-            me.mydata=([0,0,'mouse',0,0,0,True])
+            me.mydata=([0,0,'mouse',0,0,0,True,False])
             me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
             me.do_event('<ButtonRelease-1>',mouse_up,me)
 

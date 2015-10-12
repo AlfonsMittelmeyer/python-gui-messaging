@@ -6,6 +6,8 @@ pack(fill=BOTH, expand=TRUE)
 
 Frame().pack(side=BOTTOM,anchor=NW)
 
+#Frame().pack(side=BOTTOM,anchor=NW)
+
 ### CODE ===================================================
 
 Lock()
@@ -52,7 +54,7 @@ widget("Canvas").do_event("<Configure>",canvas_configure,widget("Frame"),True)
 
 def frame_configure(me,canvas):
     canvas.config(scrollregion="0 0 %s %s" % (me.winfo_reqwidth(), me.winfo_reqheight()))
-    if me.winfo_reqwidth() != canvas.winfo_width(): canvas.config(width=me.winfo_reqwidth())
+    if me.winfo_reqwidth() > canvas.winfo_width(): canvas.config(width=me.winfo_reqwidth())
     if me.winfo_reqheight() > 340: canvas.config(height=340)
     else: canvas.config(height=me.winfo_reqheight())
 
@@ -130,7 +132,7 @@ def entry_event(me,button=None):
     me['bg']='gray'
     informLater(300,me,'color',True)
 
-enable_flag = [False]
+enable_flag = [False,False,False]
 
 def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("Frame"),color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = widget('Canvas'),no_refresh=undo_refresh,geo_refresh=geometry_refresh):
     if isinstance(msg,bool):
@@ -142,6 +144,18 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
             onflag[0]=False # switch flag to off
             no_refresh()
             cont.unlayout() # and unlayout the DetailedLayout frame
+
+    elif type(msg) is tuple:
+
+        if msg[1]:
+            onflag[0] = onflag[1]
+            onflag[2] = False
+        else:
+            if not onflag[2]: onflag[1] = onflag[0]
+            onflag[0] = False
+            onflag[2] = True
+            deleteAllWidgets(thisframe) # Frame
+
     elif onflag[0]: # a correct message arrived and show layout is on
         # reset references for value refresh  to not active
         if msg.hasConfig:

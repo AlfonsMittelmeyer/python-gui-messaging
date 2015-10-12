@@ -175,11 +175,11 @@ class GuiElement:
 
 
     def myRoot(self):
-        push(Selection())
+        selection_before = Selection()
         setWidgetSelection(self)
         gotoRoot()
         rootwidget=this()
-        setSelection(pop())
+        setSelection(selection_before)
         return rootwidget
 
     def container(self): return Create_Selection(self)._container
@@ -215,9 +215,8 @@ class GuiElement:
         if self.isMainWindow: setSelection(Create_Selection(self,_TopLevelRoot._container))
         else: setWidgetSelection(self)
 
-        push(getNameAndIndex())
-        if top()[0] != None: eraseEntry(top()[0],top()[1])
-        pop()
+        name_index = getNameAndIndex()
+        if name_index[0] != None: eraseEntry(name_index[0],name_index[1])
 
         if self.Layout == PACKLAYOUT or self.Layout == PANELAYOUT: self._removeFromPackList()
         if self.tkClass != Dummy:
@@ -1459,13 +1458,7 @@ class Menu(GuiElement,StatTkInter.Menu):
         self.tkClass = StatTkInter.Menu
         master,myname,select = _getMasterAndNameAndSelect(myname,"Menu")
  
-        if isinstance(master,MenuItem):
-            push(Selection())
-            setWidgetSelection(master)
-            gotoRoot()
-            rootwidget=this()
-            setSelection(pop())
-            kwargs["master"] = rootwidget
+        if isinstance(master,MenuItem): kwargs["master"] = master.myRoot()
         else: kwargs["master"] = master
             
         '''

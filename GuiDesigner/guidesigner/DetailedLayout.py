@@ -1,4 +1,4 @@
-LabelFrame("LayoutOptions",text="Layout Options").pack(anchor=N)
+Frame("LayoutOptions").rcgrid(0,0,sticky='nw')
 
 ### CODE ===================================================
 
@@ -7,7 +7,7 @@ Lock()
 # -------------- this LabelFrame contains data for a layout value refresh ---------------------
 
 # the data reference Entries for x,y,row,column,side, and index depending an the layout type
-this().mydata=[None,None,None,None,None,None]
+widget("LayoutOptions").mydata=[None,None,None,None,None,None]
 
 # -------------- receiver for message 'LAYOUT_VALUES_REFRESH' ---------------------
 
@@ -44,7 +44,7 @@ do_receive('LAYOUT_VALUES_REFRESH',values_refresh)
 def do_lbox_click(event,lbox,entry,isMouse):
     if isMouse: text = lbox.get(lbox.nearest(event.y))
     else: text = lbox.get(ACTIVE)
-    setlayout(entry.mydata,text)
+    setlayout(entry.mydata[0],text)
     entry.delete(0,END)
     entry.insert(0,text)
     lbox.unbind("<Return>")
@@ -53,7 +53,7 @@ def do_lbox_click(event,lbox,entry,isMouse):
 
 def listbox_helpbutton(lbox,entry,lbox_click = do_lbox_click):
     lbox.select_clear(0,END) # clear a former listbox selection 
-    lbox_index = lbox.getStringIndex(getlayout(entry.mydata)) # get the listbox index for the layout option
+    lbox_index = lbox.getStringIndex(getlayout(entry.mydata[0])) # get the listbox index for the layout option
     lbox.select_set(lbox_index) # preselect the current layout option in the listbox
     lbox.activate(lbox_index) # and set the selection cursor to it
     lbox.rcgrid(0,3) # show the listbox
@@ -69,9 +69,9 @@ def listbox_selection(helpbutton = listbox_helpbutton):
 
 
 def entry_event(me):
-    setlayout(me.mydata,me.get())
+    setlayout(me.mydata[0],me.get())
     me.delete(0,END)
-    value = getlayout(me.mydata)
+    value = getlayout(me.mydata[0])
     if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
     else: strval = str(value) 
     me.insert(0,strval)
@@ -79,9 +79,31 @@ def entry_event(me):
     informLater(300,me,'color')
     send("LAYOUT_OPTIONS_CHANGED",this())
 
-enable_flag = [False]
+enable_flag = [False,False,False]
 
-def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("LayoutOptions"),e_event=entry_event,lbox_select=listbox_selection,entry_width=7):
+RefDict = {}
+
+def can_update(linfo, RefDict=RefDict,thisframe=widget("LayoutOptions")):
+    if len(RefDict) != len(linfo): return False
+    for entry in linfo:
+        if entry not in RefDict: return False
+    for entry,value in linfo.items():
+        if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
+        else: strval = str(value)
+        RefDict[entry].mydata[1].set(strval)
+        # reference update for a value refresh without new show layout option creation
+        if entry == "x": thisframe.mydata[0]=RefDict[entry]
+        elif entry == "y": thisframe.mydata[1]=RefDict[entry]
+        elif entry == "row": thisframe.mydata[2]=RefDict[entry]
+        elif entry == "column": thisframe.mydata[3]=RefDict[entry]
+        elif entry == "side": thisframe.mydata[4]=RefDict[entry]
+        elif entry == "index": thisframe.mydata[5]=RefDict[entry]
+    return True
+
+
+
+def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("LayoutOptions"),e_event=entry_event,lbox_select=listbox_selection,entry_width=7,RefDict=RefDict,can_update=can_update):
+
     if isinstance(msg,bool):
         if msg:
             if not onflag[0]:
@@ -92,17 +114,33 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
             onflag[0]=False # switch flag to off
             cont.unlayout() # and unlayout the DetailedLayout frame
             thisframe.mydata=[None,None,None,None,None,None] # set references for value refresh  to not active
+
+    elif type(msg) is tuple:
+
+        if msg[1]:
+            thisframe.grid()
+            onflag[0] = onflag[1]
+            onflag[2] = False
+        else:
+            if not onflag[2]: onflag[1] = onflag[0]
+            onflag[0] = False
+            onflag[2] = True
+            thisframe.unlayout()
+        
     elif onflag[0]: # a correct message arrived and show layout is on
         # reset references for value refresh  to not active
         thisframe.mydata = [None,None,None,None,None,None]
         # if the widget has a layout, then show it
         if msg.Layout & LAYOUTALL and msg.Layout != MENULAYOUT:
-            current_selection = Selection() # save current selection
-            cont.grid()			
 
+            cont.grid()			
+            linfo = layout_info()
+            if can_update(linfo): return
+
+            RefDict.clear()
+            current_selection = Selection() # save current selection
             setWidgetSelection(msg) # set selection for current user widget
             maxlen = 0
-            linfo = layout_info()
             for entry in linfo: maxlen = max(maxlen,len(entry))
 
             # make a list of tuples of the layout dictionary and sort important options at the beginning
@@ -136,6 +174,7 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
             deleteAllWidgets(thisframe) # Frame
             setWidgetSelection(thisframe,thisframe)
 
+            entry_row = 0
             for entry in layoutlist:
                 # for each option, we make a frame an in this frame a label with the option name and an entry
                 # for showing and changing the value
@@ -167,10 +206,18 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
                 else: Entry("Entry",width=entry_width)
                 do_action('color',lambda me = this(): me.config(bg='white'))
-                this().delete(0,END)	
-                this().insert(0,entry[1])
+
+                #this().delete(0,END)
+                value = entry[1]
+                if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
+                else: strval = str(value) 
+                var = StringVar()
+                var.set(strval)
+                this().mydata=[entry[0],var] # mydata shall also contain the option name
+                this()['textvariable'] = var
+                #this().insert(0,strval)
+                RefDict[entry[0]] = this()
                 rcgrid(0,1,sticky=E+W)
-                this().mydata=entry[0] # mydata shall also contain the option name
 
                 do_event("<Return>",e_event,wishWidget=True) # via return key the option value can be changed
 
@@ -206,9 +253,13 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                     do_command(lambda par = this(): messagebox.showinfo("Layout option 'sticky'","The 'sticky' option may be empty or may contain one or more of these characters: 'n' 'e' 'w' 's'",parent=par))
 
                 goOut() # leaving the frame for the option entry and pack it
-                pack(fill=X)
+                rcgrid(entry_row,0,sticky='nw')
+                entry_row += 1
 
             setSelection(current_selection)
+            if thisframe['width'] < thisframe.winfo_reqwidth():
+                thisframe['width'] = thisframe.winfo_reqwidth()
+                cont.grid_columnconfigure(0,minsize = thisframe.winfo_reqwidth())
 
         else:   # if the widget doesn't have a layout, then disable value refresh and hide the layout options
             cont.unlayout()

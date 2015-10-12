@@ -59,7 +59,7 @@ grid(column='1',sticky='nw',row='0')
 LabelFrame("ConfigOptions",text="Config",link="guidesigner/ConfigOptions.py")
 rcgrid(0,2,sticky='nw')
 
-Frame("DetailedLayout",link="guidesigner/DetailedLayout.py")
+LabelFrame("DetailedLayout",text="Layout Options",link="guidesigner/DetailedLayout.py")
 rcgrid(0,3,sticky='nw')
 
 LabelFrame("Selection",text="Selection",link="guidesigner/Selection.py")
