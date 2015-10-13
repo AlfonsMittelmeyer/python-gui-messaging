@@ -391,6 +391,17 @@ def main():
     widget('EntryCols').bind('<Return>',show_grid)
 
 
+    def update_after_pack(rows_widget=widget('EntryRows'),cols_widget=widget('EntryCols'),show_grid = show_grid):
+ 
+        if container().grid_conf_rows[0] != 0 or container().grid_conf_cols[0] != 0:
+                
+            rows_widget.delete(0,'end')
+            rows_widget.insert(0,'0')
+            cols_widget.delete(0,'end')
+            cols_widget.insert(0,'0')
+            show_grid()
+
+    do_receive('BASE_LAYOUT_PACK_DONE',update_after_pack)
 
     def mouse_move(me,wi_row=widget('Row'),wi_col=widget('Col')):
         if me.mydata[6]:

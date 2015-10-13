@@ -11,7 +11,7 @@ Button("OK",text="OK").rcgrid(2,2)
 def do_rename(name=widget("NewName"),cont = container()):
     cont.unlayout() # hide the RenameFrame
     renameElement(name.mydata[0],name.mydata[1],name.get())
-    send('SHOW_SELECTION_RENAME') # refresh show selection - sufficient, because the widget didn't change, only the name for accessing it
+    send('SHOW_SELECTION_UPDATE') # refresh show selection - sufficient, because the widget didn't change, only the name for accessing it
 
 # on OK button press and on Return key in NewName Entry perform rename
 widget("OK").do_command(do_rename)

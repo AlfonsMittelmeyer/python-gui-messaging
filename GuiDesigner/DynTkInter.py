@@ -283,11 +283,11 @@ class GuiElement:
         self.Layout = PACKLAYOUT
         self.tkClass.pack(self,**kwargs)
         
-    def pane(self,*args):
+    def pane(self,**kwargs):
         global PANELAYOUT
         if self.Layout != PANELAYOUT: self._addToPackList()
         self.Layout = PANELAYOUT
-        self.master.tkClass.add(self.master,self)
+        self.master.tkClass.add(self.master,self,**kwargs)
 
     def pack_forget(self):
         global NOLAYOUT
@@ -1586,6 +1586,13 @@ class PanedWindow(GuiElement,StatTkInter.PanedWindow):
     def trigger_sash_place(self,time,index,x_coord,y_coord):
         self.after(time,lambda pwin = self, i = index, x = x_coord, y=y_coord, function = self.tkClass.sash_place: function(pwin,i,x,y))
 
+    def add(self,child,**kwargs):
+        global PANELAYOUT
+        if child.Layout != PANELAYOUT: child._addToPackList()
+        child.Layout = PANELAYOUT
+        self.tkClass.add(self,child,**kwargs)
+
+
 def goIn():_Selection.selectIn()
 def goOut(): _Selection.selectOut()
 
@@ -1798,7 +1805,8 @@ indent = ""
 SAVE_ALL = False
 
 def WidgetClass(widget):
-    if isinstance(widget,MenuItem) or isinstance(widget,MenuDelimiter): classString = str(type(widget))
+    if isinstance(widget,MenuItem): return 'MenuItem'
+    elif isinstance(widget,MenuDelimiter): return 'MenuDelimiter'
     else: classString = str(widget.tkClass)
     begin = classString.find(".")+1
     end = classString.find("'",begin)
@@ -1934,7 +1942,7 @@ def save_pack_entries(filehandle):
                 index += 1
             except: break
         for i in range(len(sash_list)):
-            filehandle.write(indent+"container().trigger_sash_place("+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+            filehandle.write(indent+"container().trigger_sash_place("+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 def save_sub_container(filehandle):
     if not this().isContainer: return False
@@ -2257,7 +2265,7 @@ def export_pack_entries(filehandle):
                 index += 1
             except: break
         for i in range(len(sash_list)):
-            filehandle.write("        ext.trigger_sash_place(self,"+str(i*100)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+            filehandle.write("        ext.trigger_sash_place(self,"+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 
 def export_immediate_layout(filehandle,name):
@@ -2581,6 +2589,9 @@ def gui(): DynLoad("guidesigner/Guidesigner.py")
 def select_menu(): this().select_menu()
 
 # ========== For Compatibility with Export with Names =============
+
+def trigger_sash_place(pane_window,time,index,x_coord,y_coord):
+    pane_window.after(time,lambda i = index, x = x_coord, y=y_coord, function = pane_window.sash_place: function(i,x,y))
 
 def fill_listbox_with_string(listbox,string):
     listbox.delete(0,END)		

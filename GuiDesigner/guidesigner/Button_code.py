@@ -45,6 +45,7 @@ def do_OK(me,textwidget,current_selection,exec_code = execute_code):
     if exec_code(me,textwidget,current_selection):
         current_selection._widget.CODE = textwidget.get("1.0",'end-1c')
         me.myRoot().destroy()
+        send('SHOW_SELECTION_UPDATE')
 
 def create_LoadFrame():
     Frame('LoadFrame')

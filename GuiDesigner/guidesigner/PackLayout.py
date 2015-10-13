@@ -16,6 +16,7 @@ def do_pack(packside):
     pack(side=packside)
     send('UPDATE_MOUSE_SELECT_ON')
     send('BASE_LAYOUT_CHANGED',layout_before)
+    send('BASE_LAYOUT_PACK_DONE')
 
 widget("TOP").do_command(do_pack,TOP)
 widget("LEFT").do_command(do_pack,LEFT)
