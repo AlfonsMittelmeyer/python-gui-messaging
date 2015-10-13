@@ -2316,7 +2316,6 @@ def exportWidget(filehandle,name):
     if isinstance(this(),Listbox): lbtext = conf_dict.pop('text',None)
 
     grid_dict = get_grid_dict(conf_dict)
-    if len(grid_dict) != 0: filehandle.write('        ext.grid_table(**'+repr(grid_dict)+')\n')
 
     if len(conf_dict) != 0:
         filehandle.write(",**"+str(conf_dict)+")\n")
