@@ -2490,8 +2490,16 @@ def saveExport(readhandle,writehandle,flag=False):
         isEnd = False
         while True:
             line = readhandle.readline()
-            #if line.find("mainloop(") >= 0:
-                #break
+            if line.find("mainloop(") >= 0:
+                if len(class_list) != 0:
+                    writehandle.write("# =======  New GUI Container Widgets ======================\n\n")
+                    
+                    for entry in class_list:
+                        if entry[0] in class_dict:
+                            writehandle.write(entry[1])
+                            class_dict.pop(entry[0],None)
+                    writehandle.write("\n# =======  End New GUI Container Widgets ==================\n\n")
+                        
             if not line:
                 isEnd = True
                 break
@@ -2511,6 +2519,7 @@ def saveExport(readhandle,writehandle,flag=False):
                                if rl.strip() == '': break
                         if isEnd: break
                         writehandle.write(class_dict[class_name])
+                        class_dict.pop(class_name,None)
                         line = "\n"
             writehandle.write(line)
             
