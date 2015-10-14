@@ -2203,6 +2203,41 @@ def saveAccess(filehandle,isWidgets=False):
 
 EXPORT_NAME = False
 
+class ExportBuffer:
+    
+    def __init__(self):
+        self.stringbuffer = []
+        
+    def write(self,text):
+        self.stringbuffer.append(text)
+        
+    def get(self):
+        return ''.join(self.stringbuffer)
+        
+    def reset(self):
+        self.stringbuffer = []
+
+class ExportList(ExportBuffer):
+    
+    def __init__(self):
+        ExportBuffer.__init__(self)
+        self.export_list = []
+        self.name = None
+        
+    def close(self):
+        if self.name != None:
+            self.export_list.append((self.name,self.get()))
+            self.name = None
+        self.reset()
+    
+    def open(self,name):
+        self.close()
+        self.name = name
+        
+    def getlist(self):
+        return self.export_list
+
+ 
 def get_grid_dict(confdict):
     grid_dict = {}
     for entry in ('grid_cols','grid_rows','grid_multi_cols','grid_multi_rows'):
@@ -2264,9 +2299,13 @@ def export_pack_entries(filehandle):
                 sash_list.append(container().sash_coord(index))
                 index += 1
             except: break
-        for i in range(len(sash_list)):
-            filehandle.write("        ext.trigger_sash_place(self,"+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
+        if EXPORT_NAME:
+            for i in range(len(sash_list)):
+                filehandle.write("        tk.trigger_sash_place(self,"+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+        else:
+            for i in range(len(sash_list)):
+                filehandle.write("        ext.trigger_sash_place(self,"+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 def export_immediate_layout(filehandle,name):
     if not is_immediate_layout(): return
@@ -2322,8 +2361,12 @@ def exportWidget(filehandle,name):
     else:
          filehandle.write(")\n")
 
-    if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self.'+name+',**'+repr(grid_dict)+')\n')
-    if lbtext != None: filehandle.write('        ext.fill_listbox_with_string(self.'+name+','+repr(lbtext)+')\n')
+    if EXPORT_NAME:
+        if len(grid_dict) != 0: filehandle.write('        tk.grid_table(self.'+name+',**'+repr(grid_dict)+')\n')
+        if lbtext != None: filehandle.write('        tk.fill_listbox_with_string(self.'+name+','+repr(lbtext)+')\n')
+    else:
+        if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self.'+name+',**'+repr(grid_dict)+')\n')
+        if lbtext != None: filehandle.write('        ext.fill_listbox_with_string(self.'+name+','+repr(lbtext)+')\n')
 
     export_immediate_layout(filehandle,name)
 
@@ -2355,7 +2398,11 @@ def exportContainer(filehandle):
             if this().hasWidgets(): exportSubcontainer(filehandle,name)
 
 def exportSubcontainer(filehandle,name):
+
     class_name = makeCamelCase(name)
+    #filehandle.write('\n')
+    filehandle.open(class_name)
+    
     thisClass = WidgetClass(this())
     
     if isinstance(this(),Tk): thisMaster = ''
@@ -2364,9 +2411,9 @@ def exportSubcontainer(filehandle,name):
 
     if isinstance(this(),MenuItem):
         if EXPORT_NAME:
-            filehandle.write('\nclass '+class_name+'(tk.'+thisClass+'):\n\n')
+            filehandle.write('class '+class_name+'(tk.'+thisClass+'):\n\n')
         else:
-            filehandle.write('\nclass '+class_name+'(ext.'+thisClass+'):\n\n')
+            filehandle.write('class '+class_name+'(ext.'+thisClass+'):\n\n')
 
         filehandle.write('    def __init__(self'+thisMaster+',item,**kwargs):\n')
         if EXPORT_NAME:
@@ -2374,16 +2421,17 @@ def exportSubcontainer(filehandle,name):
         else:
             filehandle.write('        ext.'+thisClass+'.__init__(self'+thisMaster+',item,**kwargs)\n')
     elif isinstance(this(),Menu) and not EXPORT_NAME:
-        filehandle.write('\nclass '+class_name+'(ext.'+thisClass+'):\n\n')
+        filehandle.write('class '+class_name+'(ext.'+thisClass+'):\n\n')
         filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
         filehandle.write('        ext.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
     else:
-        filehandle.write('\nclass '+class_name+'(tk.'+thisClass+'):\n\n')
+        filehandle.write('class '+class_name+'(tk.'+thisClass+'):\n\n')
         filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
         filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
  
     if isinstance(this(),Tk) or isinstance(this(),Toplevel):
         conf_dict = get_save_config()
+        conf_dict.pop('link',None)
 
         tit = conf_dict.pop('title',None)
         if tit != None: filehandle.write('        self.title('+repr(tit)+")\n")
@@ -2391,42 +2439,85 @@ def exportSubcontainer(filehandle,name):
         if geo != None: filehandle.write('        self.geometry('+repr(geo)+")\n")
         
         grid_dict = get_grid_dict(conf_dict)
-        if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self,**'+repr(grid_dict)+')\n')
+        if EXPORT_NAME:
+            if len(grid_dict) != 0: filehandle.write('        tk.grid_table(self,**'+repr(grid_dict)+')\n')
+        else:
+            if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self,**'+repr(grid_dict)+')\n')
         if len(conf_dict) != 0: filehandle.write('        self.config(**'+repr(conf_dict)+")\n")
  
     goIn()
     exportContainer(filehandle)
     goOut()
     
-def saveExport(filehandle,flag=False):
+def saveExport(readhandle,writehandle,flag=False):
 
     global SAVE_ALL
     global EXPORT_NAME
     
     EXPORT_NAME = flag
     SAVE_ALL = True
+    
+    exphandle = ExportBuffer()
 
     if EXPORT_NAME:
-        filehandle.write('import DynTkInter as tk\n')
+        exphandle.write('import DynTkInter as tk\n\n')
     else:
-        filehandle.write('import tkinter as tk\n')
-
-    filehandle.write('import DynTkExtend as ext\n')
+        exphandle.write('import tkinter as tk\n')
+        exphandle.write('import DynTkExtend as ext\n\n')
 
     name = getNameAndIndex()[0]
-    exportSubcontainer(filehandle,name)
 
-    '''
-    filehandle.write('class Application(tk.Tk):\n\n')
-    filehandle.write('    def __init__(self):\n')
-    filehandle.write('        tk.Tk.__init__(self)\n')
-    exportContainer(filehandle)
-    '''
+    exp_list = ExportList()
+    exportSubcontainer(exp_list,name)
+    exp_list.close()
 
-    if this() == _Application: filehandle.write('\n'+makeCamelCase(name)+'().mainloop()\n')
-   
+    class_list = exp_list.getlist()
+    
+    class_dict = {}
+    for entry in class_list:
+
+        if entry[0] in class_dict:
+            error = "Error: class name '" + entry[0] + "' is double!"
+            return error
+        class_dict[entry[0]] = entry[1]
+        
+    if readhandle == None:
+        writehandle.write(exphandle.get())
+        for entry in class_list:
+            writehandle.write(entry[1]+"\n")
+        if this() == _Application: writehandle.write(makeCamelCase(name)+'().mainloop()\n')
+    else:
+        isEnd = False
+        while True:
+            line = readhandle.readline()
+            #if line.find("mainloop(") >= 0:
+                #break
+            if not line:
+                isEnd = True
+                break
+            if line[0:5] == "class":
+                end = line.find("(")
+                if end >= 0:
+                    class_name = line[5:end].strip()
+                    if class_name in class_dict:
+                        while readhandle.readline().find('__init__') < 0: pass
+                        
+                        while True:
+                            rl=readhandle.readline()
+                            if not rl:
+                                isEnd = True
+                                break
+                            else:
+                               if rl.strip() == '': break
+                        if isEnd: break
+                        writehandle.write(class_dict[class_name])
+                        line = "\n"
+            writehandle.write(line)
+            
+
     EXPORT_NAME = False
     SAVE_ALL = False
+    return('OK')
  
  # ========== Save Export ===========================================================
    

@@ -268,6 +268,7 @@ def do_refresh():
     this().deiconify()
 
     setSelection(selection_before)
+    send('SHOW_SELECTION_UPDATE') # refresh display of the current selection
     send('SELECTION_CHANGED') # refresh display of the current selection
 
 widget("Refresh").do_command(do_refresh)
