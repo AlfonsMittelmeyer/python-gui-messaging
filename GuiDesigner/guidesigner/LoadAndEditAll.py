@@ -15,6 +15,7 @@ def load_module(ioerror = widget("IOError"), fname = widget("FileName"), cont = 
         fh = open(fname.get(),'r')
         fh.close()
         cont.unlayout()
+        # don't do this in the root of the GUI designer
         gotoRoot()
         container().destroyActions()
         container().destroyContent()

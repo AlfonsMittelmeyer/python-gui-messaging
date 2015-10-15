@@ -2100,6 +2100,7 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
 
 
 AccessDictionary = {}
+CamelCaseDictionary = {}
 
 ACCESS_DEPTH_WIDGET = False
 
@@ -2121,6 +2122,19 @@ def saveAccessSubContainer(filehandle):
 
     filehandle.write("        goOut()\n")
     return True
+
+def getCamelCaseName(name):
+    newname = name
+    if newname in CamelCaseDictionary:
+        nr = 1
+        while True:
+            newname = name+'_'+ str(nr)
+            if newname not in CamelCaseDictionary:
+                break
+            nr+=1
+
+    CamelCaseDictionary[newname] = None
+    return newname
 
 
 def getAccessName(name):
@@ -2202,6 +2216,7 @@ def saveAccess(filehandle,isWidgets=False):
 # ========== Save Export ===========================================================
 
 EXPORT_NAME = False
+ExportNames = {}
 
 class ExportBuffer:
     
@@ -2258,9 +2273,9 @@ def export_pack_entries(filehandle):
     for e in packlist:
         filehandle.write(indent+"        self.")
         setWidgetSelection(e)
-        nameAndIndex = getNameAndIndex()
+        name = ExportNames[this()][0]
 
-        if this().Layout != PANELAYOUT: filehandle.write(nameAndIndex[0])
+        if this().Layout != PANELAYOUT: filehandle.write(name)
 
         if this().Layout == MENUITEMLAYOUT:
             filehandle.write(".layout(index="+str(item_index)+")\n")
@@ -2277,7 +2292,7 @@ def export_pack_entries(filehandle):
                 layoutCompare = dict(CompareWidget.pack_info())
                 CompareWidget.destroy()
             elif this().Layout == PANELAYOUT:
-                filehandle.write("add(self."+nameAndIndex[0]) # point already written 'self.'
+                filehandle.write("add(self."+name) # point already written 'self.'
                 layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
 
             for n,e in dict(layoutWidget).items():
@@ -2325,19 +2340,21 @@ def export_immediate_layout(filehandle,name):
     if len(layout) != 0: filehandle.write("**"+repr(layout))
     filehandle.write(")\n")
 
-def exportWidget(filehandle,name):
+def exportWidget(filehandle,name,widgetname=None,camelcase_name = None):
     if not this().save: return
+
+    if widgetname == None: widgetname = name
 
     # write name ================================
     thisClass = WidgetClass(this())
 
-    if this().hasWidgets(): class_name = makeCamelCase(name)
+    if this().hasWidgets(): class_name = camelcase_name
     else: class_name = 'tk.'+thisClass
     
     if EXPORT_NAME:
-        if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"'),'"+this().mytype+"'")
+        if isinstance(this(),MenuItem): filehandle.write('        self.'+name+' = '+class_name+"((self,'"+widgetname+"'),'"+this().mytype+"'")
         #elif isinstance(this(),MenuDelimiter): filehandle.write('        self.entryconfig(0')
-        else: filehandle.write('        self.'+name+' = '+class_name+"((self,'"+name+"')")
+        else: filehandle.write('        self.'+name+' = '+class_name+"((self,'"+widgetname+"')")
     else:
         if isinstance(this(),MenuItem):
             if this().hasWidgets(): filehandle.write('        self.'+name+' = '+class_name+"(self,'"+this().mytype+"'")
@@ -2357,7 +2374,7 @@ def exportWidget(filehandle,name):
     grid_dict = get_grid_dict(conf_dict)
 
     if len(conf_dict) != 0:
-        filehandle.write(",**"+str(conf_dict)+")\n")
+        filehandle.write(",**"+repr(conf_dict)+")\n")
     else:
          filehandle.write(")\n")
 
@@ -2374,7 +2391,8 @@ def exportWidget(filehandle,name):
 def exportContainer(filehandle):
 
     dictionary = container().Dictionary.elements
- 
+    AccessDictionary.clear()
+    
     # sorted name list
     namelist = []
     for name in dictionary:
@@ -2382,25 +2400,32 @@ def exportContainer(filehandle):
     namelist.sort()
 
     # now we save the widgets in the container
-    for name in namelist:
-        e = dictionary[name]
+    for widget_name in namelist:
+        e = dictionary[widget_name]
         for x in e:
             setWidgetSelection(x)
-            exportWidget(filehandle,name)
+            var_name = getAccessName(widget_name)
+            camelcase_name = None
+            if this().hasWidgets():
+                camelcase_name = makeCamelCase(var_name)
+                camelcase_name = getCamelCaseName(camelcase_name)
+                
+            ExportNames[this()] = (var_name,camelcase_name)
+            exportWidget(filehandle,var_name,widget_name,camelcase_name)
 
     export_pack_entries(filehandle)
 
     # now we save sub containers
-    for name in namelist:
-        e = dictionary[name]
+    for widget_name in namelist:
+        e = dictionary[widget_name]
         for x in e:
             setWidgetSelection(x)
-            if this().hasWidgets(): exportSubcontainer(filehandle,name)
+            if this().hasWidgets(): exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
 
-def exportSubcontainer(filehandle,name):
+    AccessDictionary.clear()
 
-    class_name = makeCamelCase(name)
-    #filehandle.write('\n')
+def exportSubcontainer(filehandle,class_name):
+
     filehandle.open(class_name)
     
     thisClass = WidgetClass(this())
@@ -2457,6 +2482,8 @@ def saveExport(readhandle,writehandle,flag=False):
     EXPORT_NAME = flag
     SAVE_ALL = True
     
+    CamelCaseDictionary.clear()
+    ExportNames.clear()
     exphandle = ExportBuffer()
 
     if EXPORT_NAME:
@@ -2466,6 +2493,8 @@ def saveExport(readhandle,writehandle,flag=False):
         exphandle.write('import DynTkExtend as ext\n\n')
 
     name = getNameAndIndex()[0]
+    name = getCamelCaseName(name)
+    ExportNames[this()] = (name,name)
 
     exp_list = ExportList()
     exportSubcontainer(exp_list,name)
@@ -2478,6 +2507,8 @@ def saveExport(readhandle,writehandle,flag=False):
 
         if entry[0] in class_dict:
             error = "Error: class name '" + entry[0] + "' is double!"
+            CamelCaseDictionary.clear()
+            ExportNames.clear()
             return error
         class_dict[entry[0]] = entry[1]
         
@@ -2485,13 +2516,13 @@ def saveExport(readhandle,writehandle,flag=False):
         writehandle.write(exphandle.get())
         for entry in class_list:
             writehandle.write(entry[1]+"\n")
-        if this() == _Application: writehandle.write(makeCamelCase(name)+'().mainloop()\n')
+        if this() == _Application: writehandle.write(name+'().mainloop()\n')
     else:
         isEnd = False
         while True:
             line = readhandle.readline()
             if line.find("mainloop(") >= 0:
-                if len(class_list) != 0:
+                if len(class_dict) != 0:
                     writehandle.write("# =======  New GUI Container Widgets ======================\n\n")
                     
                     for entry in class_list:
@@ -2522,7 +2553,9 @@ def saveExport(readhandle,writehandle,flag=False):
                         class_dict.pop(class_name,None)
                         line = "\n"
             writehandle.write(line)
-            
+
+    CamelCaseDictionary.clear()
+    ExportNames.clear()
 
     EXPORT_NAME = False
     SAVE_ALL = False

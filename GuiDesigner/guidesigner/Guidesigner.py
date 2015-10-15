@@ -1,4 +1,4 @@
-Toplevel("DynTkInterGuiDesigner",title="DynTkInter GuiDesigner",geometry='+0+0',link="guidesigner/Modules.py")
+Toplevel("DynTkInterGuiDesigner",title="DynTkInter GuiDesigner",geometry='+30+20',link="guidesigner/Modules.py")
 
 Menu("TopMenu",activebackground='#ececac',link="guidesigner/TopMenu.py").select_menu()
 
