@@ -31,7 +31,7 @@ def do_button_command(selection,button_press=button_select,hili_on = highlight_o
 def for_a_name(row,name,entry,selection,button_command = do_button_command,RefDict=RefDict):
     current_this = None
     Button(text=name) # create a button, text is the name of the widget
-    button_command(Create_Selection(entry[-1],selection._container))
+    button_command(Create_Selection(entry[0],selection._container))
     config(font = "TkDefaultFont 8 normal roman") # user smaler font
     rcgrid(row+1,1,sticky=W+E) # layout
 

@@ -6,6 +6,8 @@
 # under the terms of the GNU General Public License version 3, as published
 # by the Free Software Foundation.
 #
+#
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranties of
 # MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
@@ -17,6 +19,7 @@
 
 import tkinter as StatTkInter
 from tkinter import *
+from tkinter import ttk
 from tkinter import messagebox
 from tkinter import colorchooser
 from copy import copy
@@ -149,7 +152,6 @@ class GuiElement:
         self.grid_multi_conf_cols = []
         self.grid_multi_conf_rows = []
 
-
         if select: _Selection._widget = self
 
         if self.master != None: self.master.Dictionary.setElement(name,self)
@@ -173,6 +175,17 @@ class GuiElement:
         if self.isContainer: self.isLocked=False
         else: self.isLocked = True
 
+    def config(self,**kwargs):
+        if len(kwargs) == 0:
+            dictionary = self.tkClass.config(self,**kwargs)
+            dictionary['myclass'] = (self.myclass,)
+            return dictionary
+        else:
+            if 'myclass' in kwargs:
+                self.myclass = kwargs.pop('myclass')
+            self.tkClass.config(self,**kwargs)
+
+    def lock(): isLocked = Tue
 
     def myRoot(self):
         selection_before = Selection()
@@ -367,6 +380,7 @@ class GuiElement:
             limit = self.master.PackListLen()
             if new_index >= 0 and new_index < limit:
                 confdict = self.getconfdict()
+                confdict.pop('myclass',None)
                 self.master.delete(old_index+1)
                 self.master.insert(new_index+1,self.mytype,confdict)
                 del self.master.PackList[old_index]
@@ -507,6 +521,27 @@ def layout(**kwargs): this().layout(**kwargs)
 def setlayout(name,value): this().setlayout(name,value)
 def getlayout(name): return this().getlayout(name)
 def layout_info(): return this().layout_info()
+
+def Reference():
+    selection_before = Selection()
+    path_name = ']'
+ 
+    if this() == container(): goOut()
+
+    while not isinstance(container(),_CreateTopLevelRoot):
+
+        if this().isMainWindow: _Selection._container = _TopLevelRoot._container
+
+        name_index = getNameAndIndex()
+        if name_index[1] == -1: name = "'"+name_index[0]+"'"
+        else: name = "('"+name_index[0]+"',"+str(name_index[1])+")"
+        path_name = ',' + name + path_name
+
+        goOut()
+    
+    path_name = eval("['//'"+path_name)
+    setSelection(selection_before)
+    return path_name
 
 
 class CommandFromFunction:
@@ -649,19 +684,19 @@ class GuiDictionary:
         if not name in self.elements: self.elements[name] = [thisone]
         else: self.elements[name].append(thisone)
 
-    def getEntry(self,name,nr=-1):
+    def getEntry(self,name,nr=0):
         
         if name in self.elements: return self.elements[name][nr]
         return None
 
-def goto(name,nr=-1):
+def goto(name,nr=0):
     widget = _Selection._container.Dictionary.getEntry(name,nr)
     if widget != None: 
         _Selection._widget = widget
 
 #def widget(name,nr=-1): return _Selection._container.Dictionary.getEntry(name,nr)
 
-def widget(name,nr=-1,par3=-1):
+def widget(name,nr=0,par3=0):
     if type(name) == str or name == NONAME: return _Selection._container.Dictionary.getEntry(name,nr)
     else: return name.Dictionary.getEntry(nr,par3)
 
@@ -693,23 +728,18 @@ send('execute_message',EvDataCmd(_FileImportCmdImport,Data()))
 
 def FileImportContainer(container):
     if container.link == "": return
-    DynLink(container.link)
+    selection_before = Selection()
+    setSelection(Create_Selection(container,container))
+    DynLoad(container.link)
+    setSelection(selection_before)
     
-    #filename = container.link
-    #print(filename)
-    #try: handle = open(filename,"r")
-    #except IOError:
-    #	print("Sorry, the File '"+filename+"' doesn't exist") 
-    #	return
-    #handle.close()
-    #send('execute_message',EvDataCmd(_FileImportCmdDestroy,(container,container.link)))
-
 class Tk(GuiElement,StatTkInter.Tk):
     
     def __init__(self,myname="Application",**kwargs):
 
         global proxy
 
+        self.myclass = kwargs.pop('myclass','')
         self.geometry_changed = False
         self.title_changed = False
 
@@ -786,6 +816,7 @@ class Tk(GuiElement,StatTkInter.Tk):
         
         global _AppConf
         _AppConf = self.getconfdict()
+        _AppConf.pop("myclass",None)
         _AppConf.pop("title",None)
         _AppConf.pop("geometry",None)
         _AppConf.pop("link",None)
@@ -795,6 +826,7 @@ class Tk(GuiElement,StatTkInter.Tk):
     def config(self,**kwargs):
         if len(kwargs) == 0:
             dictionary = self.tkClass.config(self)
+            dictionary['myclass'] = (self.myclass,)
             dictionary['title'] = (self.title(),)
             dictionary['geometry'] = (self.geometry(),)
             dictionary['link'] = (self.link,)
@@ -821,6 +853,8 @@ class Tk(GuiElement,StatTkInter.Tk):
                 self.grid_conf_rows = eval(grid_rows)
                 grid_configure_rows(self)
 
+            if 'myclass' in kwargs: 
+                self.myclass = kwargs.pop('myclass')
             if 'title' in kwargs: 
                 self.title(kwargs['title'])
                 self.title_changed = True
@@ -868,6 +902,8 @@ class _CreateTopLevelRoot(GuiElement,Dummy):
 class Toplevel(GuiElement,StatTkInter.Toplevel):
 
     def __init__(self,myname="Toplevel",**kwargs):
+
+        self.myclass = kwargs.pop('myclass','')
 
         self.tkClass = StatTkInter.Toplevel
         self.title_changed = False
@@ -946,6 +982,7 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
             dictionary['title'] = (self.title(),)
             dictionary['geometry'] = (self.geometry(),)
             dictionary['link'] = (self.link,)
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
             grid_cols = kwargs.pop('grid_cols',None)
@@ -969,6 +1006,9 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
                 self.grid_conf_rows = eval(grid_rows)
                 grid_configure_rows(self)
  
+            if 'myclass' in kwargs: 
+                self.myclass = kwargs.pop('myclass')
+
             if 'title' in kwargs:
                 self.title(kwargs['title'])
                 self.title_changed = True
@@ -1006,6 +1046,7 @@ def _getMasterAndNameAndSelect(name,altname):
 class Button(GuiElement,StatTkInter.Button):
 
     def __init__(self,myname="Button",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Button
         master,myname,select = _getMasterAndNameAndSelect(myname,"Button")
         kwargs["master"] = master
@@ -1015,6 +1056,8 @@ class Button(GuiElement,StatTkInter.Button):
 
 class Canvas(GuiElement,StatTkInter.Canvas):
     def __init__(self,myname="Canvas",**kwargs):
+
+        self.myclass = kwargs.pop('myclass','')
 
         self.tkClass = StatTkInter.Canvas
         master,myname,select = _getMasterAndNameAndSelect(myname,"Canvas")
@@ -1047,6 +1090,7 @@ class Canvas(GuiElement,StatTkInter.Canvas):
 
 class Checkbutton(GuiElement,StatTkInter.Checkbutton):
     def __init__(self,myname="Checkbutton",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Checkbutton
         master,myname,select = _getMasterAndNameAndSelect(myname,"Checkbutton")
         kwargs["master"] = master
@@ -1057,6 +1101,7 @@ class Checkbutton(GuiElement,StatTkInter.Checkbutton):
 class Entry(GuiElement,StatTkInter.Entry):
 
     def __init__(self,myname="Entry",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Entry
         master,myname,select = _getMasterAndNameAndSelect(myname,"Entry")
         kwargs["master"] = master
@@ -1068,6 +1113,7 @@ class Frame(GuiElement,StatTkInter.Frame):
 
     def __init__(self,myname="Frame",**kwargs):
 
+        self.myclass = kwargs.pop('myclass','')
 
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
@@ -1108,6 +1154,7 @@ class Frame(GuiElement,StatTkInter.Frame):
         if len(kwargs) == 0: 
             dictionary = self.tkClass.config(self)
             dictionary['link'] = (self.link,)
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
             grid_cols = kwargs.pop('grid_cols',None)
@@ -1131,8 +1178,10 @@ class Frame(GuiElement,StatTkInter.Frame):
                 self.grid_conf_rows = eval(grid_rows)
                 grid_configure_rows(self)
 
-            if 'title' in kwargs: kwargs.pop('title',None)
-            if 'geometry' in kwargs: kwargs.pop('geometry',None)
+            if 'myclass' in kwargs: 
+                self.myclass = kwargs.pop('myclass')
+            if 'title' in kwargs: kwargs.pop('title')
+            if 'geometry' in kwargs: kwargs.pop('geometry')
             if 'link' in kwargs:
                 self.link = kwargs['link']
                 kwargs.pop('link',None)
@@ -1144,6 +1193,7 @@ class Frame(GuiElement,StatTkInter.Frame):
 class Label(GuiElement,StatTkInter.Label):
 
     def __init__(self,myname="Label",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Label
         master,myname,select = _getMasterAndNameAndSelect(myname,"Label")
         kwargs["master"] = master
@@ -1151,6 +1201,14 @@ class Label(GuiElement,StatTkInter.Label):
         self.isContainer = False
         GuiElement.__init__(self,myname,select)
 
+
+def link_command(me):
+    mylink = me.getconfig('link')
+    if mylink != "":
+        mymaster = me.master
+        mymaster.destroyContent()
+        mymaster.setconfig('link',mylink)
+        cdApp() # this is a secure place
 
 class LinkLabel(Label):
 
@@ -1161,11 +1219,11 @@ class LinkLabel(Label):
             kwargs.pop('link',None)
         Label.__init__(self,myname="LinkLabel",**kwargs)
         self.config(font='TkFixedFont 9 normal underline',fg="blue")
-        self.do_event('<Button-1>',"Me().container().setconfig('link',Me().getconfig('link'))")
+        self.do_event('<Button-1>',link_command,wishWidget = True)
 
     def config(self,**kwargs):
         if len(kwargs) == 0:
-            dictionary = Label.config(self)
+            dictionary = Label.config(self,**kwargs)
             dictionary['link'] = (self.link,)
             return dictionary
         else:
@@ -1173,7 +1231,6 @@ class LinkLabel(Label):
                 self.link = kwargs['link']
                 kwargs.pop('link',None)
             Label.config(self,**kwargs)
-
 
 class LinkButton(Button):
 
@@ -1183,8 +1240,8 @@ class LinkButton(Button):
             self.link = kwargs['link']
             kwargs.pop('link',None)
         Button.__init__(self,myname="LinkButton",**kwargs)
-        self.do_command("Me().container().setconfig('link',Me().getconfig('link'))")
-
+        # not a command, because this would be a problem in the GUI Designer
+        self.do_event('<ButtonRelease-1>',link_command,wishWidget = True)
 
     def config(self,**kwargs):
         if len(kwargs) == 0:
@@ -1196,13 +1253,11 @@ class LinkButton(Button):
                 self.link = kwargs['link']
                 kwargs.pop('link',None)
             Button.config(self,**kwargs)
-
-
-        
+      
 class LabelFrame(GuiElement,StatTkInter.LabelFrame):
 
     def __init__(self,myname="LabelFrame",**kwargs):
-
+        self.myclass = kwargs.pop('myclass','')
         grid_cols = kwargs.pop('grid_cols',None)
         grid_rows = kwargs.pop('grid_rows',None)
         grid_multi_rows = kwargs.pop('grid_multi_rows',None)
@@ -1242,6 +1297,7 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
         if len(kwargs) == 0: 
             dictionary = self.tkClass.config(self)
             dictionary['link'] = (self.link,)
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
 
@@ -1266,6 +1322,7 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
                 self.grid_conf_rows = eval(grid_rows)
                 grid_configure_rows(self)
 
+            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
             if 'title' in kwargs: kwargs.pop('title',None)
             if 'geometry' in kwargs: kwargs.pop('geometry',None)
             if 'link' in kwargs:
@@ -1279,6 +1336,7 @@ class LabelFrame(GuiElement,StatTkInter.LabelFrame):
 class Listbox(GuiElement,StatTkInter.Listbox):
 
     def __init__(self,myname="Listbox",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Listbox
         master,myname,select = _getMasterAndNameAndSelect(myname,"Listbox")
         kwargs["master"] = master
@@ -1297,8 +1355,10 @@ class Listbox(GuiElement,StatTkInter.Listbox):
         if len(kwargs) == 0:
             dictionary = self.tkClass.config(self)
             dictionary['text'] = (self.getString(),)
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
+            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
             if 'text' in kwargs: 
                 self.fillString(kwargs['text'])
                 kwargs.pop('text',None)
@@ -1323,6 +1383,7 @@ class Listbox(GuiElement,StatTkInter.Listbox):
 class Menubutton(GuiElement,StatTkInter.Menubutton):
 
     def __init__(self,myname="Menubutton",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Menubutton
         master,myname,select = _getMasterAndNameAndSelect(myname,"Menubutton")
         kwargs["master"] = master
@@ -1334,6 +1395,7 @@ class Menubutton(GuiElement,StatTkInter.Menubutton):
 class MenuDelimiter(GuiElement):
     def __init__(self,myname="MenuDelimiter",**kwargs):
 
+        self.myclass = kwargs.pop('myclass','')
         master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem")
         self.master = master
         self.master.entryconfig(0,**kwargs)
@@ -1381,14 +1443,16 @@ class MenuDelimiter(GuiElement):
             if _Application.config_menuitems['delimiter'] == None:
                 _Application.config_menuitems['delimiter'] = dict(dictionary)
 
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
+            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
             self.master.entryconfig(0,**kwargs)
 
 
 class MenuItem(GuiElement):
     def __init__(self,myname="MenuItem",mytype='command',**kwargs):
-
+        self.myclass = kwargs.pop('myclass','')
         self.mytype = mytype
         master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem")
         self.master = master
@@ -1444,14 +1508,18 @@ class MenuItem(GuiElement):
                 base_dict = dict(dictionary)
                 base_dict.pop('label',None)
                 _Application.config_menuitems[self.mytype] = base_dict
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
+            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
             self.master.entryconfig(index,**kwargs)
                 
 
 class Menu(GuiElement,StatTkInter.Menu):
 
     def __init__(self,myname="Menu",**kwargs):
+
+        self.myclass = kwargs.pop('myclass','')
 
         self.title_changed = False
 
@@ -1501,8 +1569,10 @@ class Menu(GuiElement,StatTkInter.Menu):
         if len(kwargs) == 0: 
             dictionary = self.tkClass.config(self)
             dictionary['link'] = (self.link,)
+            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
+            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
             if 'link' in kwargs:
                 self.link = kwargs['link']
                 kwargs.pop('link',None)
@@ -1513,6 +1583,7 @@ class Menu(GuiElement,StatTkInter.Menu):
 class Message(GuiElement,StatTkInter.Message): # similiar Label
 
     def __init__(self,myname="Message",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Message
         master,myname,select = _getMasterAndNameAndSelect(myname,"Message")
         kwargs["master"] = master
@@ -1523,6 +1594,7 @@ class Message(GuiElement,StatTkInter.Message): # similiar Label
 class Radiobutton(GuiElement,StatTkInter.Radiobutton):
 
     def __init__(self,myname="Radiobutton",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Radiobutton
         master,myname,select = _getMasterAndNameAndSelect(myname,"Radiobutton")
         kwargs["master"] = master
@@ -1533,6 +1605,7 @@ class Radiobutton(GuiElement,StatTkInter.Radiobutton):
 class Scale(GuiElement,StatTkInter.Scale):
 
     def __init__(self,myname="Scale",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Scale
         master,myname,select = _getMasterAndNameAndSelect(myname,"Scale")
         kwargs["master"] = master
@@ -1543,6 +1616,7 @@ class Scale(GuiElement,StatTkInter.Scale):
 class Scrollbar(GuiElement,StatTkInter.Scrollbar):
 
     def __init__(self,myname="Scrollbar",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Scrollbar
         master,myname,select = _getMasterAndNameAndSelect(myname,"Scrollbar")
         kwargs["master"] = master
@@ -1554,6 +1628,7 @@ class Scrollbar(GuiElement,StatTkInter.Scrollbar):
 class Text(GuiElement,StatTkInter.Text):
 
     def __init__(self,myname="Text",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Text
         master,myname,select = _getMasterAndNameAndSelect(myname,"Text")
         kwargs["master"] = master
@@ -1565,6 +1640,7 @@ class Text(GuiElement,StatTkInter.Text):
 class Spinbox(GuiElement,StatTkInter.Spinbox):
 
     def __init__(self,myname="Spinbox",**kwargs):
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.Spinbox
         master,myname,select = _getMasterAndNameAndSelect(myname,"Spinbox")
         kwargs["master"] = master
@@ -1575,7 +1651,7 @@ class Spinbox(GuiElement,StatTkInter.Spinbox):
 class PanedWindow(GuiElement,StatTkInter.PanedWindow):
 
     def __init__(self,myname="PanedWindow",**kwargs):
-
+        self.myclass = kwargs.pop('myclass','')
         self.tkClass = StatTkInter.PanedWindow
         master,myname,select = _getMasterAndNameAndSelect(myname,"PanedWindow")
         kwargs["master"] = master
@@ -1807,6 +1883,8 @@ SAVE_ALL = False
 def WidgetClass(widget):
     if isinstance(widget,MenuItem): return 'MenuItem'
     elif isinstance(widget,MenuDelimiter): return 'MenuDelimiter'
+    elif isinstance(widget,LinkButton): return 'LinkButton'
+    elif isinstance(widget,LinkLabel): return 'LinkLabel'
     else: classString = str(widget.tkClass)
     begin = classString.find(".")+1
     end = classString.find("'",begin)
@@ -1826,6 +1904,8 @@ def del_config_before_compare(dictionaryWidget):
         if dictionaryWidget['link'] == '': del dictionaryWidget['link']
     if 'cursor' in dictionaryWidget:
         if dictionaryWidget['cursor'] == '': del dictionaryWidget['cursor']
+    if 'myclass' in dictionaryWidget:
+        if dictionaryWidget['myclass'] == '': del dictionaryWidget['myclass']
     #dictionaryWidget.pop('link',None) # links shouldn'd be saved. Otherwise we would have the widgets twice
     if isinstance(this(),Listbox) and dictionaryWidget['text'] == '': del dictionaryWidget['text']
     
@@ -1844,8 +1924,8 @@ def get_config_compare():
         ConfDictionaryShort(dictionaryCompare)
     else:
         if isinstance(this(),MenuItem): print("Kann nicht sein")
-        thisClass = WidgetClass(this())
-        CompareWidget = eval("StatTkInter."+thisClass+"(container())")
+        CompareWidget = this().tkClass(container())
+        #CompareWidget = eval("StatTkInter."+thisClass+"(container())")
         dictionaryCompare = dict(CompareWidget.config())
         CompareWidget.destroy()
         ConfDictionaryShort(dictionaryCompare)
@@ -2026,7 +2106,8 @@ def save_widget(filehandle,name):
         filehandle.write(indent+thisClass+"('"+name+"'")
 
     conf_dict = get_save_config()
-    if SAVE_ALL: conf_dict.pop('link',None)
+    if SAVE_ALL and not (isinstance(this(),LinkLabel) or isinstance(this(),LinkButton)):
+        conf_dict.pop('link',None)
     
     if len(conf_dict) != 0:
         filehandle.write(",**"+repr(conf_dict)+")")
@@ -2363,15 +2444,24 @@ def exportWidget(filehandle,name,widgetname=None,camelcase_name = None):
         elif isinstance(this(),MenuDelimiter):
             #filehandle.write('        self.entryconfig(0')
             filehandle.write('        self.'+name+' = ext.'+thisClass+"(self")
+        elif isinstance(this(),LinkLabel):
+            filehandle.write('        self.'+name+' = tk.Label(self)')
+        elif isinstance(this(),LinkButton):
+            filehandle.write('        self.'+name+' = tk.Button(self)')
         else: filehandle.write('        self.'+name+' = '+class_name+"(self")
 
     conf_dict = get_save_config()
-    if SAVE_ALL: conf_dict.pop('link',None)
+    if SAVE_ALL and not (isinstance(this(),LinkLabel) or isinstance(this(),LinkButton)):
+        conf_dict.pop('link',None)
     
     lbtext = None
     if isinstance(this(),Listbox): lbtext = conf_dict.pop('text',None)
 
     grid_dict = get_grid_dict(conf_dict)
+
+    if not EXPORT_NAME:
+        conf_dict.pop('myclass',None)
+        conf_dict.pop('link',None) # also for LinkLabel and LinkButton (only Label and Button for without Names)
 
     if len(conf_dict) != 0:
         filehandle.write(",**"+repr(conf_dict)+")\n")
@@ -2468,6 +2558,9 @@ def exportSubcontainer(filehandle,class_name):
             if len(grid_dict) != 0: filehandle.write('        tk.grid_table(self,**'+repr(grid_dict)+')\n')
         else:
             if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self,**'+repr(grid_dict)+')\n')
+            conf_dict.pop('myclass',None)
+
+        if not EXPORT_NAME: conf_dict.pop('myclass',None)
         if len(conf_dict) != 0: filehandle.write('        self.config(**'+repr(conf_dict)+")\n")
  
     goIn()
@@ -2619,6 +2712,8 @@ def setLoadWithCode(flag):
     global LOADwithCODE
     LOADwithCODE = flag;
 
+'''
+
 def clean_eval(evcode):
     glob_before = globals().keys()
     eval(evcode)
@@ -2627,7 +2722,6 @@ def clean_eval(evcode):
         if element not in glob_before: del globals()[element]
 
 
-'''
 def DynImport(filename):
     global LOADwithCODE
     if LOADwithCODE: DynImportCode(filename)
@@ -2659,35 +2753,22 @@ def DynLoad(filename):
 
 _DynLoad = DynLoad
 
-
-def DynAccess(filename):
-    try:
-        handle = open(filename,'r')
-    except: 
-        print("Couldn't open file: " + filename)
-        return
-    code = handle.read()
+def DynAccess(filename,par=None,parent=None):
     selection_before = Selection()
-    evcode = compile(code,filename,'exec')
-    exec(evcode)
-    retval = locals()['Access']()
+    if parent != None: setSelection(Create_Selection(parent,parent))
+    exec(compile(open(filename, "r").read(), filename, 'exec'))
+    if par == None: retval = locals()['Access']()
+    else: retval = locals()['Access'](par)
     setSelection(selection_before)
     return retval
 
-
-
-'''
-def load_Script(parent,filename):
-    try:
-        handle = open(filename,'r')
-    except: 
-        print("Couldn't open file: " + filename)
-        return
-    code = handle.read()
-    handle.close()
-    evcode = compile(code,filename,'exec')
-    exec(evcode)
-'''
+def load_script(filename,classlist = None, parent=None):
+    if type(classlist) is list or type(classlist) is tuple: DynAccess('dyntkinter/LoadScript.py',(filename,classlist),parent)
+    myparent = classlist
+    selection_before = Selection()
+    if myparent != None: setSelection(Create_Selection(myparent,myparent))
+    exec(compile(open(filename, "r").read(), filename, 'exec'))
+    setSelection(selection_before)
 
 def DynLink(filename):
     goIn()

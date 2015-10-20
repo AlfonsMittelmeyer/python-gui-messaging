@@ -183,6 +183,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "orient",
 "label",
 "text",
+"myclass",
 "link",
 "type",
 "selectmode",
@@ -297,6 +298,11 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                         thisframe.mydata = [this(),None,None,None,msg]
                         msg.do_action('refresh',geo_refresh,thisframe,True)
                         inform(msg,'refresh')
+
+                    # help info message box for sticky option
+                    elif entry[0] =="myclass":
+                        Button(text="?").rcgrid(0,2)
+                        do_command(lambda par = this(): messagebox.showinfo("Widget Class","The Widget Class 'myclass' isn't supported for GUI Export",parent=par))
 
                     elif entry[0] == 'height': thisframe.mydata[2] = this()
                     elif entry[0] == 'width': thisframe.mydata[3] = this()
