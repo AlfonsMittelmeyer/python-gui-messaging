@@ -2,7 +2,7 @@ config(**{'grid_cols': '(4, 75, 0, 0)', 'grid_multi_cols': '[4, (0, 11, 0, 0), (
 
 Label('Label',**{'text': 'PanedWindow', 'font': 'TkDefaultFont 12 bold', 'fg': 'blue'}).grid(**{'column': '1', 'sticky': 'w', 'row': '1'})
 Message('Message',**{'text': "PanedWindows have a sash with a handle and the sash with the handle may be moved. But for doing such layouts the full functionality of the GuiDesigner is needed.\n\nMaybe you remember the photo image of the GuiDesigner in the beginning?\n\nThere are two very important menu entries in the GuiDesigner: 'Config ON' and 'Layout ON', which were not discussed yet.", 'pady': '10', 'padx': '10', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'ew', 'columnspan': '2', 'row': '3'})
-Message('Message2',**{'text': 'So, it would say: explore yourself', 'font': 'TkDefaultFont 9 bold', 'width': '600', 'bg': 'white'}).grid(**{'column': '1', 'sticky': 'ew', 'columnspan': '2', 'row': '5'})
+Message('Message2',**{'text': 'So, it would say: explore self', 'font': 'TkDefaultFont 9 bold', 'width': '600', 'bg': 'white'}).grid(**{'column': '1', 'sticky': 'ew', 'columnspan': '2', 'row': '5'})
 PanedWindow('PanedWindow',**{'bd': '5', 'sashrelief': 'raised', 'bg': '#76a9d9', 'sashwidth': '8', 'handlesize': '20', 'showhandle': '1', 'height': '100', 'width': '600'})
 goIn()
 
