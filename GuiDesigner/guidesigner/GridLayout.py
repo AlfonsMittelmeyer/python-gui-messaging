@@ -473,7 +473,7 @@ def main():
         me.do_event('<ButtonRelease-1>',mouse_up,me)
 
     def grid_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        if type(me.mydata) != list or me.mydata[2]!= 'mouse':
+        if type(me.mydata) != list or len(me.mydata) < 3 or me.mydata[2]!= 'mouse':
             me.mydata=([0,0,'mouse',0,0,0,True,False])
             me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
             me.do_event('<ButtonRelease-1>',mouse_up,me)

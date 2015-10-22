@@ -143,15 +143,9 @@ class GuiElement:
 
         EXISTING_WIDGETS[self] = None
         self.is_mouse_select_on = False
-
-        self.grid_conf_rows = None
-        self.grid_conf_cols = None
-        self.grid_conf_individual_wish = False
-        self.grid_conf_individual_has = False
-        self.grid_conf_individual_done = False
-        self.grid_multi_conf_cols = []
-        self.grid_multi_conf_rows = []
-
+        
+        self.reset_grid()
+        
         if select: _Selection._widget = self
 
         if self.master != None: self.master.Dictionary.setElement(name,self)
@@ -174,6 +168,15 @@ class GuiElement:
         #self.isDestroyed = False
         if self.isContainer: self.isLocked=False
         else: self.isLocked = True
+
+    def reset_grid(self):
+        self.grid_conf_rows = None
+        self.grid_conf_cols = None
+        self.grid_conf_individual_wish = False
+        self.grid_conf_individual_has = False
+        self.grid_conf_individual_done = False
+        self.grid_multi_conf_cols = []
+        self.grid_multi_conf_rows = []
 
     def config(self,**kwargs):
         if len(kwargs) == 0:
@@ -236,7 +239,7 @@ class GuiElement:
             if self.tkClass == Tk: self.quit()
             else: 
                 if isinstance(self.master,MenuItem): self.master = self.myRoot()
-                self.tkClass.destroy(self)
+                if widget_exists(self): self.tkClass.destroy(self)
 
         EXISTING_WIDGETS.pop(self,None)		
         cdApp()
@@ -646,6 +649,7 @@ def container():
 
 
 def send(msgid,msgdata=None): proxy.send(msgid,msgdata)
+def unregister_msgid(msgid): proxy.unregister_msgid(msgid)
 def execute_lambda(cmd): proxy.send('execute_function',cmd)
 def do_receive(msgid,function,parameters=None,): proxy.do_receive(container(),msgid,Callback(None,function,parameters).receive)
 
@@ -973,7 +977,7 @@ class Toplevel(GuiElement,StatTkInter.Toplevel):
 
     def destroy(self):
         selection = Selection()
-        GuiElement.destroy(self)
+        if widget_exists(self): GuiElement.destroy(self)
         send('TOPLEVEL_CLOSED',selection)
 
     def config(self,**kwargs):
@@ -1207,8 +1211,28 @@ def link_command(me):
     if mylink != "":
         mymaster = me.master
         mymaster.destroyContent()
+        row_conf = mymaster.grid_conf_rows
+        col_conf = mymaster.grid_conf_cols
+        
+        old_rows = row_conf[0]
+        old_cols = col_conf[0]
+            
+        unconf_rows = old_rows
+        unconf_cols = old_cols
+        
+        if mymaster.grid_conf_individual_done:
+            unconf_rows += 1
+            unconf_cols += 1
+        
+        for i in range(unconf_rows):
+            mymaster.grid_rowconfigure(i,minsize = 0,pad=0,weight=0)
+
+        for i in range(unconf_cols):
+            mymaster.grid_columnconfigure(i,minsize = 0,pad=0,weight=0)
+        
+        mymaster.reset_grid()
         mymaster.setconfig('link',mylink)
-        cdApp() # this is a secure place
+        if not widget_exists(this()): cdApp() # this is a secure place
 
 class LinkLabel(Label):
 
@@ -1217,8 +1241,9 @@ class LinkLabel(Label):
         if 'link' in kwargs:
             self.link = kwargs['link']
             kwargs.pop('link',None)
-        Label.__init__(self,myname="LinkLabel",**kwargs)
-        self.config(font='TkFixedFont 9 normal underline',fg="blue")
+        if not 'font' in kwargs: kwargs['font'] = 'TkFixedFont 9 normal underline'
+        if not 'fg' in kwargs: kwargs['fg'] = 'blue'
+        Label.__init__(self,myname,**kwargs)
         self.do_event('<Button-1>',link_command,wishWidget = True)
 
     def config(self,**kwargs):
@@ -1239,7 +1264,7 @@ class LinkButton(Button):
         if 'link' in kwargs:
             self.link = kwargs['link']
             kwargs.pop('link',None)
-        Button.__init__(self,myname="LinkButton",**kwargs)
+        Button.__init__(self,myname,**kwargs)
         # not a command, because this would be a problem in the GUI Designer
         self.do_event('<ButtonRelease-1>',link_command,wishWidget = True)
 

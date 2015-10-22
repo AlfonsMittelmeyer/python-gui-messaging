@@ -197,6 +197,9 @@ class Proxy:
 
     # unregister callback ================================================
 
+    def unregister_msgid(self,msgid):
+        self._Dictionary.pop(msgid,None)
+
     # normal case - we use the queue - different reasons
     def undo_receive(self,owner,msgid,callback):
         self._Queue_HighPrio.put(("execute_function",lambda: self._undo_receive(owner,msgid,callback)))
