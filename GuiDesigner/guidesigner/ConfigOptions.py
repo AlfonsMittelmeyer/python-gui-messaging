@@ -245,7 +245,10 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                 Frame()
                 goIn()
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
-                if entry[0] == "text": Text("Entry", height=3, width=20, font="TkDefaultFont").insert(END,entry[1])			
+                if entry[0] == "text":
+                    Button(text="+").rcgrid(0,2)
+                    do_command(lambda: DynAccess('guidesigner/text_edit.py',this()))
+                    Text("Entry", height=3, width=20, font="TkDefaultFont").insert(END,entry[1])
                 elif entry[0] in (
 "digits", # Scale (Integer default 0)
 "width", # often (Integer default 0)
