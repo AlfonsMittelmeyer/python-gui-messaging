@@ -10,7 +10,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranties of
-# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULARF
 # PURPOSE. See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -177,6 +177,30 @@ class GuiElement:
         self.grid_conf_individual_done = False
         self.grid_multi_conf_cols = []
         self.grid_multi_conf_rows = []
+
+
+    def clear_grid(self):
+
+        row_conf = self.grid_conf_rows
+        if row_conf != None:
+            old_rows = row_conf[0]
+            unconf_rows = old_rows
+            if self.grid_conf_individual_done:
+                unconf_rows += 1
+            for i in range(unconf_rows):
+                self.grid_rowconfigure(i,minsize = 0,pad=0,weight=0)
+
+        col_conf = self.grid_conf_cols
+        if col_conf != None:
+            old_cols = col_conf[0]
+            unconf_cols = old_cols
+            if self.grid_conf_individual_done:
+                unconf_cols += 1
+            for i in range(unconf_cols):
+                self.grid_columnconfigure(i,minsize = 0,pad=0,weight=0)
+        
+        self.reset_grid()
+
 
     def config(self,**kwargs):
         if len(kwargs) == 0:
@@ -372,7 +396,7 @@ class GuiElement:
         elif layout == MENULAYOUT: self.selectmenu_forget()
 
     def item_change_index(self,index):
-
+        offset = self.master['tearoff']
         old_index = self.getPackListIndex()
         new_index = old_index
         try:
@@ -384,8 +408,8 @@ class GuiElement:
             if new_index >= 0 and new_index < limit:
                 confdict = self.getconfdict()
                 confdict.pop('myclass',None)
-                self.master.delete(old_index+1)
-                self.master.insert(new_index+1,self.mytype,confdict)
+                self.master.delete(old_index+offset)
+                self.master.insert(new_index+offset,self.mytype,confdict)
                 del self.master.PackList[old_index]
                 self.master.PackList.insert(new_index,self)
 
@@ -1211,26 +1235,7 @@ def link_command(me):
     if mylink != "":
         mymaster = me.master
         mymaster.destroyContent()
-        row_conf = mymaster.grid_conf_rows
-        col_conf = mymaster.grid_conf_cols
-        
-        old_rows = row_conf[0]
-        old_cols = col_conf[0]
-            
-        unconf_rows = old_rows
-        unconf_cols = old_cols
-        
-        if mymaster.grid_conf_individual_done:
-            unconf_rows += 1
-            unconf_cols += 1
-        
-        for i in range(unconf_rows):
-            mymaster.grid_rowconfigure(i,minsize = 0,pad=0,weight=0)
-
-        for i in range(unconf_cols):
-            mymaster.grid_columnconfigure(i,minsize = 0,pad=0,weight=0)
-        
-        mymaster.reset_grid()
+        mymaster.clear_grid()
         mymaster.setconfig('link',mylink)
         if not widget_exists(this()): cdApp() # this is a secure place
 
@@ -1492,13 +1497,15 @@ class MenuItem(GuiElement):
         self.Layout = MENUITEMLAYOUT
 
     def destroy(self):
-         index = self.getPackListIndex()
-         self.master.delete(index+1)
-         self._removeFromPackList()
-         GuiElement.destroy(self)
+        offset = self.master['tearoff']
+        index = self.getPackListIndex()
+        self.master.delete(index+offset)
+        self._removeFromPackList()
+        GuiElement.destroy(self)
 
     def config(self,**kwargs):
-        index = self.getPackListIndex() + 1
+        offset = self.master['tearoff']
+        index = self.getPackListIndex() + offset
         if len(kwargs) == 0:
             dictionary = {}
             for entry in (
@@ -1905,15 +1912,19 @@ indent = ""
 
 SAVE_ALL = False
 
+def class_type(myclass):
+    classString = str(myclass)
+    begin = classString.find(".")+1
+    end = classString.find("'",begin)
+    return classString[begin:end]
+
+
 def WidgetClass(widget):
     if isinstance(widget,MenuItem): return 'MenuItem'
     elif isinstance(widget,MenuDelimiter): return 'MenuDelimiter'
     elif isinstance(widget,LinkButton): return 'LinkButton'
     elif isinstance(widget,LinkLabel): return 'LinkLabel'
-    else: classString = str(widget.tkClass)
-    begin = classString.find(".")+1
-    end = classString.find("'",begin)
-    return classString[begin:end]
+    else: return class_type(widget.tkClass)
 
 def del_config_before_compare(dictionaryWidget):
 
@@ -1965,7 +1976,7 @@ def get_layout_dictionary():
         CompareWidget.grid()
         layoutCompare = dict(CompareWidget.grid_info())
     else: 
-        CompareWidget.place(x=-1,y=-1)
+        CompareWidget.place(x=-53287,y=-43217)
         layoutCompare = dict(CompareWidget.place_info())
     CompareWidget.destroy()
 
@@ -1976,6 +1987,10 @@ def get_layout_dictionary():
 
     # Causes bug for tuple - padx, do we have some pixel object?
     #for n,e in layoutDict.items(): layoutDict[n] = str(e)
+
+    for n,e in layoutDict.items():
+        if class_type(type(e)) == "Tcl_Obj":
+            layoutDict[n] = str(e)
 
     return layoutDict
 
@@ -2033,6 +2048,9 @@ def save_pack_entries(filehandle):
                 if e == layoutCompare[n]: layoutWidget.pop(n,None)
             
             if len(layoutWidget) != 0:
+                for n,e in layoutWidget.items():
+                    if class_type(type(e)) == "Tcl_Obj":
+                        layoutWidget[n] = str(e)
                 filehandle.write('**'+repr(layoutWidget))
            
             filehandle.write(")\n")
@@ -2047,7 +2065,7 @@ def save_pack_entries(filehandle):
                 index += 1
             except: break
         for i in range(len(sash_list)):
-            filehandle.write(indent+"container().trigger_sash_place("+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+            filehandle.write(indent+"container().trigger_sash_place("+str((i+1)*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 def save_sub_container(filehandle):
     if not this().isContainer: return False
@@ -2406,6 +2424,11 @@ def export_pack_entries(filehandle):
  
             if len(layoutWidget) != 0:
                 if this().Layout == PANELAYOUT: filehandle.write(",")
+                
+                for n,e in layoutWidget.items():
+                    if class_type(type(e)) == "Tcl_Obj":
+                        layoutWidget[n] = str(e)
+ 
                 filehandle.write('**'+repr(layoutWidget))
 
             filehandle.write(")\n")
@@ -2423,10 +2446,10 @@ def export_pack_entries(filehandle):
 
         if EXPORT_NAME:
             for i in range(len(sash_list)):
-                filehandle.write("        tk.trigger_sash_place(self,"+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+                filehandle.write("        tk.trigger_sash_place(self,"+str((i+1)*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
         else:
             for i in range(len(sash_list)):
-                filehandle.write("        ext.trigger_sash_place(self,"+str(i*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+                filehandle.write("        ext.trigger_sash_place(self,"+str((i+1)*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
 
 def export_immediate_layout(filehandle,name):
     if not is_immediate_layout(): return

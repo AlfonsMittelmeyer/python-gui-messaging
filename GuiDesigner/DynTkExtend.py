@@ -144,15 +144,17 @@ class MenuItem:
         master.add(mytype,**kwargs)
 
     def destroy(self):
-         index = self.master.get_item_index(self)
-         self.master.delete(index+1)
-         self.master.remove_from_itemlist(self)
+        offset = self.master['tearoff']
+        index = self.master.get_item_index(self)
+        self.master.delete(index+offset)
+        self.master.remove_from_itemlist(self)
 
     def layout(self,**kwargs):
         self.item_change_index(**kwargs)
 
     def item_change_index(self,index):
 
+        offset = self.master['tearoff']
         old_index = self.master.get_item_index(self)
         new_index = old_index
         try:
@@ -164,17 +166,19 @@ class MenuItem:
             if new_index >= 0 and new_index < limit:
 
                 confdict = dict(self.get_confdict())
-                self.master.delete(old_index+1)
-                self.master.insert(new_index+1,self.mytype,confdict)
+                self.master.delete(old_index+offset)
+                self.master.insert(new_index+offset,self.mytype,confdict)
                 del self.master.itemlist[old_index]
                 self.master.itemlist.insert(new_index,self)
 
     def config(self,**kwargs):
-        index = self.master.get_item_index(self) + 1
+        offset = self.master['tearoff']
+        index = self.master.get_item_index(self) + offset
         self.master.entryconfig(index,**kwargs)
 
     def get_confdict(self):
-        index = self.master.get_item_index(self) + 1
+        offset = self.master['tearoff']
+        index = self.master.get_item_index(self) + offset
         dictionary = {}
         for entry in (
 'activebackground',

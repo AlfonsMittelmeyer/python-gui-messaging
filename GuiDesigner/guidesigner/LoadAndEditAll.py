@@ -19,6 +19,7 @@ def load_module(ioerror = widget("IOError"), fname = widget("FileName"), cont = 
         gotoRoot()
         container().destroyActions()
         container().destroyContent()
+        container().clear_grid()
         setLoadForEdit(True)
         DynLoad(fname.get())
         setLoadForEdit(False)
