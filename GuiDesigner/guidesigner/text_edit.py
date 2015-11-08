@@ -31,4 +31,3 @@ def Access(widget_for_text):
     widget('Text').insert(END,widget_for_text['text'])
 
 ### ========================================================
-

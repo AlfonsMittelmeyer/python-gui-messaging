@@ -1,4 +1,5 @@
 config(**{'grid_cols': '(4, 50, 0, 0)', 'grid_rows': '(6, 20, 0, 0)'})
+config(**{'grid_cols': '(4, 50, 0, 0)', 'grid_rows': '(6, 20, 0, 0)'})
 
 Entry('EntryRows',**{'width': '6'}).grid(**{'column': '1', 'sticky': 'ns', 'row': '1'})
 Entry('EntryCols',**{'width': '6'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '1'})
@@ -88,11 +89,13 @@ def main():
             rows_widget.insert(0,10)
             rows = 10
 
-        row_height = int(height_widget.get())
-        padvalue = int(pad_widget.get())
-        weightvalue = int(weight_widget.get())
+        try:
+            row_height = int(height_widget.get())
+            padvalue = int(pad_widget.get())
+            weightvalue = int(weight_widget.get())
 
-        container().grid_conf_rows = (rows,row_height,padvalue,weightvalue)
+            container().grid_conf_rows = (rows,row_height,padvalue,weightvalue)
+        except ValueError: pass
 
 
     def set_row_height():
@@ -131,12 +134,14 @@ def main():
             cols_widget.insert(0,10)
             cols = 6
 
-        col_width = int(width_widget.get())
-        padvalue = int(pad_widget.get())
-        weightvalue = int(weight_widget.get())
-        
-        container().grid_conf_cols = (cols,col_width,padvalue,weightvalue)
+        try:
+            col_width = int(width_widget.get())
+            padvalue = int(pad_widget.get())
+            weightvalue = int(weight_widget.get())
+            container().grid_conf_cols = (cols,col_width,padvalue,weightvalue)
        
+        except ValueError: pass
+
 
     def set_col_width():
 
@@ -443,10 +448,10 @@ def main():
 
 
     def on_app_mouse_up(me,app_id=apprelease_id_list):
-        _Application.unbind('<ButtonRelease-1>',app_id[0])
+        me.myRoot().unbind('<ButtonRelease-1>',app_id[0])
         if me.mydata[6]: on_mouse_up(me)
 
-    def on_mouse_down(me,event,me_root=container().myRoot(),app_id=apprelease_id_list):
+    def on_mouse_down(me,event,app_id=apprelease_id_list):
 
         xpos = me.winfo_rootx()-me.container().winfo_rootx()
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
@@ -457,7 +462,7 @@ def main():
         #send('SHOW_CONFIG',(None,True))
 
         me.yxplace(ypos,xpos)
-        app_id[0] =_Application.bind('<ButtonRelease-1>',lambda event=event, wi = me, func=on_app_mouse_up: func(wi))
+        app_id[0] = me.myRoot().bind('<ButtonRelease-1>',lambda event=event, wi = me, func=on_app_mouse_up: func(wi))
         mouse_move(me)
 
         if this() != me:

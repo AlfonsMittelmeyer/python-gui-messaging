@@ -23,13 +23,13 @@ def create_widget(msg):
             send('SELECTION_CHANGED')
         else:
             print("Wrong handling: cannot create a menu item outside a menu")
+    elif isinstance(container(),Menu):
+        print("Wrong handling: cannot create a widget inside a menu")
     else:
-        if not isinstance(container(),Menu):
-            eval(widget_type+"('"+msg[1]+"')")
-            text(msg[1])
-            send('SELECTION_CHANGED')
-        else:
-            print("Wrong handling: cannot create a widget inside a menu")
+        if widget_type == "Toplevel": cdApp()
+        eval(widget_type+"('"+msg[1]+"')")
+        text(msg[1])
+        send('SELECTION_CHANGED')
 
 do_receive('CREATE_WIDGET_REQUEST',create_widget,wishMessage=True)
 do_receive("SELECTION_CHANGED", lambda: send('SHOW_SELECTION'))

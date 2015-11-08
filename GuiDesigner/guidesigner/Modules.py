@@ -3,8 +3,8 @@ goIn()
 LabelFrame('WidgetPath',**{'text': 'Path'})
 goIn()
 #Label('message_path',**{'width': '70', 'anchor': 'w','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x'})
-Message('message_path',**{'width': '550', 'anchor': 'nw','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x','expand':'1'})
-Frame('Frame',**{'width': '550'}).pack(anchor = 'nw')
+Message('message_path',**{'width': '600', 'anchor': 'nw','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x','expand':'1'})
+Frame('Frame',**{'width': '600'}).pack(anchor = 'nw')
 
 
 ### CODE ===================================================

@@ -1,17 +1,15 @@
-config(**{'activebackground': '#ececec'})
-
 MenuItem('Config','command',**{'label': 'Config ON', 'background': 'green'})
 MenuItem('Create','command',**{'label': 'Create ON', 'columnbreak': '1', 'background': 'green'})
 MenuItem('File','cascade',**{'label': 'File'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
 goIn()
 
 MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
 goIn()
 
 MenuItem('Container','command',**{'label': 'Container Depth'})
@@ -43,12 +41,12 @@ goOut()
 MenuItem('Export','cascade',**{'label': 'Export (tk)'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
-MenuItem('With Names','command',**{'label': 'With Names'})
-MenuItem('Without Names','command',**{'label': 'Without Names'})
+MenuItem('With Names','command',**{'label': 'with names'})
+MenuItem('Without Names','command',**{'label': 'without names'})
 MenuItem('separator','separator')
 
 widget('Help').layout(index=1)
@@ -70,7 +68,7 @@ widget("With Names").do_command(lambda name=get_root_name_3: send('EXPORT_ALL_NA
 widget("Without Names").do_command(lambda name=get_root_name_3: send('EXPORT_ALL_TK',name()))
 
 def export_help(menu=widget('Help')):
-    messagebox.showinfo("Export as tk or extended tk","If you export 'With Names' you may edit the GUI using the exported File. If you export 'Without Names', the exported File is nearly full tkinter compatible.",parent=menu.myRoot())
+    messagebox.showinfo("Export as tkinter with or without names","When you export 'with names', the exported File contains the names of the widgets in a tkinter compatible way. The advantage is, that later you may edit the GUI with the GuiDesigner directly using the exported file.\n\nIf you don't like names in your tkinter source file, then export 'without names'. But then you shouldn't forget to save the GUI also via menu File->Save",parent=menu.myRoot())
 
 widget("Help").do_command(export_help)
 
@@ -83,11 +81,12 @@ goOut()
 
 MenuItem('Load & Edit','command',**{'label': 'Load & Edit'})
 MenuItem('Load & Run','command',**{'label': 'Load & Run'})
+MenuItem('Quit','command',**{'label': 'Quit'})
 MenuItem('Save','command',**{'label': 'Save'})
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -147,17 +146,28 @@ select_menu()
 
 goOut()
 
+MenuItem('backup','command',**{'label': 'Backup'})
 MenuItem('separator','separator')
+MenuItem('separator_quit','separator')
 
-widget('Save').layout(index=1)
-widget('Export').layout(index=2)
-widget('Access').layout(index=3)
-widget('Load & Edit').layout(index=4)
-widget('Load & Run').layout(index=5)
+widget('backup').layout(index=1)
+widget('Save').layout(index=2)
+widget('Load & Edit').layout(index=3)
+widget('Load & Run').layout(index=4)
+widget('Split & Join').layout(index=5)
 widget('separator').layout(index=6)
-widget('Split & Join').layout(index=7)
+widget('Export').layout(index=7)
+widget('Access').layout(index=8)
+widget('separator_quit').layout(index=9)
+widget('Quit').layout(index=10)
 
 ### CODE ===================================================
+
+def do_quit():
+    cdApp()
+    this().destroy()
+
+widget('Quit').do_command(do_quit)
 
 def get_root_name():
     selection_before = Selection()
@@ -167,6 +177,7 @@ def get_root_name():
     setSelection(selection_before)
     return name
 
+widget("backup").do_command(lambda name=get_root_name: send('SAVE_BACKUP',name()))
 widget("Save").do_command(lambda name=get_root_name: send('SAVE_ALL',name()))
 widget('Load & Run').do_command(lambda name=get_root_name: send('LOAD_RUN_ALL',name()))
 widget('Load & Edit').do_command(lambda name=get_root_name: send('LOAD_EDIT_ALL',name()))
@@ -192,13 +203,13 @@ MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'green'})
 MenuItem('Special','cascade',**{'label': 'Special'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
 goIn()
 
 MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',**{'bg': 'white', 'relief': 'solid', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -280,20 +291,158 @@ select_menu()
 
 goOut()
 
+MenuItem('help','cascade',**{'label': 'Help'})
+goIn()
+
+Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+goIn()
+
+MenuItem('backup','command',**{'label': 'Backup'})
+MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
+goIn()
+
+Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+goIn()
+
+MenuItem('dynaccess','command',**{'label': 'DynAccess'})
+MenuItem('dyntkimports','command',**{'label': 'DynTkImports'})
+MenuItem('functions','command',**{'label': 'Functions'})
+MenuItem('imports','command',**{'label': 'Imports'})
+MenuItem('namespace','command',**{'label': 'Namespace'})
+MenuItem('place_code','command',**{'label': 'Place for Code'})
+MenuItem('relative_access','command',**{'label': 'Relative Access'})
+MenuItem('root_access','command',**{'label': 'Root Access'})
+
+widget('functions').layout(index=1)
+widget('namespace').layout(index=2)
+widget('imports').layout(index=3)
+widget('dyntkimports').layout(index=4)
+widget('relative_access').layout(index=5)
+widget('root_access').layout(index=6)
+widget('place_code').layout(index=7)
+widget('dynaccess').layout(index=8)
+
+### CODE ===================================================
+def load_help(filename):
+    load_script(filename,_Application)
+
+widget('functions').do_command(load_help,'guidesigner/FunctionsInScripts.py')
+widget('namespace').do_command(load_help,'guidesigner/HelpNameSpace.py')
+widget('imports').do_command(load_help,'guidesigner/HelpImport.py')
+widget('dyntkimports').do_command(load_help,'guidesigner/HelpDynTkImports.py')
+widget('relative_access').do_command(load_help,'guidesigner/HelpRelativeAccess.py')
+widget('root_access').do_command(load_help,'guidesigner/HelpRootAccess.py')
+widget('place_code').do_command(load_help,'guidesigner/HelpPlaceForCode.py')
+widget('dynaccess').do_command(load_help,'guidesigner/HelpDynAccess.py')
+### ========================================================
+
+goOut()
+select_menu()
+
+goOut()
+
+MenuItem('config','command',**{'label': 'Config Options'})
+MenuItem('examples','command',**{'label': 'Examples'})
+MenuItem('export','command',**{'label': 'Export (tk)'})
+MenuItem('introduction','command',**{'label': 'Introduction'})
+MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
+MenuItem('programming','cascade',**{'label': 'Programming'})
+goIn()
+
+Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+goIn()
+
+MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})
+MenuItem('access_widgets','command',**{'label': 'Access Widgets'})
+MenuItem('load_scripts','command',**{'label': 'Load Scripts'})
+
+widget('load_scripts').layout(index=1)
+widget('access_widgets').layout(index=2)
+widget('access_toplevel').layout(index=3)
+
+### CODE ===================================================
+def load_help(filename):
+    load_script(filename,_Application)
+
+widget('load_scripts').do_command(load_help,'guidesigner/HelpLoadScripts.py')
+widget('access_widgets').do_command(load_help,'guidesigner/HelpAccessWidgets.py')
+widget('access_toplevel').do_command(load_help,'guidesigner/HelpAccessToplevel.py')
+### ========================================================
+
+goOut()
+select_menu()
+
+goOut()
+
+MenuItem('save_access','command',**{'label': 'Save Access'})
+MenuItem('save_load','command',**{'label': 'Save & Load'})
+MenuItem('separator','separator')
+
+widget('introduction').layout(index=1)
+widget('config').layout(index=2)
+widget('menu_entries').layout(index=3)
+widget('backup').layout(index=4)
+widget('save_load').layout(index=5)
+widget('export').layout(index=6)
+widget('save_access').layout(index=7)
+widget('separator').layout(index=8)
+widget('programming').layout(index=9)
+widget('code_in_scripts').layout(index=10)
+widget('examples').layout(index=11)
+
+### CODE ===================================================
+
+def start_intro(msg):
+    unregister_msgid('START_INTRO')
+    DynLoad('introduction/intro.py')
+
+proxy.do_receive(None,'START_INTRO',start_intro)
+    
+def see_introduction(me):
+    if messagebox.askokcancel("Introduction", "The introduction explains creating widgets and about the layouts. Because two GuiDesigners shouldn't run, we close one and hide the Application window. Maybe you first should save your work via menu File->Save.\n\nOr do you like, to begin now?",parent=me.myRoot()):
+        me.myRoot().destroy()
+        send("START_INTRO")
+
+widget('introduction').do_command(see_introduction,wishWidget=True)
+
+def load_help(filename):
+    load_script(filename,_Application)
+
+widget('config').do_command(load_help,'guidesigner/HelpConfigTop.py')
+widget('save_load').do_command(load_help,'guidesigner/HelpSaveLoad.py')
+widget('export').do_command(load_help,'guidesigner/HelpExportTk.py')
+widget('menu_entries').do_command(load_help,'guidesigner/HelpMenu.py')
+widget('save_access').do_command(load_help,'guidesigner/HelpSaveAccess.py')
+widget('backup').do_command(load_help,'guidesigner/HelpBackup.py')
+
+
+def examples_help(root=widget('/')):
+    messagebox.showinfo("Examples","Examples will follow soon",parent=root)
+
+widget("examples").do_command(examples_help)
+
+### ========================================================
+
+goOut()
+select_menu()
+
+goOut()
+
 MenuItem('space','command',**{'label': ''})
 MenuItem('space','command',**{'label': ''})
 MenuItem('space','command',**{'label': ''})
 
 widget('File').layout(index=1)
 widget('Special').layout(index=2)
-widget('Create').layout(index=3)
-widget('space',0).layout(index=4)
-widget('Config').layout(index=5)
-widget('space',1).layout(index=6)
-widget('Layout').layout(index=7)
-widget('space',2).layout(index=8)
-widget('Mouse').layout(index=9)
-widget('Hide').layout(index=10)
+widget('help').layout(index=3)
+widget('Create').layout(index=4)
+widget('space',0).layout(index=5)
+widget('Config').layout(index=6)
+widget('space',1).layout(index=7)
+widget('Layout').layout(index=8)
+widget('space',2).layout(index=9)
+widget('Mouse').layout(index=10)
+widget('Hide').layout(index=11)
 
 ### CODE ===================================================
 
@@ -363,6 +512,5 @@ def check_mouse_on(mouse=widget('Mouse'),func=function_callback):
 
     
 do_receive('SELECTION_CHANGED',check_mouse_on)
-
 
 ### ========================================================

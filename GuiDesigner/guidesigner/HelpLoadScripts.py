@@ -1,0 +1,26 @@
+Toplevel('LoadGuiScript',**{'title': 'Loading GUI scripts', 'grid_cols': '(7, 75, 0, 0)', 'grid_multi_cols': '[7, (0, 10, 0, 0), (6, 10, 0, 0)]', 'grid_rows': '(30, 10, 0, 0)'})
+
+Message('after_mainloop',**{'text': "import DynTkInter as tk\ntk.Tk().mainloop('mygui.py')", 'font': 'TkFixedFont 9 bold', 'width': '400', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '12'})
+Message('by_function_code',**{'text': "import DynTkInter as tk\nroot = tk.Tk()\ntk.load_script('mygui.py')\nroot.mainloop()", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '9'})
+Message('by_function_comment',**{'text': '# loading by load function load_script', 'font': 'TkFixedFont 9 bold', 'width': '400', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '8'})
+Message('by_link_code',**{'text': "import DynTkInter as tk\ntk.Tk(link='mygui.py').mainloop()", 'font': 'TkFixedFont 9 bold', 'width': '400', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '6'})
+Message('by_link_comment',**{'text': '# loading by link option', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '5'})
+Message('by_mainloop_comment',**{'text': '# loading after start of mainloop', 'font': 'TkFixedFont 9 bold', 'width': '300', 'bg': 'white', 'anchor': 'nw'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '11'})
+Button('close',**{'text': 'Close', 'bd': '2'}).grid(**{'column': '5', 'sticky': 'nesw', 'row': '28'})
+Message('for_main',**{'text': "The first two ways you may use, if you like to write your code in the main script. But if you write your program directly in the GUI script, then also loading after start of mainloop makes sense. Especially useful is this last kind of starting a script, when you position sashes of PanedWindows. This can't be done before start of the mainloop.\n\nAs parameter of mainloop is also a good place for starting the GuiDesigner, because it's easy to find.", 'width': '450', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '14'})
+Message('frame_code',**{'text': "myframe = tk.Frame(parent)\ntk.load_script('myframe_content.gui',myframe)", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '24'})
+Message('frame_comment',**{'text': '# loading a GUI into a Frame', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'esw', 'columnspan': '5', 'row': '23'})
+Label('load_relative',**{'text': 'Loading relative', 'font': 'TkDefaultFont 11 bold', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '19'})
+Message('load_script_more',**{'text': 'Function load_script with an additional optional parameter offers also to use own classes.', 'width': '450', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '16'})
+LinkLabel('own_classes',**{'text': 'myclass', 'padx': '14', 'font': 'TkDefaultFont 11 bold underline', 'bg': 'white', 'link': 'guidesigner/HelpConfig.py', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '2', 'sticky': 'nesw', 'columnspan': '4', 'row': '17'})
+Message('relative_text',**{'text': "You don't need to design a GUI complete for an application. You also may design parts. A GUI not only may be loaded into the root (Application) but also in every kind of container widget. The function load_script has two optional parameter, one is a class list and the other one the parent.", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '21'})
+Message('see',**{'text': 'See:', 'width': '75', 'bg': 'white', 'anchor': 'e'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '17'})
+Message('three_ways',**{'text': 'There are three ways to load a GUI script in the main script:', 'width': '400', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '3'})
+Label('title',**{'text': 'Load GUI scripts', 'font': 'TkDefaultFont 12 bold', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '1'})
+Message('toplevel_code',**{'text': "mytoplevel = tk.Toplevel(parent)\ntk.load_script('mytoplevel_content.gui',classlist,mytoplevel)", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '26'})
+Message('toplevel_comment',**{'text': '# loading a GUI into a toplevel, but now with classes', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '5', 'row': '25'})
+
+### CODE ===================================================
+widget('close').do_command(lambda cont = container(): cont.destroy())
+### ========================================================
+

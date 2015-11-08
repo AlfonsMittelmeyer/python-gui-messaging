@@ -63,7 +63,7 @@ def listbox_helpbutton(lbox,entry,lbox_click = do_lbox_click):
 
 def listbox_selection(helpbutton = listbox_helpbutton):
     Button(text="?").rcgrid(0,2) # create a help button for showing the listbox
-    do_command(helpbutton,(widget("Listbox"),widget("Entry")))
+    do_command(helpbutton,(widget("listbox"),widget("Entry")))
 
 # -------------- receiver for message 'SHOW_LAYOUT' ------------------------------------
 
@@ -178,7 +178,7 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
             for entry in layoutlist:
                 # for each option, we make a frame an in this frame a label with the option name and an entry
                 # for showing and changing the value
-                Frame()
+                Frame('Frame')
                 goIn()
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
                 if entry[0] in (

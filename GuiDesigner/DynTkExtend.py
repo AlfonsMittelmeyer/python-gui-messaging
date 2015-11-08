@@ -16,6 +16,7 @@
 
 
 import tkinter as tk
+from DynTkImage import dynTkImage
 
 # == Fill Listbox with Text ==============================================
 
@@ -141,6 +142,7 @@ class MenuItem:
         self.mytype = mytype
         self.master = master
         master.add_to_itemlist(self)
+        kwargs.pop('name',None)
         master.add(mytype,**kwargs)
 
     def destroy(self):
@@ -175,6 +177,10 @@ class MenuItem:
         offset = self.master['tearoff']
         index = self.master.get_item_index(self) + offset
         self.master.entryconfig(index,**kwargs)
+
+    def get_index(self):
+        offset = self.master['tearoff']
+        return self.master.get_item_index(self) + offset
 
     def get_confdict(self):
         offset = self.master['tearoff']
@@ -213,6 +219,7 @@ class MenuDelimiter():
     def __init__(self,master,**kwargs):
 
         self.master = master
+        kwargs.pop('name',None)
         self.master.entryconfig(0,**kwargs)
 
     def config(self,**kwargs):

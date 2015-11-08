@@ -20,7 +20,7 @@ def load_module(ioerror = widget("IOError"), fname = widget("FileName"), cont = 
         DynLoad(fname.get())
         setLoadWithCode(False)
         setSelection(selection_before)
-        send("SHOW_SELECTION")
+        send('SHOW_SELECTION_UPDATE')
     except IOError: ioerror.grid()
 
 widget("OK").do_command(load_module)

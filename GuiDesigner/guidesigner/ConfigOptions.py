@@ -1,10 +1,10 @@
-Scrollbar(orient=VERTICAL)
+Scrollbar('Scrollbar',orient=VERTICAL)
 pack(side=RIGHT,fill=Y,expand=FALSE)
 
-Canvas(bd=0,highlightthickness=0)
+Canvas('Canvas',bd=0,highlightthickness=0)
 pack(fill=BOTH, expand=TRUE)
 
-Frame().pack(side=BOTTOM,anchor=NW)
+Frame('Frame').pack(side=BOTTOM,anchor=NW)
 
 #Frame().pack(side=BOTTOM,anchor=NW)
 
@@ -12,29 +12,21 @@ Frame().pack(side=BOTTOM,anchor=NW)
 
 Lock()
 
-def geometry_refresh(me,widget):
-    mydata = widget.mydata[0]
-    if mydata != None:
-        geometry = getconfig("geometry")
-        if geometry != widget.mydata[1]:
-            widget.mydata[1] = geometry
-            mydata.delete(0,END)
-            mydata.insert(0,str(getconfig("geometry")))
-            if widget.mydata[2] != None:
-                widget.mydata[2].delete(0,END)
-                widget.mydata[2].insert(0,str(getconfig("height")))
-            if widget.mydata[3] != None:
-                widget.mydata[3].delete(0,END)
-                widget.mydata[3].insert(0,str(getconfig("width")))
+def geometry_refresh(me,frame=widget('Frame')):
+    geometry = getconfig("geometry")
+    if geometry != frame.mydata[1]: # geometry value
+        frame.mydata[1] = geometry 
+        me.delete(0,END)
+        me.insert(0,str(geometry))
 
-    informLater(1000,me,'refresh')
+    informLater(200,me,'refresh')
 
 
-widget('Frame').mydata=[None,None,None,None,None]
+widget('Frame').mydata=[None,None]
 
 def undo_refresh(thisframe=widget('Frame')):
-    if thisframe.mydata[4] != None: undo_action(thisframe.mydata[4],'refresh')
-    thisframe.mydata=[None,None,None,None,None]
+    if thisframe.mydata[0] != None: undo_action(thisframe.mydata[0],'refresh')
+    thisframe.mydata=[None,None]
 
 undo_refresh()
 
@@ -91,7 +83,7 @@ def listbox_helpbutton(lbox,entry,lbox_click = do_lbox_click):
 
 def listbox_selection(helpbutton = listbox_helpbutton):
     Button(text="?").rcgrid(0,2) # create a help button for showing the listbox
-    do_command(helpbutton,(widget("Listbox"),widget("Entry")))
+    do_command(helpbutton,(widget("listbox"),widget("Entry")))
 
 def select_color(mebutton,entry):
     # call color chooser and save the result
@@ -135,6 +127,8 @@ def entry_event(me,button=None):
 enable_flag = [False,False,False]
 
 def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("Frame"),color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = widget('Canvas'),no_refresh=undo_refresh,geo_refresh=geometry_refresh):
+
+    no_refresh()
     if isinstance(msg,bool):
         if msg:
             if not onflag[0]:
@@ -185,6 +179,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "text",
 "myclass",
 "link",
+"photoimage",
 "type",
 "selectmode",
 "state",
@@ -242,13 +237,14 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
             for entry in conflist:
                 # for each option, we make a frame an in this frame a label with the option name and an entry
                 # for showing and changing the value
-                Frame()
+                Frame('Frame')
                 goIn()
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
                 if entry[0] == "text":
                     Button(text="+").rcgrid(0,2)
                     do_command(lambda: DynAccess('guidesigner/text_edit.py',this()))
                     Text("Entry", height=3, width=20, font="TkDefaultFont").insert(END,entry[1])
+
                 elif entry[0] in (
 "digits", # Scale (Integer default 0)
 "width", # often (Integer default 0)
@@ -269,19 +265,19 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "handlesize", # PanedWindow (Integer default 8)
 "handlepad"): # PanedWindow (Integer default 8)
                     Spinbox("Entry",from_=0,to=3000,increment=1).delete(0,'end')
-                    widget('Entry').insert(0,entry[1])
+                    this().insert(0,entry[1])
                     do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
                 elif entry[0] == "insertontime":
                     Spinbox("Entry",from_=0,to=10000,increment=10).delete(0,'end')
-                    widget('Entry').insert(0,entry[1])
+                    this().insert(0,entry[1])
                     do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
                 elif entry[0] == "underline":
                     Spinbox("Entry",from_=-1,to=300,increment=1).delete(0,'end')
-                    widget('Entry').insert(0,entry[1])
+                    this().insert(0,entry[1])
                     do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
                 else: 
                     Entry("Entry").delete(0,'end')
-                    widget('Entry').insert(0,entry[1])
+                    this().insert(0,entry[1])
 
                 do_action('color',color_action,wishWidget=True,wishMessage=True)
                 rcgrid(0,1,sticky=E+W)
@@ -298,17 +294,26 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 
 
                     if entry[0] == 'geometry':
-                        thisframe.mydata = [this(),None,None,None,msg]
-                        msg.do_action('refresh',geo_refresh,thisframe,True)
-                        inform(msg,'refresh')
+                        thisframe.mydata[0] = this()
+                        this().do_action('refresh',geo_refresh,wishWidget=True)
+                        inform(this(),'refresh')
 
                     # help info message box for sticky option
                     elif entry[0] =="myclass":
                         Button(text="?").rcgrid(0,2)
                         do_command(lambda par = this(): messagebox.showinfo("Widget Class","The Widget Class 'myclass' isn't supported for GUI Export",parent=par))
 
-                    elif entry[0] == 'height': thisframe.mydata[2] = this()
-                    elif entry[0] == 'width': thisframe.mydata[3] = this()
+                    elif entry[0] =="photoimage":
+                        Button(text="?").rcgrid(0,2)
+                        do_command(lambda par = this(): messagebox.showinfo("Photo Image","Enter the path to a PhotoImage file (gif,ppm,pgm)",parent=par))
+
+                    elif entry[0] =="link":
+                        Button(text="?").rcgrid(0,2)
+                        do_command(lambda: load_script('guidesigner/HelpLinkTop.py'))
+
+                    elif entry[0] =="cursor":
+                        Button(text="?").rcgrid(0,2)
+                        do_command(lambda: load_script('guidesigner/cursors.py'))
 
                     elif entry[0] == "state":
                         if isinstance(msg,Spinbox) or isinstance(msg,Entry) : Listbox(width=8,height=3).fillList(("normal","disabled","readonly"))
@@ -368,7 +373,6 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 
         else:
             cont.unlayout() # if the widget doesn't have a config, then disable value refresh and hide the layout options
-            no_refresh()
     
 
 do_receive('SHOW_CONFIG',show_config,wishMessage=True)

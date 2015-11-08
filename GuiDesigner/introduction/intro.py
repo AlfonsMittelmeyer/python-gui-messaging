@@ -6,7 +6,6 @@ Toplevel("Introduction",title="DynTkInter GuiDesigner Introduction")
 
 Menu("MouseMenu",activebackground='#ececac',link="introduction/mousemenu.py")
 
-
 def top_level_closed(msg=None):
     cdApp()
     this().destroy()
@@ -17,7 +16,6 @@ def activate_mousemenu(menu=widget("MouseMenu")):
     menu.select_menu()
 
 do_receive('ACTIVATE_MOUSEMENU',activate_mousemenu)
-
 
 Frame('Inside',link="introduction/img.py").pack()
 

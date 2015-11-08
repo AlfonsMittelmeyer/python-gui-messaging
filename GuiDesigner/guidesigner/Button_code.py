@@ -50,8 +50,8 @@ def do_OK(me,textwidget,current_selection,exec_code = execute_code):
 def create_LoadFrame():
     Frame('LoadFrame')
     goIn()
-    Label(text="File:").pack(side=LEFT)
-    Entry(width=15).pack(side=LEFT)
+    Label('Label',text="File:").pack(side=LEFT)
+    Entry('Entry',width=15).pack(side=LEFT)
     this().delete(0,END)
     this().insert(0,"tempcode.txt")
     Button("Load",text="Load").pack(side=LEFT)
@@ -76,6 +76,7 @@ def create_toplevel(message,ok_command = do_OK,load_frame=create_LoadFrame,load_
 
     current_selection = Selection()
     code = this().CODE
+    cdApp()
     Toplevel("ToplevelCodeEdit",title = "Code Edit for "+ message)
     Text('CodeText',width=120,font=('Courier New',11)).insert(END,code)
     textwidget = widget('CodeText')

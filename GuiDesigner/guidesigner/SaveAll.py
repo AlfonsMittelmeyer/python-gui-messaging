@@ -36,5 +36,22 @@ def show_frame(msg,wname = widget("Name"), fname = widget("FileName"), cont = co
     fname.focus_set() # and focus the entry
 
 do_receive('SAVE_ALL',show_frame,wishMessage=True)
+
+
+def save_backup(msg,root=container().myRoot()):
+    try:
+        fh = open('Backup.py','w')
+
+        currentSelection = Selection()
+        gotoRoot()
+        saveWidgets(fh,True,True)
+        setSelection(currentSelection)
+        fh.close()
+        messagebox.showinfo("Save Backup","Backup for '"+msg+"' saved in File 'Backup.py'",parent=root)
+    except IOError: messagebox.showerror("Save Backup failed","Couldn't open File 'Backup.py'",parent=root)
+
+do_receive('SAVE_BACKUP',save_backup,wishMessage=True)
+
+
 ### ========================================================
 

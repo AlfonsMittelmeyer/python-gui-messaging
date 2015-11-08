@@ -19,7 +19,7 @@ def load_module(ioerror = widget("IOError"), fname = widget("FileName"), cont = 
         gotoRoot()
         container().destroyActions()
         container().destroyContent()
-        container().clear_grid()
+        clear_grid(container())
         setLoadForEdit(True)
         DynLoad(fname.get())
         setLoadForEdit(False)
@@ -31,11 +31,14 @@ widget("FileName").do_event('<Return>',load_module)
 widget("Cancel").do_command(lambda cont = container(): cont.unlayout())
 
 def show_frame(msg,wname = widget("Name"), fname = widget("FileName"), cont = container(), ioerror = widget("IOError")):
-    wname['text'] = msg;
-    fname.delete(0,END) # prepare an empty Entry for the user input
-    ioerror.unlayout() # IOError
-    cont.pack() # show the LoadFrame
-    fname.focus_set() # and focus the entry
+    if msg == '//DynTkInterGuiDesigner/':
+        messagebox.showinfo("Load & Edit","You are currently in the GuiDesigner Window. Loading would destroy the GuiDesigner and let the program crash.\n\nPlease change to the Application or another Toplevel window via menu Special->Toproot",parent=cont.myRoot())
+    else:
+        wname['text'] = msg;
+        fname.delete(0,END) # prepare an empty Entry for the user input
+        ioerror.unlayout() # IOError
+        cont.pack() # show the LoadFrame
+        fname.focus_set() # and focus the entry
 
 do_receive('LOAD_EDIT_ALL',show_frame,wishMessage=True)
 ### ========================================================

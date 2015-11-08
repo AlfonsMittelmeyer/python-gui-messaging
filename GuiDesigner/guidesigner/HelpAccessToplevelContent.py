@@ -1,0 +1,27 @@
+config(**{'title': 'Accessing Toplevel', 'grid_cols': '(8, 75, 0, 0)', 'grid_multi_cols': '[8, (0, 10, 0, 0), (7, 10, 0, 0)]', 'grid_rows': '(28, 10, 0, 0)'})
+
+Button('close',**{'text': 'Close', 'bd': '2'}).grid(**{'column': '6', 'sticky': 'nesw', 'row': '26'})
+Message('correct_code',**{'text': "mytoplevel = widget('//','mytoplevel')", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': '#007800', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '24'})
+Message('correct_comment',**{'text': '# is correct', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '23'})
+Message('explenation_text',**{'text': "The Toplevel window has its correct parent. But for finding it by name, you have to look into the Toproot. The Toproot contains the references and names of Toplevel windows and also of the Application.\n\nFor accessing a Toplevel window, you have to use it's full path name.\n", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '11'})
+Label('full_path',**{'text': 'Full Path Name', 'font': 'TkDefaultFont 11 bold', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '13'})
+Message('full_path2',**{'text': "Or if you would have two buttons with name 'mybutton' and this would be the second one, then it would be this:", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '17'})
+Message('full_path2_code',**{'text': "mybutton = widget('//','Application','myframe',('mybutton',1))", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '18'})
+Message('full_path_code',**{'text': "mybutton = widget('//','Application','myframe','mybutton')", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '16'})
+Message('full_path_explenation',**{'text': "The full path name is a parameter list, beginning with '//', containing names or a tuple of a name and an index.\n\nIf you would have a Frame with the name 'myframe' and in it a button 'mybutton', then you could acces the button also by the full path name as parameter for the function widget. This is the access by the full path name:", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '15'})
+Message('if_code',**{'text': "tk.load_script('mytoplevel.gui',root)", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '6'})
+Message('if_load',**{'text': 'But if you load a Toplevel:', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '5'})
+Message('instead_code',**{'text': "mytoplevel = widget(root,'mytoplevel')", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': '#bb0000', 'anchor': 'w'}).grid(**{'column': '1', 'row': '22'})
+Message('instead_comment',**{'text': '# instead of', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '21'})
+Message('lead_code',**{'text': "mytoplevel = tk.Toplevel(root)\ntk.load_script('toplevel_content.gui',mytoplevel)", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '4'})
+Message('lead_text',**{'text': "There isn't any problem, if you create a Toplevel and load a GUI into it:", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '3'})
+Message('not_recommended',**{'text': "It's not recommended to use full path names, because you would have to change the full path names, if you would decide to set a frame between.\n\nBut for Toplevel windows or the Application window, there is no reason, why full path names shouldn't be used.", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '20'})
+Label('title',**{'text': 'Accessing Toplevel', 'font': 'TkDefaultFont 12 bold', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '1'})
+Label('toplevelroot',**{'text': 'Toproot', 'font': 'TkDefaultFont 11 bold', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '10'})
+Message('wonder_code',**{'text': "mytoplevel = widget(root,'mytoplevel')", 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': '#bb0000', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '8'})
+Message('wonder_text',**{'text': "It's clear, that you will then see it, but will wonder, why you don't find it by:", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '7'})
+
+### CODE ===================================================
+widget('close').do_command(lambda cont = container(): cont.destroy())
+### ========================================================
+

@@ -13,19 +13,22 @@ Label('Pane 3',**{'text': 'Pane 3', 'bg': 'gold'})
 widget('Pane 1').pane()
 widget('Pane 2').pane()
 widget('Pane 3').pane()
-container().trigger_sash_place(300,0,200,5)
-container().trigger_sash_place(600,1,400,5)
+container().trigger_sash_place(500,0,200,5)
+container().trigger_sash_place(1000,1,400,5)
 
 goOut()
 grid(**{'column': '1', 'columnspan': '2', 'pady': '5', 'row': '2'})
-Label('designer_image').grid(**{'column': '1', 'columnspan': '2', 'pady': '7', 'row': '4'})
+Label('designer_image',**{'photoimage': 'introduction/start_image.gif'}).grid(**{'column': '1', 'columnspan': '2', 'pady': '7', 'row': '4'})
+Message('goto_app',**{'text': 'Oh, what I forgot to tell: to the Application you will come by menu Special->Toproot and then go into the Application.\n\nOr you also could close this window.', 'width': '600', 'bd': '2', 'bg': '#ffffb8', 'relief': 'solid'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '2', 'row': '5'})
 Label('gui_link',**{'text': 'PanedWindow once more', 'font': 'TkDefaultFont 12 bold underline', 'fg': 'blue'}).grid(**{'column': '2', 'sticky': 'e', 'row': '6'})
 
 ### CODE ===================================================
-widget("designer_image").mydata = PhotoImage(file="introduction/start_image.gif")
-widget("designer_image")['image'] = widget("designer_image").mydata
 
-def start_gui(me):
+widget('goto_app').unlayout()
+
+def start_gui(me,explore=widget('Message2'),app=widget('goto_app')):
+    app.grid()
+    explore.unlayout()
     me.destroy()
     gotoTop()
     goto('Introduction')
@@ -33,7 +36,6 @@ def start_gui(me):
     goto('Inside')
     here = this()
     widget("MouseMenu").destroy()
-    widget(here,"designer_image").destroy() # could crash
     
     gui()
     gotoTop()

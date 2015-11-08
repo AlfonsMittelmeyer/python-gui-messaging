@@ -19,7 +19,8 @@ widget("Name").do_event("<Return>",callback)
 def function(msg,wname,wtype):
     wname.mydata = msg
     wname.delete(0,END)
-    wname.insert(0,msg)
+    wname.insert(0,decapitalize(msg))
+    #wname.insert(0,msg)
     wtype['text'] = msg
     wname.focus_set()
 

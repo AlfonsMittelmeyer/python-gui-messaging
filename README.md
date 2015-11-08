@@ -2,6 +2,8 @@
 Tkinter GUI Designer, the only one with advanced Grid Design
 and individual table settings per row and column
 
+The GUI Designer includes now Help pages
+
 Now also with an introduction.
 
 - The introduction you start with: python3 intro.py

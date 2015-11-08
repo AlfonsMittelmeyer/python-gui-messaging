@@ -1,0 +1,22 @@
+Toplevel('FunctionsInScripts',**{'title': 'Functions in GUI Scripts', 'grid_cols': '(8, 75, 0, 0)', 'grid_multi_cols': '[8, (0, 10, 0, 0), (7, 10, 0, 0)]', 'grid_rows': '(21, 10, 0, 0)'})
+
+Button('close',**{'text': 'Close'}).grid(**{'column': '6', 'sticky': 'nesw', 'row': '19'})
+Message('create_class_code',**{'text': 'class Main:\n    def function_a(self):\n        ....\n    def function_b(self):\n        ....\n        self.function_a()\n        ....\n\nMain()', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '14'})
+Message('create_class_comment',**{'text': '# create a local name space by class', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '13'})
+Message('create_main_code',**{'text': 'def main():\n    def function_a():\n        ....\n    def function_b():\n        ....\n        function_a()\n        ....\n\nmain()', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '12'})
+Message('create_main_comment',**{'text': '# create a local name space by function', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '11'})
+Message('hand_over_code',**{'text': 'def function_a():\n    ....\n\ndef function_b( function_a = function_a ):\n    ....\n    function_a()\n    ....', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '10'})
+Message('hand_over_comment',**{'text': '# hand over as parameter', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '9'})
+Message('lead_text',**{'text': "Because there is no global script name space, functions don't know, what's outside.", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '3'})
+Message('not_knnow_functions_code',**{'text': 'def function_a():\n    ....\n\ndef function_b():\n    ....\n    function_a()\n    ....', 'font': 'TkFixedFont 9 bold', 'width': '600', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '7'})
+Message('not_know_function_explenation',**{'text': "But in a GUI script this doesn't work. Functions don't know, what's outside. There are two solutions for this problem:\n\n- hand over as parameter\n- create a local name space", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '8'})
+Label('not_know_function_title',**{'text': "Functions don't know each others", 'font': 'TkDefaultFont 10 bold', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '5'})
+Message('not_know_functions_text',**{'text': "You are used, that there isn't a problem, when a function calls another function in the same script und you may write:", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '6'})
+Label('title',**{'text': 'Functions in GUI Scripts', 'font': 'TkDefaultFont 12 bold', 'bg': 'white', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '1'})
+Message('variables_text',**{'text': "For accessing variables outside of functions, you can't use 'global', so it's best to use a class or you have to use a list, because lists can be referenced. And bear in mind, what applies for functions also applies for all names. So functions also don't know about variables outside.", 'width': '600', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '17'})
+Label('variables_title',**{'text': 'Accessing variables', 'font': 'TkDefaultFont 10 bold', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '16'})
+
+### CODE ===================================================
+widget('close').do_command(lambda cont = container(): cont.destroy())
+### ========================================================
+
