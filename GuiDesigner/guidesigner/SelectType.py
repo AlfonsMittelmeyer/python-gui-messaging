@@ -20,6 +20,6 @@ def do_canvas_selected(paint_button = widget("Paint Canvas")):
     if isinstance(this(),Canvas): paint_button.grid()
     else: paint_button.unlayout()
 
-do_receive("SELECTION_CHANGED",do_canvas_selected)
+#do_receive("SELECTION_CHANGED",do_canvas_selected)
 ### ========================================================
 
