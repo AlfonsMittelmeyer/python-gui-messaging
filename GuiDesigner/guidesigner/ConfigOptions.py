@@ -109,7 +109,7 @@ def do_color_action(me,msg):
     me['bg'] = 'white'
     if msg:
         me.delete(0,END)
-        me.insert(0,str(getconfig(me.mydata)))
+        me.insert(0,get_entry_as_string(getconfig(me.mydata)))
 
 def do_text_color(me):
     setconfig(me.mydata,me.get("1.0",'end-1c'))
@@ -277,7 +277,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                     do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
                 else: 
                     Entry("Entry").delete(0,'end')
-                    this().insert(0,entry[1])
+                    this().insert(0,get_entry_as_string(entry[1]))
 
                 do_action('color',color_action,wishWidget=True,wishMessage=True)
                 rcgrid(0,1,sticky=E+W)

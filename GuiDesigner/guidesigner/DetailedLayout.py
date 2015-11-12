@@ -71,10 +71,7 @@ def listbox_selection(helpbutton = listbox_helpbutton):
 def entry_event(me):
     setlayout(me.mydata[0],me.get())
     me.delete(0,END)
-    value = getlayout(me.mydata[0])
-    if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
-    else: strval = str(value) 
-    me.insert(0,strval)
+    me.insert(0,get_entry_as_string(getlayout(me.mydata[0])))
     me['bg']='gray'
     informLater(300,me,'color')
     send("LAYOUT_OPTIONS_CHANGED",this())
@@ -88,9 +85,7 @@ def can_update(linfo, RefDict=RefDict,thisframe=widget("LayoutOptions")):
     for entry in linfo:
         if entry not in RefDict: return False
     for entry,value in linfo.items():
-        if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
-        else: strval = str(value)
-        RefDict[entry].mydata[1].set(strval)
+        RefDict[entry].mydata[1].set(get_entry_as_string(value))
         # reference update for a value refresh without new show layout option creation
         if entry == "x": thisframe.mydata[0]=RefDict[entry]
         elif entry == "y": thisframe.mydata[1]=RefDict[entry]
@@ -99,7 +94,6 @@ def can_update(linfo, RefDict=RefDict,thisframe=widget("LayoutOptions")):
         elif entry == "side": thisframe.mydata[4]=RefDict[entry]
         elif entry == "index": thisframe.mydata[5]=RefDict[entry]
     return True
-
 
 
 def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("LayoutOptions"),e_event=entry_event,lbox_select=listbox_selection,entry_width=7,RefDict=RefDict,can_update=can_update):
@@ -206,16 +200,11 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
                 else: Entry("Entry",width=entry_width)
                 do_action('color',lambda me = this(): me.config(bg='white'))
-
-                #this().delete(0,END)
-                value = entry[1]
-                if type(value) is tuple: strval = str(value[0]) + ' ' + str(value[1])
-                else: strval = str(value) 
+                
                 var = StringVar()
-                var.set(strval)
+                var.set(get_entry_as_string(entry[1]))
                 this().mydata=[entry[0],var] # mydata shall also contain the option name
                 this()['textvariable'] = var
-                #this().insert(0,strval)
                 RefDict[entry[0]] = this()
                 rcgrid(0,1,sticky=E+W)
 

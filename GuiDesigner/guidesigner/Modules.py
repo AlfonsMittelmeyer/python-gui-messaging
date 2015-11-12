@@ -20,6 +20,7 @@ widget("message_path").do_event("<Configure>",set_wraplength,wishWidget=True)
 def show_path(path_widget = widget('message_path')):
 
     selection_before = Selection()
+
     path_name = ''
  
     if this() == container():
@@ -38,7 +39,7 @@ def show_path(path_widget = widget('message_path')):
         goOut()
     
     path_widget.text('/'+path_name)
-    
+
     setSelection(selection_before)
     
 do_receive('SELECTION_CHANGED',show_path)

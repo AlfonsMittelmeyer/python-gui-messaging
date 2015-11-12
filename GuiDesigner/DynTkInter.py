@@ -23,6 +23,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import colorchooser
 from copy import copy
+
 import traceback
 import queue
 import proxy as dynproxy
@@ -230,7 +231,7 @@ class GuiElement:
         setSelection(selection_before)
         return rootwidget
 
-    def container(self): return Create_Selection(self)._container
+    def container(self): return _Selection._container
     def goIn(self):
         setWidgetSelection(self)
         goIn()
@@ -1193,30 +1194,21 @@ def goIn():_Selection.selectIn()
 def goOut(): _Selection.selectOut()
 
 def cdDir():_Selection.selectContainer()
-def cdApp():
-    global _Selection
-    global _AppRoot
-    _Selection = copy(_AppRoot)
+def cdApp(): setSelection(_AppRoot)
 
 def gotoRoot():
     while not this().isMainWindow: goOut()
 
-def gotoTop():
-    global _Selection
-    global _TopLevelRoot
-    _Selection = copy(_TopLevelRoot)
+def gotoTop(): setSelection(_TopLevelRoot)
 
-def Selection():
-    global _Selection
-    return copy(_Selection)
+def Selection(): return copy(_Selection)
 
 def setSelection(thisSelection):
-    global _Selection
-    _Selection=copy(thisSelection)
+    _Selection._container = thisSelection._container
+    _Selection._widget = thisSelection._widget
 
-def setWidgetSelection(widget,container=None):
-    global _Selection
-    _Selection = Create_Selection(widget,container)
+def setWidgetSelection(widget,container=None): setSelection(Create_Selection(widget,container))
+    
 
 def do_command(function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False): this().do_command(function,parameters,wishWidget,wishEvent,wishSelf)
 def do_event(eventstr,function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False): this().do_event(eventstr,function,parameters,wishWidget,wishEvent,wishSelf)
@@ -1258,9 +1250,7 @@ def get(): return this().get()
 
 def Selection(): return copy(_Selection)
 
-def getContainer():
-    global _Selection
-    return _Selection._container
+#def getContainer(): return _Selection._container
 
 
 def allDictEntries(dictionary,cmd,data=None):
@@ -1587,7 +1577,9 @@ def get_save_config():
         if n in dictionaryCompare:
             if e == dictionaryCompare[n]: dictionaryConfig.pop(n,None)
 
-    for n,e in dictionaryConfig.items(): dictionaryConfig[n] = str(e)
+    for n,e in dictionaryConfig.items():
+        if class_type(type(e)) == "Tcl_Obj":
+            dictionaryConfig[n] = str(e)
 
     if this().grid_conf_rows != None:
         if this().grid_conf_rows[0] != 0:
@@ -2251,7 +2243,6 @@ def setLoadWithCode(flag):
     global LOADwithCODE
     LOADwithCODE = flag;
 
-
 def DynLoad(filename):
     global LOADwithCODE
     if LOADwithCODE: DynImportCode(filename)
@@ -2315,6 +2306,15 @@ def informLater(ms,widget,actionid,message=None): _Application.after(ms,_informL
 def gui(): DynLoad("guidesigner/Guidesigner.py")
 
 def select_menu(): this().select_menu()
+
+
+def get_entry_as_string(value):
+    if type(value) is tuple:
+        tlist=[]
+        for entry in value: tlist.append(str(entry))
+        return ' '.join(tlist)
+    else: return str(value)
+    
 
 # ========== For Compatibility with Export with Names =============
 

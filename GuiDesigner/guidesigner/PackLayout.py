@@ -6,6 +6,7 @@ Label('PackTitle',**{'text': 'pack', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 
 Button('RIGHT',**{'text': 'RIGHT', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'green'}).grid(**{'column': '4', 'sticky': 'nesw', 'row': '0'})
 Button('TOP',**{'text': 'TOP', 'padx': '1m', 'bd': '3', 'bg': 'green'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '0'})
 
+
 ### CODE ===================================================
 
 # the buttons do a pack with parameter side = top, left, bottom or right

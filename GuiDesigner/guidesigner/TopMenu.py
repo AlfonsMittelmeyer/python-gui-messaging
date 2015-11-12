@@ -1,15 +1,15 @@
 MenuItem('Config','command',**{'label': 'Config ON', 'background': 'green'})
-MenuItem('Create','command',**{'label': 'Create ON', 'columnbreak': '1', 'background': 'green'})
+MenuItem('Create','command',**{'label': 'Create ON', 'columnbreak': 1, 'background': 'green'})
 MenuItem('File','cascade',**{'label': 'File'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('Container','command',**{'label': 'Container Depth'})
@@ -41,7 +41,7 @@ goOut()
 MenuItem('Export','cascade',**{'label': 'Export (tk)'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -86,7 +86,7 @@ MenuItem('Save','command',**{'label': 'Save'})
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -203,13 +203,13 @@ MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'green'})
 MenuItem('Special','cascade',**{'label': 'Special'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -294,14 +294,14 @@ goOut()
 MenuItem('help','cascade',**{'label': 'Help'})
 goIn()
 
-Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('backup','command',**{'label': 'Backup'})
 MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
 goIn()
 
-Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('dynaccess','command',**{'label': 'DynAccess'})
@@ -326,14 +326,14 @@ widget('dynaccess').layout(index=8)
 def load_help(filename):
     load_script(filename,_Application)
 
-widget('functions').do_command(load_help,'guidesigner/FunctionsInScripts.py')
-widget('namespace').do_command(load_help,'guidesigner/HelpNameSpace.py')
-widget('imports').do_command(load_help,'guidesigner/HelpImport.py')
-widget('dyntkimports').do_command(load_help,'guidesigner/HelpDynTkImports.py')
-widget('relative_access').do_command(load_help,'guidesigner/HelpRelativeAccess.py')
-widget('root_access').do_command(load_help,'guidesigner/HelpRootAccess.py')
-widget('place_code').do_command(load_help,'guidesigner/HelpPlaceForCode.py')
-widget('dynaccess').do_command(load_help,'guidesigner/HelpDynAccess.py')
+widget('functions').do_command(load_help,'guidesigner/Help/FunctionsInScripts.py')
+widget('namespace').do_command(load_help,'guidesigner/Help/NameSpace.py')
+widget('imports').do_command(load_help,'guidesigner/Help/Import.py')
+widget('dyntkimports').do_command(load_help,'guidesigner/Help/DynTkImports.py')
+widget('relative_access').do_command(load_help,'guidesigner/Help/RelativeAccess.py')
+widget('root_access').do_command(load_help,'guidesigner/Help/RootAccess.py')
+widget('place_code').do_command(load_help,'guidesigner/Help/PlaceForCode.py')
+widget('dynaccess').do_command(load_help,'guidesigner/Help/DynAccess.py')
 ### ========================================================
 
 goOut()
@@ -349,7 +349,7 @@ MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
 MenuItem('programming','cascade',**{'label': 'Programming'})
 goIn()
 
-Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': '0'})
+Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'relief': 'solid', 'tearoff': 0})
 goIn()
 
 MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})
@@ -364,9 +364,9 @@ widget('access_toplevel').layout(index=3)
 def load_help(filename):
     load_script(filename,_Application)
 
-widget('load_scripts').do_command(load_help,'guidesigner/HelpLoadScripts.py')
-widget('access_widgets').do_command(load_help,'guidesigner/HelpAccessWidgets.py')
-widget('access_toplevel').do_command(load_help,'guidesigner/HelpAccessToplevel.py')
+widget('load_scripts').do_command(load_help,'guidesigner/Help/LoadScripts.py')
+widget('access_widgets').do_command(load_help,'guidesigner/Help/AccessWidgets.py')
+widget('access_toplevel').do_command(load_help,'guidesigner/Help/AccessToplevel.py')
 ### ========================================================
 
 goOut()
@@ -377,18 +377,20 @@ goOut()
 MenuItem('save_access','command',**{'label': 'Save Access'})
 MenuItem('save_load','command',**{'label': 'Save & Load'})
 MenuItem('separator','separator')
+MenuItem('tuples','command',**{'label': 'Tuple Entries'})
 
 widget('introduction').layout(index=1)
 widget('config').layout(index=2)
-widget('menu_entries').layout(index=3)
-widget('backup').layout(index=4)
-widget('save_load').layout(index=5)
-widget('export').layout(index=6)
-widget('save_access').layout(index=7)
-widget('separator').layout(index=8)
-widget('programming').layout(index=9)
-widget('code_in_scripts').layout(index=10)
-widget('examples').layout(index=11)
+widget('tuples').layout(index=3)
+widget('menu_entries').layout(index=4)
+widget('backup').layout(index=5)
+widget('save_load').layout(index=6)
+widget('export').layout(index=7)
+widget('save_access').layout(index=8)
+widget('separator').layout(index=9)
+widget('programming').layout(index=10)
+widget('code_in_scripts').layout(index=11)
+widget('examples').layout(index=12)
 
 ### CODE ===================================================
 
@@ -408,13 +410,13 @@ widget('introduction').do_command(see_introduction,wishWidget=True)
 def load_help(filename):
     load_script(filename,_Application)
 
-widget('config').do_command(load_help,'guidesigner/HelpConfigTop.py')
-widget('save_load').do_command(load_help,'guidesigner/HelpSaveLoad.py')
-widget('export').do_command(load_help,'guidesigner/HelpExportTk.py')
-widget('menu_entries').do_command(load_help,'guidesigner/HelpMenu.py')
-widget('save_access').do_command(load_help,'guidesigner/HelpSaveAccess.py')
-widget('backup').do_command(load_help,'guidesigner/HelpBackup.py')
-
+widget('config').do_command(load_help,'guidesigner/Help/ConfigTop.py')
+widget('save_load').do_command(load_help,'guidesigner/Help/SaveLoad.py')
+widget('export').do_command(load_help,'guidesigner/Help/ExportTk.py')
+widget('menu_entries').do_command(load_help,'guidesigner/Help/Menu.py')
+widget('save_access').do_command(load_help,'guidesigner/Help/SaveAccess.py')
+widget('backup').do_command(load_help,'guidesigner/Help/Backup.py')
+widget('tuples').do_command(load_help,'guidesigner/Help/Tuples.py')
 
 def examples_help(root=widget('/')):
     messagebox.showinfo("Examples","Examples will follow soon",parent=root)

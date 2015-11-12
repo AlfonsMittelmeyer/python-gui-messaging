@@ -1,4 +1,4 @@
-config(**{'title': 'Link. Save and Load', 'grid_cols': '(8, 75, 0, 0)', 'grid_multi_cols': '[8, (0, 10, 0, 0), (7, 10, 0, 0)]', 'grid_rows': '(32, 10, 0, 0)'})
+config(**{'title': 'Link, Save and Load', 'grid_cols': '(8, 75, 0, 0)', 'grid_multi_cols': '[8, (0, 10, 0, 0), (7, 10, 0, 0)]', 'grid_rows': '(32, 10, 0, 0)'})
 
 Message('after_code_line',**{'text': "Only the link to the content of the menu was saved, but not, what's inside.", 'width': '500', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '15'})
 Button('close',**{'text': 'Close', 'bd': '2'}).grid(**{'column': '6', 'sticky': 'nesw', 'row': '30'})
@@ -11,7 +11,7 @@ Message('experiment_text',**{'text': "Load the file menu_part.py via 'Load & Edi
 Label('explenation',**{'text': 'Explenation', 'font': 'TkDefaultFont 9 bold', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '23'})
 Message('explenation_text',**{'text': "The first time we loaded the menu content just by setting the link option. This is a DynTkInter container widget option, which simply executes this script. But now we had loaded the script via 'Load & Edit' of the GuiDesigner. And the GuiDesigner loads scripts inclusive source code sections. So also additional source code was saved.", 'width': '500', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '24'})
 Label('howto_split',**{'text': 'How to split GUIs', 'font': 'TkDefaultFont 9 bold', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '26'})
-LinkLabel('howto_split_link',**{'text': 'how_to_split', 'font': 'TkFixedFont 12 bold underline', 'bg': 'white', 'link': 'guidesigner/HowToSplit.py', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '3', 'sticky': 'nesw', 'columnspan': '4', 'row': '28'})
+LinkLabel('howto_split_link',**{'text': 'how_to_split', 'font': 'TkFixedFont 12 bold underline', 'bg': 'white', 'link': 'guidesigner/Help/HowToSplit.py', 'fg': 'blue', 'anchor': 'w'}).grid(**{'column': '3', 'sticky': 'nesw', 'columnspan': '4', 'row': '28'})
 Message('howto_split_text',**{'text': 'File menu2.py delivered us a joined GUI. Now we can discuss how to', 'width': '500', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '27'})
 Message('howto_split_text2',**{'text': 'split a joined GUI:', 'width': '500', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '2', 'row': '28'})
 Message('lead_text',**{'text': 'In your application you create a menu und set the layout (Select).\nThen in Config you enter as link: guidesigner/TopMenu.py\n\nThe GuiDesigner menu appears in your application and it works.', 'width': '500', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '1', 'sticky': 'nesw', 'columnspan': '6', 'row': '4'})
