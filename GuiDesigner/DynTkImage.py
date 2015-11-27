@@ -3,5 +3,8 @@ from tkinter import PhotoImage
 
 def dynTkImage(widget,filename):
     widget.image=PhotoImage(file=filename)
-    widget['image'] = widget.image
-    
+    widget.setconfig('image',widget.image)
+
+def dynTkLoadImage(widget,filename):
+    widget.loadimage=PhotoImage(file=filename)
+

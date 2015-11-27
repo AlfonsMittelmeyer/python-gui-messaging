@@ -16,10 +16,20 @@ for widget_type in ("Message","Label","Button","Checkbutton","Radiobutton","Entr
 widget("Paint Canvas").config(fg='blue',font="TkDefaultFont 9 bold",activeforeground="blue",command="")
 widget("Paint Canvas").unlayout()
 
+
+def open_canvas_paint():
+    cont = this() if isinstance(this(),Canvas) else container()
+    DynAccess('guidesigner/canvas/CanvasPaint.py',(cont,this()),_Application)
+
+widget("Paint Canvas").do_command(open_canvas_paint)
+
+
 def do_canvas_selected(paint_button = widget("Paint Canvas")):
-    if isinstance(this(),Canvas): paint_button.grid()
+    if isinstance(this(),Canvas) and this().Layout != NOLAYOUT or isinstance(container(),Canvas) and container().Layout != NOLAYOUT: paint_button.grid()
     else: paint_button.unlayout()
 
-#do_receive("SELECTION_CHANGED",do_canvas_selected)
+do_receive('SELECTION_LAYOUT_CHANGED',do_canvas_selected)
+do_receive('SELECTION_CHANGED',do_canvas_selected)
+
 ### ========================================================
 

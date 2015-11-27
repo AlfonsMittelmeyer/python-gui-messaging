@@ -32,10 +32,10 @@ def show_path(path_widget = widget('message_path')):
         if this().isMainWindow: _Selection._container = _TopLevelRoot._container
 
         name_index = getNameAndIndex()
-        if name_index[1] == -1: name = name_index[0]
-        else: name = name_index[0]+','+str(name_index[1])
-        path_name = '/' + name + path_name
-
+        if name_index[0] != NONAME:
+            if name_index[1] == -1: name = name_index[0]
+            else: name = name_index[0]+','+str(name_index[1])
+            path_name = '/' + name + path_name
         goOut()
     
     path_widget.text('/'+path_name)

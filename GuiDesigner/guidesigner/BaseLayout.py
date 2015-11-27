@@ -1,20 +1,23 @@
-LabelFrame('PackLayout',link="guidesigner/PackLayout.py")
+LabelFrame('WindowLayout',link="guidesigner/WindowLayout.py")
 grid(sticky='ew',row='0')
 
-LabelFrame('GridLayout',link="guidesigner/GridLayout.py")
+LabelFrame('PackLayout',link="guidesigner/PackLayout.py")
 grid(sticky='ew',row='1')
 
-LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
+LabelFrame('GridLayout',link="guidesigner/GridLayout.py")
 grid(sticky='ew',row='2')
 
-LabelFrame('PaneLayout',link="guidesigner/PaneLayout.py")
+LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
 grid(sticky='ew',row='3')
 
-LabelFrame('ItemLayout',link="guidesigner/MenuItemLayout.py")
+LabelFrame('PaneLayout',link="guidesigner/PaneLayout.py")
 grid(sticky='ew',row='4')
 
-LabelFrame('MenuLayout',link="guidesigner/MenuLayout.py")
+LabelFrame('ItemLayout',link="guidesigner/MenuItemLayout.py")
 grid(sticky='ew',row='5')
+
+LabelFrame('MenuLayout',link="guidesigner/MenuLayout.py")
+grid(sticky='ew',row='6')
 
 
 ### CODE ===================================================
@@ -67,7 +70,7 @@ do_receive('BASE_LAYOUT_CHANGED',function,wishMessage=True)
 # This would cause a system hang up of TkInter. If the parent (container) contains already the other layout (pack or grid),
 # the pack or grid portion will be hidden (unlayout)
 
-def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),placely=widget('PlaceLayout'),panely=widget('PaneLayout'),itemly=widget('ItemLayout'),menuly=widget('MenuLayout')):
+def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),placely=widget('PlaceLayout'),panely=widget('PaneLayout'),itemly=widget('ItemLayout'),menuly=widget('MenuLayout'),windowly=widget('WindowLayout')):
 
     if this().Layout != LAYOUTNEVER:
 
@@ -97,7 +100,20 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
             menuly.unlayout()
             itemly.grid()
             send("ENABLE_SASH_LIST",False)
+        elif this().Layout == WINDOWLAYOUT:
+            packly.unlayout()
+            gridly.unlayout()
+            placely.unlayout()
+            panely.unlayout()
+            menuly.unlayout()
+            itemly.unlayout()
+            windowly.grid()
+            send("ENABLE_SASH_LIST",False)
         else:
+            if isinstance(container(),Canvas) and this() != container():
+                windowly.grid()
+            else:
+                windowly.unlayout()
             placely.grid()
             packly.grid()
             gridly.grid()
@@ -146,13 +162,13 @@ def mouse_select_on(select_on,select_hili_on = select_hili_on,hili_off=hili_off)
     widget_list = getAllWidgetsWithoutNoname(container())
     if not select_on:
         for wi in widget_list:
-            if wi.Layout in (PACKLAYOUT,PANELAYOUT,GRIDLAYOUT,PLACELAYOUT):
+            if wi.Layout in (PACKLAYOUT,PANELAYOUT,GRIDLAYOUT,PLACELAYOUT,WINDOWLAYOUT):
                 wi.unbind('<Button-1>')
                 wi.unbind('<ButtonRelease-1>')
                 wi.mydata = [0,0,0,0,0,0,False,False]
     else:
         for wi in widget_list:
-            if wi.Layout in (PACKLAYOUT,PANELAYOUT):
+            if wi.Layout in (PACKLAYOUT,PANELAYOUT,WINDOWLAYOUT):
                 wi.do_event('<Button-1>',select_hili_on,wi)
                 wi.do_event('<ButtonRelease-1>',hili_off,wi)
             elif wi.Layout == PLACELAYOUT:

@@ -40,6 +40,23 @@ def dynTkImage(widget,filename):
     DynTkImage.dynTkImage(widget,filename)
     widget.photoimage = filename
 
+def dynTkLoadImage(widget,filename):
+    DynTkImage.dynTkLoadImage(widget,filename)
+
+def dynTkActiveImage(widget,filename):
+    DynTkImage.dynTkActiveImage(widget,filename)
+    widget.activephotoimage = filename
+
+def dynTkDisabledImage(widget,filename):
+    DynTkImage.dynTkDisabledImage(widget,filename)
+    widget.disabledphotoimage = filename
+
+'''
+def dynTkBitmap(widget,filename):
+    DynTkImage.dynTkBitmap(widget,filename)
+    widget.bitmapfile = filename
+'''
+
 Stack = []
 
 def pop(index=-1): return Stack.pop(index)
@@ -169,12 +186,17 @@ def container():
     return _Selection._container
 
 
+        
+CanvasDefaults = {}
+
+
 class Dummy: pass
 
 class GuiElement:
 
     def __init__(self,dyn_name="nn",select=True):
 
+        self.window_item = None
         name = dyn_name
         EXISTING_WIDGETS[self] = None
         self.is_mouse_select_on = False
@@ -258,6 +280,7 @@ class GuiElement:
 
     def destroy(self):
         self.destroyActions()
+        if self.isContainer: send("CONTAINER_DESTROYED",self)
 
         if self.isContainer: undo_receiveAll(self)
 
@@ -284,6 +307,9 @@ class GuiElement:
             self.CODE = ""
             undo_receiveAll(self)
             deleteAllWidgets(self)
+            if isinstance(self,Canvas):
+                self.delete(ALL)
+                self.canvas_widget = None
 
     def do_command(self,function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False):
         cmd = Callback(self,function,parameters,wishWidget,wishEvent,wishSelf).setEvent
@@ -304,6 +330,7 @@ class GuiElement:
     # used by the save function: if a container doesn't have widgets then there is no need to look inside
     def hasWidgets(self):
         if self.isLocked: return False
+        if isinstance(self,Canvas) and len(self.find_all()) != 0: return True
         return len(self.Dictionary.elements) != 0
 
     # DynTkInter records the layouts and tho order of pack layouts - without the correct pack order, pack layouts wouldn't be saved properly
@@ -489,9 +516,14 @@ class GuiElement:
         dictionary = self.config()
         ConfDictionaryShort(dictionary)
         if 'image' in dictionary:
-            #if not (isinstance(self,MenuItem) or isinstance(self,MenuDelimiter)):
             del dictionary['image']
             dictionary['photoimage'] = self.photoimage
+        if 'activeimage' in dictionary:
+            del dictionary['activeimage']
+            dictionary['activephotoimage'] = self.activephotoimage
+        if 'disabledimage' in dictionary:
+            del dictionary['disabledimage']
+            dictionary['disabledphotoimage'] = self.disabledphotoimage
         return dictionary
 
 class GuiContainer(GuiElement):
@@ -800,8 +832,7 @@ class Tk(GuiContainer,StatTkInter.Tk):
 
     def __init__(self,myname=None,**kwargs):
 
-        global proxy
-
+        global proxy,Stack,SelfStack,ObjectStack,CanvasDefaults
         Stack= []
         ObjectStack = []
         SelfStack = []
@@ -813,6 +844,53 @@ class Tk(GuiContainer,StatTkInter.Tk):
         self.master = None
         _initGuiContainer(kwargs,StatTkInter.Tk,self,myname,"Application",True,True,'Application')
         cdApp()
+
+        canvas = Canvas('canvas')
+        
+        item = canvas.create_line(0,0,0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['line'] = config
+
+        item = canvas.create_rectangle(0,0,0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['rectangle'] = config
+
+        item = canvas.create_polygon(0,0,0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['polygon'] = config
+
+        item = canvas.create_oval(0,0,0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['oval'] = config
+
+        item = canvas.create_arc(0,0,0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['arc'] = config
+
+        item = canvas.create_text(0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['text'] = config
+
+        item = canvas.create_bitmap(0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['bitmap'] = config
+
+        item = canvas.create_image(0,0)
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        CanvasDefaults['image'] = config
+
+        CanvasDefaults['window'] = { 'tag':'','state':'normal','width':'0','height':'0','anchor':'center' }
+
+        canvas.destroy()
+
 
     def mainloop(self,load_file = None):
 
@@ -850,6 +928,7 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         self.master = master
 
     def destroy(self):
+        send('THIS_TOPLEVEL_CLOSED',self)
         selection = Selection()
         GuiElement.destroy(self)
         send('TOPLEVEL_CLOSED',selection)
@@ -885,6 +964,134 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
     def __init__(self,myname=None,**kwargs):
         _initGuiContainer(kwargs,StatTkInter.Canvas,self,myname,"canvas",True)
 
+        self.canvas_pyimages = {}
+        self.canvas_image_files = {}
+        self.canvas_widget = None
+        
+    def delete(self,item):
+
+        # selete items
+        self.tkClass.delete(self,item)
+
+        # delete images
+        item_list = self.find_all()
+        img_copy = dict(self.canvas_pyimages)
+        for entry in item_list:
+            if self.type(entry) == 'image':
+                img_copy.pop(self.itemcget(entry,'image'),None)
+                img_copy.pop(self.itemcget(entry,'activeimage'),None)
+                img_copy.pop(self.itemcget(entry,'disabledimage'),None)
+        for entry,filename in img_copy.items():
+            del self.canvas_pyimages[entry]
+            del self.canvas_image_files[filename]
+
+        # update Layout
+        for name,entries in self.Dictionary.elements.items():
+            for x in entries:
+                if x.Layout == WINDOWLAYOUT and x.window_item != None and not x.window_item in item_list:
+                    x.Layout = NOLAYOUT
+                    x.window_item = None
+        
+        for name,entries in dict(self.Dictionary.elements).items():
+            for x in entries:
+                if isinstance(x,CanvasItemWidget) and x.item_id not in item_list: GuiElement.destroy(x)
+                
+
+    def create_window(self,*coords,**kwargs):
+        if 'window' in kwargs:
+            kwargs['window'].Layout = WINDOWLAYOUT
+        return self.tkClass.create_window(self,*coords,**kwargs)
+
+    def create_image(self,*coords,**kwargs):
+        if 'photoimage' in kwargs: kwargs['image'] = self.get_image(kwargs.pop('photoimage'))
+        if 'activephotoimage' in kwargs: kwargs['activeimage'] = self.get_image(kwargs.pop('activephotoimage'))
+        if 'disabledphotoimage' in kwargs: kwargs['disabledimage'] = self.get_image(kwargs.pop('disabledphotoimage'))
+        return self.tkClass.create_image(self,*coords,**kwargs)
+
+    def itemconfig(self,item,**kwargs):
+        if 'photoimage' in kwargs: kwargs['image'] = self.get_image(kwargs.pop('photoimage'))
+        if 'activephotoimage' in kwargs: kwargs['activeimage'] = self.get_image(kwargs.pop('activephotoimage'))
+        if 'disabledphotoimage' in kwargs: kwargs['disabledimage'] = self.get_image(kwargs.pop('disabledphotoimage'))
+        if 'window' in kwargs: kwargs['window'].Layout = WINDOWLAYOUT
+        if 'tags' in kwargs: send('CANVAS_TAGCHANGED',item)
+        self.tkClass.itemconfig(self,item,**kwargs)
+
+    def destroy(self):
+        self.delete(ALL)
+        GuiElement.destroy(self)
+
+    def get_image(self,filename):
+        if filename in self.canvas_image_files: return self.canvas_image_files[filename]
+        dynTkLoadImage(self,filename)
+        self.canvas_image_files[filename] = self.loadimage
+        self.canvas_pyimages[str(self.loadimage)] = filename
+        loadimage = self.loadimage
+        self.loadimage = None
+        return loadimage
+
+
+    def get_itemconfig(self,item_id):
+        dictionary = {}
+        for entry in (
+'anchor',
+'height',
+'state',
+'tags',
+'width',
+'window',
+'activefill',
+'activestipple',
+'disabledfill',
+'disabledstipple',
+'fill',
+'font',
+'justify',
+'offset',
+'stipple',
+'text',
+'activedash',
+'activeoutline',
+'activeoutlinestipple',
+'activewidth',
+'dash',
+'dashoffset',
+'disableddash',
+'disabledoutline',
+'disabledoutlinestipple',
+'disabledwidth',
+'outline',
+'outlineoffset',
+'outlinestipple',
+'joinstyle',
+'smooth',
+'splinesteps',
+'arrow',
+'arrowshape',
+'capstyle',
+'activeimage',
+'disabledimage',
+'image',
+'activebackground',
+'activebitmap',
+'activeforeground',
+'background',
+'bitmap',
+'disabledbackground',
+'disabledbitmap',
+'disabledforeground',
+'foreground',
+'extent',
+'start',
+'style'):
+
+            try:
+                option = self.itemcget(item_id,entry)
+                if entry == 'state' and option == "": option='normal'
+                dictionary[entry] = (option,)
+            except TclError: pass
+        return dictionary
+
+                
 class Frame(GuiContainer,StatTkInter.Frame):
     def __init__(self,myname=None,**kwargs):
         _initGuiContainer(kwargs,StatTkInter.Frame,self,myname,"frame",True)
@@ -1114,6 +1321,81 @@ class MenuDelimiter(GuiElement):
             if 'photoimage' in kwargs: dynTkImage(self,kwargs.pop('photoimage'))
             self.master.entryconfig(0,**kwargs)
 
+class CanvasItemWidget(GuiElement):
+
+    def __init__(self,master,item_id,do_append = True):
+        if master.canvas_widget != None: master.canvas_widget.dummy_destroy()
+        name = master.type(item_id)
+        self.master = master
+        self.item_id = item_id
+        self.tkClass = Dummy
+        self.isContainer = False
+        GuiElement.__init__(self,name,True)
+        _Selection._container = master
+        self.Layout = LAYOUTNEVER
+        master.canvas_widget = self
+        if do_append and name == 'image':
+            self.config(photoimage = 'guidesigner/images/butterfly.gif')
+            self.activephotoimage = ''
+            self.disabledphotoimage = ''
+ 
+    def destroy(self):
+        self.master.canvas_widget = None
+        self.master.delete(self.item_id)
+        GuiElement.destroy(self)
+        #setSelection(Create_Selection(self.master,self.master))
+        
+    def dummy_destroy(self):
+        self.master.canvas_widget = None
+        '''
+        if self.master.type(self.item_id) == 'image':
+            self.master.canvas_images[self.item_id] = self
+            setWidgetSelection(self)
+            name_index = getNameAndIndex()
+            if name_index[0] != None: eraseEntry(name_index[0],name_index[1])
+            cdApp()
+        else: GuiElement.destroy(self)
+        '''
+        GuiElement.destroy(self)
+
+
+    def config(self,**kwargs):
+        if len(kwargs) == 0:
+    
+            if self.master.type(self.item_id) == 'image':
+               self.photoimage = '' 
+               self.activephotoimage = '' 
+               self.disabledphotoimage = ''
+               img = self.master.itemcget(self.item_id,'image')
+               if img in self.master.canvas_pyimages: self.photoimage = self.master.canvas_pyimages[img]
+               img = self.master.itemcget(self.item_id,'activeimage')
+               if img in self.master.canvas_pyimages: self.activephotoimage = self.master.canvas_pyimages[img]
+               img = self.master.itemcget(self.item_id,'disabledimage')
+               if img in self.master.canvas_pyimages: self.disabledphotoimage = self.master.canvas_pyimages[img]
+
+            return self.master.get_itemconfig(self.item_id)
+        else:
+            if 'photoimage' in kwargs:
+                self.photoimage = kwargs['photoimage']
+            if 'activephotoimage' in kwargs:
+                self.activephotoimage = kwargs['activephotoimage']
+            if 'disabledphotoimage' in kwargs:
+                self.disabledphotoimage = kwargs['disabledphotoimage']
+
+            self.master.itemconfig(self.item_id,**kwargs)
+
+
+def CanvasItem(master,item_id,do_append = True):
+    return CanvasItemWidget(master,item_id,do_append)
+    '''
+    if do_append or master.type(item_id) != 'image': return CanvasItemWidget(master,item_id,do_append)
+    if master.canvas_widget != None: master.canvas_widget.dummy_destroy()
+    this_widget = master.canvas_images.pop(item_id)
+    master.canvas_widget = this_widget
+    master.Dictionary.setElement('image',this_widget)
+    _Selection._container = master
+    _Selection._widget = this_widget
+    '''
 
 class MenuItem(GuiElement):
     def __init__(self,myname="menuitem",mytype='command',**kwargs):
@@ -1250,39 +1532,16 @@ def get(): return this().get()
 
 def Selection(): return copy(_Selection)
 
-#def getContainer(): return _Selection._container
 
-
+'''
 def allDictEntries(dictionary,cmd,data=None):
     for n,e in dictionary.items():
         ObjectStack.append((e,n,data))
         cmd()
         ObjectStack.pop()
-
-
-GetNameAndIndexCmd = EvCmd("""
-push(0)
-push(None)
-for Stack[-1] in receiver()[0]:
-    if top() is receiver()[2]:
-        Stack[-4] = second()
-        Stack[-3] = receiver()[1]
-    Stack[-2] +=1
-pop()
-pop()
-""")
-
-
-def getNameAndIndex():
-    push(None)
-    push(None)
-    dictionary=Selection()._container.Dictionary.elements
-    allDictEntries(dictionary,GetNameAndIndexCmd.execute,Selection()._widget)
-    if top() != None:	
-        if len(dictionary[top()]) == 1: Stack[-2] = -1
-    return (pop(),pop())
+'''
     
-
+'''
 GetContLayoutsCmd = EvCmd("Stack[-1] |= this().Layout")
 
 def allContainerEntries(container,cmd=EvCmd("pass")):
@@ -1299,12 +1558,15 @@ def allContainerEntries(container,cmd=EvCmd("pass")):
         cmd.execute()
     
     setSelection(SelectionBefore)
+'''
 
+def getNameAndIndex():return container().Dictionary.getNameAndIndex(this())
 
 def getContLayouts(container):
-    push(0)
-    allContainerEntries(container,GetContLayoutsCmd)
-    return pop()
+    children_list = container.Dictionary.getChildrenList()
+    layout = 0
+    for x in children_list: layout |= x.Layout
+    return layout
 
 def getAllWidgetsWithoutNoname(containerWidget):
     dictionary=containerWidget.Dictionary.elements
@@ -1609,6 +1871,7 @@ def get_save_config():
 
 def save_widget(filehandle,name):
     if not this().save: return
+    if isinstance(this(),CanvasItemWidget): return
 
     # write name ================================
     thisClass = WidgetClass(this())
@@ -1641,6 +1904,81 @@ def save_widget(filehandle,name):
     filehandle.write("\n")
 
 
+def save_canvas(filehandle):
+
+    canvas = container()
+    item_list = canvas.find_all()
+    if len(item_list) == 0: return
+
+    filehandle.write("\ncanvas=container()\n\n")
+    for item in item_list:
+        coords = canvas.coords(item)
+        filehandle.write('coords = (')
+        begin = True
+        for entry in coords:
+            if begin: begin = False
+            else: filehandle.write(',')
+            filehandle.write(str(entry))
+        filehandle.write(')\n')
+        filehandle.write('item = canvas.create_')
+        filehandle.write(canvas.type(item))
+        filehandle.write('(*coords)\n')
+
+        config = canvas.get_itemconfig(item)
+        ConfDictionaryShort(config)
+        
+        dictionaryCompare = CanvasDefaults[canvas.type(item)]
+
+        for n,e in dict(config).items():
+            if n in dictionaryCompare:
+                if e == dictionaryCompare[n]: config.pop(n,None)
+
+        if canvas.type(item) == 'image':
+
+            img = canvas.itemcget(item,'image')
+            if img in canvas.canvas_pyimages:
+               config['photoimage'] = canvas.canvas_pyimages[img]
+               
+            img = canvas.itemcget(item,'activeimage')
+            if img in canvas.canvas_pyimages:
+               config['activephotoimage'] = canvas.canvas_pyimages[img]
+
+            img = canvas.itemcget(item,'disabledimage')
+            if img in canvas.canvas_pyimages:
+               config['disabledphotoimage'] = canvas.canvas_pyimages[img]
+
+            config.pop('image',None)
+            config.pop('activeimage',None)
+            config.pop('disabledimage',None)
+
+        elif canvas.type(item) == 'window':
+            window = canvas.itemcget(item,'window')
+            if window != "":
+                name_and_index = canvas.Dictionary.getNameAndIndexByStringAddress(window)
+                if name_and_index[0] != None:
+                    if name_and_index[1] == -1:
+                        config['window'] = "widget('"+name_and_index[0]+"')"
+                    else:
+                        config['window'] = "widget('"+name_and_index[0]+"',"+str(name_and_index[1])+')'
+            
+        conf_copy = dict(config)
+        for key,value in conf_copy.items():
+            if value == '': del config[key]
+            
+        if len(config) != 0:
+            filehandle.write('canvas.itemconfig(item,**{')
+            begin = True
+            for key,value in config.items():
+                if begin: begin = False
+                else: filehandle.write(',')
+                if key == 'window':
+                    filehandle.write("'"+key+"':"+value)
+                else:
+                    filehandle.write("'"+key+"':"+repr(value))
+            filehandle.write("})\n\n")
+        
+        
+
 def saveContainer(filehandle):
 
     dictionary = container().Dictionary.elements
@@ -1659,6 +1997,8 @@ def saveContainer(filehandle):
             save_widget(filehandle,name)
 
     save_pack_entries(filehandle)
+
+    if isinstance(container(),Canvas): save_canvas(filehandle)
 
     # was ist mit gelocktem code? Der Code sollte geschrieben werden, nur die widgets nicht
     code_len = len(container().CODE)
@@ -1752,6 +2092,7 @@ def getAccessName(name):
 
 def saveAccessWidget(filehandle,name_index):
     if not this().save: return
+    if isinstance(this(),CanvasItemWidget): return
 
     # write name ================================
     
@@ -1951,6 +2292,8 @@ def export_immediate_layout(filehandle,name):
 
 def exportWidget(filehandle,name,widgetname=None,camelcase_name = None):
     if not this().save: return
+    if isinstance(this(),CanvasItemWidget): return
+   
 
     if widgetname == None: widgetname = name
 
@@ -2033,9 +2376,10 @@ def exportContainer(filehandle):
             if this().hasWidgets():
                 camelcase_name = makeCamelCase(var_name)
                 camelcase_name = getCamelCaseName(camelcase_name)
-                
-            ExportNames[this()] = (var_name,camelcase_name)
-            exportWidget(filehandle,var_name,widget_name,camelcase_name)
+
+            if not isinstance(this(),CanvasItemWidget):
+                ExportNames[this()] = (var_name,camelcase_name)
+                exportWidget(filehandle,var_name,widget_name,camelcase_name)
 
     export_pack_entries(filehandle)
 

@@ -1,18 +1,18 @@
 Scrollbar('Scrollbar',orient=VERTICAL)
-pack(side=RIGHT,fill=Y,expand=FALSE)
-
 Canvas('Canvas',bd=0,highlightthickness=0)
-pack(fill=BOTH, expand=TRUE)
-
-Frame('Frame').pack(side=BOTTOM,anchor=NW)
-
-#Frame().pack(side=BOTTOM,anchor=NW)
+goIn()
+Frame('Frame')
+goIn()
 
 ### CODE ===================================================
 
 Lock()
 
-def geometry_refresh(me,frame=widget('Frame')):
+my_frame = container()
+my_canvas = my_frame.master
+config_frame = my_canvas.master
+
+def geometry_refresh(me,frame=my_frame):
     geometry = getconfig("geometry")
     if geometry != frame.mydata[1]: # geometry value
         frame.mydata[1] = geometry 
@@ -22,19 +22,15 @@ def geometry_refresh(me,frame=widget('Frame')):
     informLater(200,me,'refresh')
 
 
-widget('Frame').mydata=[None,None]
+my_frame.mydata=[None,None]
 
-def undo_refresh(thisframe=widget('Frame')):
+def undo_refresh(thisframe=my_frame):
     if thisframe.mydata[0] != None: undo_action(thisframe.mydata[0],'refresh')
     thisframe.mydata=[None,None]
 
 undo_refresh()
 
-# -------------- make a frame with a vertical scrollbar ------------------------------------
-
-widget("Canvas").config(yscrollcommand=widget("Scrollbar").set)
-widget("Scrollbar").config(command=widget("Canvas").yview)
-interior_id = widget("Canvas").create_window(0, 0, window=widget("Frame"),anchor=NW)
+interior_id = my_canvas.create_window(0, 0, window=my_frame,anchor=NW)
 
 
 # -------------- <Configure> events for the scrollbar frame ------------------------------------
@@ -42,7 +38,7 @@ interior_id = widget("Canvas").create_window(0, 0, window=widget("Frame"),anchor
 def canvas_configure(me,frame,int_id = interior_id):
     if me.winfo_reqwidth() != frame.winfo_width(): me.itemconfigure(int_id, width=me.winfo_width())
  
-widget("Canvas").do_event("<Configure>",canvas_configure,widget("Frame"),True)
+my_canvas.do_event("<Configure>",canvas_configure,my_frame,True)
 
 def frame_configure(me,canvas):
     canvas.config(scrollregion="0 0 %s %s" % (me.winfo_reqwidth(), me.winfo_reqheight()))
@@ -50,7 +46,7 @@ def frame_configure(me,canvas):
     if me.winfo_reqheight() > 340: canvas.config(height=340)
     else: canvas.config(height=me.winfo_reqheight())
 
-widget("Frame").do_event("<Configure>",frame_configure,widget("Canvas"),True)
+my_frame.do_event("<Configure>",frame_configure,my_canvas,True)
 
 # -------------- receivers for SELECTION_CHANGED and CREATE_WIDGET_DONE messages -----------
 
@@ -64,16 +60,20 @@ do_receive('SELECTION_CHANGED',lambda: send("SHOW_CONFIG",this()))
 def do_lbox_click(event,lbox,entry,isMouse):
     if isMouse: text = lbox.get(lbox.nearest(event.y))
     else: text = lbox.get(ACTIVE)
-    setconfig(entry.mydata,text)
-    entry.delete(0,END)
-    entry.insert(0,text)
+    if text!='<=':
+        setconfig(entry.mydata,text)
+        entry.delete(0,END)
+        entry.insert(0,text)
     lbox.unbind("<Return>")
     lbox.unbind("<Button-1>")
     lbox.unlayout()
 
 def listbox_helpbutton(lbox,entry,lbox_click = do_lbox_click):
     lbox.select_clear(0,END) # clear a former listbox selection 
-    lbox_index = lbox.getStringIndex(getconfig(entry.mydata)) # get the listbox index for the layout option
+    try:
+        lbox_index = lbox.getStringIndex(getconfig(entry.mydata)) # get the listbox index for the layout option
+    except ValueError:
+        lbox_index =0
     lbox.select_set(lbox_index) # preselect the current layout option in the listbox
     lbox.activate(lbox_index) # and set the selection cursor to it
     lbox.rcgrid(0,3) # show the listbox
@@ -126,7 +126,7 @@ def entry_event(me,button=None):
 
 enable_flag = [False,False,False]
 
-def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("Frame"),color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = widget('Canvas'),no_refresh=undo_refresh,geo_refresh=geometry_refresh):
+def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame,color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = my_canvas,no_refresh=undo_refresh,geo_refresh=geometry_refresh):
 
     no_refresh()
     if isinstance(msg,bool):
@@ -164,6 +164,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
             # make a list of tuples of the layout dictionary and sort important options at the beginning
             conflist = []
             for entry in (
+"tags",
 "title",
 "geometry",
 "from", # Spinbox (decimal default 0.0)
@@ -180,6 +181,8 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "myclass",
 "link",
 "photoimage",
+"activephotoimage",
+"disabledphotoimage",
 "type",
 "selectmode",
 "state",
@@ -189,8 +192,42 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "sliderrelief",
 "overrelief",
 "buttondownrelief",
+'style',
+'start',
+'extent',
+'bitmap',
+'activebitmap',
+'disabledbitmap',
+'arrow',
+'arrowshape',
+'capstyle',
+'joinstyle',
+'smooth',
+'splinesteps',
 "width",
 "height",
+"outline",
+"dash",
+"dashoffset",
+"outlinestipple",
+"outlineoffset",
+"fill",
+"stipple",
+"offset",
+"activewidth",
+"activeoutline",
+"activeoutlineoffset",
+"activedash",
+"activeoutlinestipple",
+"activefill",
+"activestipple",
+"disabledwidth",
+"disabledoutline",
+"disabledoutlineoffset",
+"disableddash",
+"disabledoutlinestipple",
+"disabledfill",
+"disabledstipple",
 "length",
 "sliderlength",
 "wraplength",
@@ -202,6 +239,7 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 "font",
 "fg",
 "bg",
+"foreground",
 "background",
 "troughcolor",
 "selectforeground",
@@ -248,6 +286,8 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                 elif entry[0] in (
 "digits", # Scale (Integer default 0)
 "width", # often (Integer default 0)
+"activewidth", # often (Integer default 0)
+"disabledwidth", # often (Integer default 0)
 "height", # often (Integer default 0)
 "length", # Spinbox (Integer default 100)
 "sliderlength", # Spinbox (Integer default 30)
@@ -285,8 +325,8 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 
 
                 if entry[0] == "text": do_event("<Return>",text_color,None,True)
-                elif entry[0] in ("command","vcmd","invcmd","variable","textvariable","menu"): config(state = "readonly")
-                elif (entry[0] in ["fg","bg"]) or ("foreground" in entry[0]) or ("background" in entry[0]) or ("color" in entry[0]):
+                elif entry[0] in ("command","vcmd","invcmd","variable","textvariable","menu","window"): config(state = "readonly")
+                elif (entry[0] in ["fg","bg","outline","activeoutline","disabledoutline"]) or ("foreground" in entry[0]) or ("background" in entry[0]) or ("color" in entry[0]) or ("fill" in entry[0]):
                     color_button(this())
                     widget("Entry").do_event("<Return>",e_event,this(),True)
                 else:
@@ -325,8 +365,16 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
                         Listbox(width=7,height=2).fillList(("active","disabled"))
                         lbox_select()
 
+                    elif 'stipple' in entry[0] or 'bitmap' in entry[0]:
+                        Listbox(width=9,height=12).fillList(('<=','','error', 'gray75', 'gray50', 'gray25', 'gray12', 'hourglass', 'info', 'questhead', 'question','warning'))
+                        lbox_select()
+                        
                     elif entry[0] == "type":
                         Listbox(width=7,height=3).fillList(("normal","menubar","tearoff"))
+                        lbox_select()
+
+                    elif entry[0] == "style":
+                        Listbox(width=8,height=3).fillList(("pieslice","chord","arc"))
                         lbox_select()
 
                     elif entry[0] in ["relief","buttonuprelief","sashrelief"]:
@@ -335,6 +383,19 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
 
                     elif entry[0] =="overrelief":
                         Listbox(width=7,height=7).fillList(("","flat","raised","sunken","groove","ridge","solid"))
+                        lbox_select()
+
+                    elif entry[0] =="arrow":
+                        Listbox(width=5,height=4).fillList(('none','first','last','both'))
+                        lbox_select()
+
+
+                    elif entry[0] =="capstyle":
+                        Listbox(width=10,height=3).fillList(('butt','projecting','round'))
+                        lbox_select()
+
+                    elif entry[0] =="joinstyle":
+                        Listbox(width=5,height=3).fillList(('round','bevel','miter'))
                         lbox_select()
 
                     elif entry[0] =="anchor":
@@ -376,5 +437,19 @@ def show_config(msg,onflag = enable_flag, cont = container(),thisframe=widget("F
     
 
 do_receive('SHOW_CONFIG',show_config,wishMessage=True)
+
+### ========================================================
+
+goOut() # Frame
+goOut() # Canvas
+widget('Scrollbar').pack(side=RIGHT,fill=Y,expand=FALSE)
+widget('Canvas').pack(fill=BOTH, expand=TRUE)
+
+### CODE ========================================================
+
+# -------------- make a frame with a vertical scrollbar ------------------------------------
+
+widget("Canvas").config(yscrollcommand=widget("Scrollbar").set)
+widget("Scrollbar").config(command=widget("Canvas").yview)
 
 ### ========================================================

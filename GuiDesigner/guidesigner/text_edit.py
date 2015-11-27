@@ -17,7 +17,7 @@ widget('Cancel').do_command(parent_destroy)
 def Access(widget_for_text):
 
     def store_text(text_field = widget('Text'),widget_for_text = widget_for_text):
-        widget_for_text['text'] = text_field.get("1.0",'end-1c')
+        widget_for_text.setconfig('text',text_field.get("1.0",'end-1c'))
         selection_before = Selection()
         text_field.master.destroy()
         if widget_exists(selection_before._widget):
@@ -28,6 +28,6 @@ def Access(widget_for_text):
     widget('OK').do_command(store_text)
 
     widget('Text').delete(1.0, END)	
-    widget('Text').insert(END,widget_for_text['text'])
+    widget('Text').insert(END,widget_for_text.getconfig('text'))
 
 ### ========================================================
