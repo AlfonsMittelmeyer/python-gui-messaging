@@ -1,5 +1,4 @@
 config(**{'grid_cols': '(9, 75, 0, 0)', 'grid_multi_cols': '[9, (0, 16, 0, 0), (1, 56, 0, 0), (8, 12, 0, 0)]', 'grid_multi_rows': '[13, (0, 12, 0, 0), (1, 23, 0, 0), (2, 11, 0, 0), (9, 11, 0, 0), (10, 21, 0, 0), (11, 16, 0, 0), (12, 12, 0, 0)]', 'grid_rows': '(13, 25, 0, 0)'})
-
 Label('Label',**{'text': 'GuiDesigner after Start', 'font': 'TkDefaultFont 12 bold', 'fg': 'blue'}).grid(**{'column': '1', 'sticky': 'w', 'columnspan': '3', 'row': '1'})
 Label('Label',**{'text': 'But here:', 'bg': 'white'}).grid(**{'column': '1', 'sticky': 'nsw', 'row': '11'})
 LinkButton('LinkButton',**{'text': 'Create ON', 'bd': '3', 'bg': 'green', 'link': 'introduction/create.py'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '11'})

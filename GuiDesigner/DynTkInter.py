@@ -2672,4 +2672,28 @@ def trigger_sash_place(pane_window,time,index,x_coord,y_coord):
 def fill_listbox_with_string(listbox,string):
     listbox.delete(0,END)		
     for e in string.split("\n"): listbox.insert(END,e)
+
+# ======== refresh of top window ===================================
+
+class Geometry_Refresh():
+
+    def __init__(self,time,widget):
+        self.widget = widget
+        widget.after(time,self.call)
+
+    def call(self):
+        my_geo = self.widget.geometry()
+        find_plus = my_geo.find("+")
+        find_minus = my_geo.find("-")
+        if find_plus < 0: begin = find_minus
+        elif find_minus < 0: begin = find_plus
+        else: begin = min(find_plus,find_minus)
+        my_geo = my_geo[begin:]
+
+        self.widget.geometry('') # refresh the geometry of the GUI Designer
+        self.widget.withdraw()
+        self.widget.geometry(my_geo)
+        self.widget.deiconify()
+        
+
     

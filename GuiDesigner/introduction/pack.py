@@ -21,8 +21,12 @@ LinkLabel('layouts',**{'text': 'layouts', 'font': 'TkFixedFont 12 bold underline
 LinkLabel('place',**{'text': 'place', 'font': 'TkFixedFont 12 bold underline', 'link': 'introduction/place.py', 'fg': 'blue'}).grid(**{'column': '2', 'sticky': 'e', 'row': '5'})
 
 ### CODE ===================================================
+
 unregister_msgid('TOPLEVEL_CLOSED')
 send('ACTIVATE_MOUSEMENU')
 _Application.deiconify()
 send('SELECTION_CHANGED')
+
+Geometry_Refresh(200,widget('/'))
+
 ### ========================================================

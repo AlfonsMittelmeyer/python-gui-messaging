@@ -26,4 +26,6 @@ unregister_msgid('TOPLEVEL_CLOSED')
 send('ACTIVATE_MOUSEMENU')
 _Application.deiconify()
 send('SELECTION_CHANGED')
+
+Geometry_Refresh(200,widget('/'))
 ### ========================================================

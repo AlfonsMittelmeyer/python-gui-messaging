@@ -161,3 +161,24 @@ Message('Message',**{'text': "The Create Widget module lets you create widgets.\
 Message('Message',**{'font': 'TkDefaultFont 9 bold', 'text': 'The module above is the original GuiDesigner module, so just try it.', 'anchor': 'w', 'bg': 'white', 'width': 600}).grid(**{'column': 1, 'row': 6, 'sticky': 'nesw', 'columnspan': 2})
 Message('Message',**{'text': "Do you think, it doesn't work, because it doesn't create a widget? But it works, it doesn't create a widget, but informs another module to create the widget.", 'anchor': 'w', 'bg': 'white', 'width': 600}).grid(**{'column': 1, 'row': 7, 'sticky': 'ew', 'columnspan': 2})
 LinkButton('Next',**{'text': 'Next', 'bd': '3', 'link': 'introduction/navy.py'}).grid(**{'column': 2, 'row': 9, 'sticky': 'e'})
+
+### CODE ===================================================
+
+Geometry_Refresh(200,widget('/'))
+
+'''
+a = widget("/")
+my_geo = a.geometry()
+find_plus = my_geo.find("+")
+find_minus = my_geo.find("-")
+if find_plus < 0: begin = find_minus
+elif find_minus < 0: begin = find_plus
+else: begin = min(find_plus,find_minus)
+my_geo = my_geo[begin:]
+
+a.geometry('') # refresh the geometry of the GUI Designer
+a.withdraw()
+a.geometry(my_geo)
+a.deiconify()
+'''
+### ========================================================

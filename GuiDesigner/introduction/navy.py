@@ -20,4 +20,5 @@ LinkButton('Next',**{'text': 'Next', 'bd': '3', 'link': 'introduction/layouts.py
 
 ### CODE ===================================================
 send("SELECTION_CHANGED")
+Geometry_Refresh(200,widget('/'))
 ### ========================================================
