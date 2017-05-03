@@ -1,15 +1,17 @@
 def Access(canvas):
 
     coordinates = [None]
+    precision = 30
 
     def move_to(x,y):
-        coordinates[0] = [x,y]
+        coordinates[0] = [x,y,x,y]
         
     def becier(*args):
         for index in range(0,len(args),6):
 
             px0 = coordinates[0][-2]
             py0 = coordinates[0][-1]
+
             px1 = args[index]
             py1 = args[index+1]
             px2 = args[index+2]
@@ -17,25 +19,40 @@ def Access(canvas):
             px3 = args[index+4]
             py3 = args[index+5]
 
-            for T in range(1,29):
-                t = T/30
+            paired = False
+            for T in range(1,precision-1):
+                t = T/precision
                 Bx = (1-t)*(1-t)*(1-t)*px0 + 3*t*(1-t)*(1-t)*px1+3*t*t*(1-t)*px2+t*t*t*px3
                 By = (1-t)*(1-t)*(1-t)*py0 + 3*t*(1-t)*(1-t)*py1+3*t*t*(1-t)*py2+t*t*t*py3
-                coordinates[0].append(Bx)
-                coordinates[0].append(By)
-            coordinates[0].append(args[index+4])
-            coordinates[0].append(args[index+5])
+
+                if paired:
+
+                    pre_pre_Bx = coordinates[0][-4]
+                    pre_pre_By = coordinates[0][-3]
+                    pre_Bx = coordinates[0][-2]
+                    pre_By = coordinates[0][-1]
+                    coordinates[0][-2] = int(2*pre_Bx-0.5*pre_pre_Bx-0.5*Bx +0.5)
+                    coordinates[0][-1] = int(2*pre_By-0.5*pre_pre_By-0.5*By +0.5)
+
+                    coordinates[0].extend((Bx,By,Bx,By))
+
+                else:
+                    coordinates[0].extend((Bx,By))
+                paired = not paired
+
+
+            coordinates[0].extend((px3,py3,px3,py3))
+
 
 
     def line_to(*args):
-        x0 = coordinates[0][-2]
-        y0 = coordinates[0][-1]
-        coordinates[0].extend((x0,y0))
+
         for index in range(0,len(args),2):
             coordinates[0].append(args[index])
             coordinates[0].append(args[index+1])
             coordinates[0].append(args[index])
             coordinates[0].append(args[index+1])
+
 
     smooth = 1
     splinesteps = 12
@@ -66,12 +83,13 @@ def main():
 
     import tkinter as tk
     root = tk.Tk()
-    canvas = tk.Canvas(root,width=400,height=400)
+    canvas = tk.Canvas(root,width=1000,height=800)
     canvas.pack()
     Access(canvas)
-    scale = 0.05
+    scale = 0.1
     canvas.scale('new_tag',0,0,scale,scale)
     canvas.move('new_tag',-100,-100)
+
     root.mainloop()
  
 if __name__ == '__main__':

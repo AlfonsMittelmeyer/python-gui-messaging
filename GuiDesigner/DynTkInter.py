@@ -19,7 +19,8 @@
 
 import tkinter as StatTkInter
 from tkinter import *
-from tkinter import ttk
+#from tkinter import ttk
+from tkinter import filedialog as tkFileDialog
 from tkinter import messagebox
 from tkinter import colorchooser
 from copy import copy

@@ -55,12 +55,30 @@ do_receive('SELECTION_CHANGED',lambda: send("SHOW_CONFIG",this()))
 
 # -------------- receiver for message 'SHOW_CONFIG' - help functions ------------------------------------
 
+
+
+def choose_bitmap(entry,title,root=widget('/')):
+    file_opt = options = {}
+    options['filetypes'] = [('all files', '*')]
+    options['parent'] = root
+    options['initialdir'] = 'Bitmaps'
+    options['title'] = title
+
+    filename = tkFileDialog.askopenfilename(**file_opt)
+    if filename != None:
+        setconfig(entry.mydata,'@'+filename)
+        entry.delete(0,END)	
+        entry.insert(0,'@'+filename)
+
+
 # for Return key or mouse klick: get active selection from the listbox, hide the listbox, set the layout and insert the text in the Entry for showing
 
-def do_lbox_click(event,lbox,entry,isMouse):
+def do_lbox_click(event,lbox,entry,isMouse,choose_bitmap=choose_bitmap):
     if isMouse: text = lbox.get(lbox.nearest(event.y))
     else: text = lbox.get(ACTIVE)
-    if text!='<=':
+    if text == '@file':
+        choose_bitmap(entry,entry.mydata)
+    elif text!='<=':
         setconfig(entry.mydata,text)
         entry.delete(0,END)
         entry.insert(0,text)
@@ -126,7 +144,23 @@ def entry_event(me,button=None):
 
 enable_flag = [False,False,False]
 
-def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame,color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = my_canvas,no_refresh=undo_refresh,geo_refresh=geometry_refresh):
+
+def choose_image(entry,title,root=widget('/')):
+    file_opt = options = {}
+    options['defaultextension'] = '.gif'
+    options['filetypes'] = [('Graphics Interchange Format', '.gif'),('Portable Pixmap', '.ppm'),('Portable Graymap','.pgm'),('all files', '*')]
+    options['parent'] = root
+    options['initialdir'] = 'Images'
+    options['title'] = title
+
+    filename = tkFileDialog.askopenfilename(**file_opt)
+    if filename != None:
+        setconfig(entry.mydata,filename)
+        entry.delete(0,END)	
+        entry.insert(0,filename)
+
+
+def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame,color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = my_canvas,no_refresh=undo_refresh,geo_refresh=geometry_refresh,choose_image=choose_image):
 
     no_refresh()
     if isinstance(msg,bool):
@@ -329,9 +363,13 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                 elif (entry[0] in ["fg","bg","outline","activeoutline","disabledoutline"]) or ("foreground" in entry[0]) or ("background" in entry[0]) or ("color" in entry[0]) or ("fill" in entry[0]):
                     color_button(this())
                     widget("Entry").do_event("<Return>",e_event,this(),True)
+                elif "photoimage" in entry[0]:
+                    Button(text="?").rcgrid(0,2)
+                    do_command(choose_image,(widget("Entry"),entry[0]))
+                    #do_command(lambda par = this(): messagebox.showinfo("Photo Image","Enter the path to a PhotoImage file (gif,ppm,pgm)",parent=par))
+                    widget("Entry").do_event("<Return>",e_event,None,True)
                 else:
                     do_event("<Return>",e_event,None,True)
-
 
                     if entry[0] == 'geometry':
                         thisframe.mydata[0] = this()
@@ -342,10 +380,6 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                     elif entry[0] =="myclass":
                         Button(text="?").rcgrid(0,2)
                         do_command(lambda par = this(): messagebox.showinfo("Widget Class","The Widget Class 'myclass' isn't supported for GUI Export",parent=par))
-
-                    elif entry[0] =="photoimage":
-                        Button(text="?").rcgrid(0,2)
-                        do_command(lambda par = this(): messagebox.showinfo("Photo Image","Enter the path to a PhotoImage file (gif,ppm,pgm)",parent=par))
 
                     elif entry[0] =="link":
                         Button(text="?").rcgrid(0,2)
@@ -366,7 +400,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                         lbox_select()
 
                     elif 'stipple' in entry[0] or 'bitmap' in entry[0]:
-                        Listbox(width=9,height=12).fillList(('<=','','error', 'gray75', 'gray50', 'gray25', 'gray12', 'hourglass', 'info', 'questhead', 'question','warning'))
+                        Listbox(width=9,height=13).fillList(('<=','@file','','error', 'gray75', 'gray50', 'gray25', 'gray12', 'hourglass', 'info', 'questhead', 'question','warning'))
                         lbox_select()
                         
                     elif entry[0] == "type":

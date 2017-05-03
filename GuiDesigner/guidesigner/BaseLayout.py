@@ -80,6 +80,7 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
             placely.unlayout()
             itemly.unlayout()
             panely.unlayout()
+            windowly.unlayout()
             menuly.grid()
             send("ENABLE_SASH_LIST",False)
 
@@ -89,6 +90,7 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
             placely.unlayout()
             itemly.unlayout()
             menuly.unlayout()
+            windowly.unlayout()
             panely.grid()
             send("ENABLE_SASH_LIST",True)
 
@@ -98,6 +100,7 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
             placely.unlayout()
             panely.unlayout()
             menuly.unlayout()
+            windowly.unlayout()
             itemly.grid()
             send("ENABLE_SASH_LIST",False)
         elif this().Layout == WINDOWLAYOUT:
