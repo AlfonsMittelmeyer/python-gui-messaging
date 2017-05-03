@@ -841,7 +841,7 @@ class Tk(GuiContainer,StatTkInter.Tk):
         EXISTING_WIDGETS.clear()
         ACTORS.clear()
         self.config_menuitems = { 'command':None,'radiobutton':None,'checkbutton':None,'separator':None,'cascade':None,'delimiter':None,'menu':None }
-        proxy = dynproxy.Proxy(self)
+        proxy = dynproxy.Proxy()
         self.master = None
         _initGuiContainer(kwargs,StatTkInter.Tk,self,myname,"Application",True,True,'Application')
         cdApp()
@@ -1056,6 +1056,9 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
 'activewidth',
 'dash',
 'dashoffset',
+'default',
+'relief',
+'overrelief',
 'disableddash',
 'disabledoutline',
 'disabledoutlinestipple',

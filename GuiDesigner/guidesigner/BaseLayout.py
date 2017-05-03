@@ -160,6 +160,19 @@ def update_mouse_select_on(select_hili_on=select_hili_on,hili_off=hili_off):
         do_event('<ButtonRelease-1>',hili_off,this())
 
 do_receive('UPDATE_MOUSE_SELECT_ON',update_mouse_select_on)
+
+def update_canvas_mouse_select_on(canvas,select_hili_on=select_hili_on,hili_off=hili_off):
+    if canvas.master.is_mouse_select_on:
+        canvas.mydata = [0,0,0,0,0,0,False,False]
+        if canvas.Layout in (PACKLAYOUT,PANELAYOUT,WINDOWLAYOUT):
+            canvas.do_event('<Button-1>',select_hili_on,this())
+            canvas.do_event('<ButtonRelease-1>',hili_off,this())
+        elif canvas.Layout == PLACELAYOUT:
+            send('PLACE_MOUSE_ON',canvas)
+        elif canvas.Layout == GRIDLAYOUT:
+            send('GRID_MOUSE_ON',canvas)
+
+do_receive("UPDATE_CANVAS_MOUSE_SELECT_ON",update_canvas_mouse_select_on,wishMessage = True)
     
 def mouse_select_on(select_on,select_hili_on = select_hili_on,hili_off=hili_off):
     widget_list = getAllWidgetsWithoutNoname(container())
