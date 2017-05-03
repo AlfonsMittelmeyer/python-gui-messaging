@@ -166,19 +166,4 @@ LinkButton('Next',**{'text': 'Next', 'bd': '3', 'link': 'introduction/navy.py'})
 
 Geometry_Refresh(200,widget('/'))
 
-'''
-a = widget("/")
-my_geo = a.geometry()
-find_plus = my_geo.find("+")
-find_minus = my_geo.find("-")
-if find_plus < 0: begin = find_minus
-elif find_minus < 0: begin = find_plus
-else: begin = min(find_plus,find_minus)
-my_geo = my_geo[begin:]
-
-a.geometry('') # refresh the geometry of the GUI Designer
-a.withdraw()
-a.geometry(my_geo)
-a.deiconify()
-'''
 ### ========================================================
