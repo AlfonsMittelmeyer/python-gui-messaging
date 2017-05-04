@@ -736,6 +736,7 @@ proxy = None
 
 
 def send(msgid,msgdata=None): proxy.send(msgid,msgdata)
+def send_immediate(msgid,msgdata=None): proxy.send_immediate(msgid,msgdata)
 def unregister_msgid(msgid): proxy.unregister_msgid(msgid)
 def execute_lambda(cmd): proxy.send('execute_function',cmd)
 def do_receive(msgid,function,parameters=None,): proxy.do_receive(container(),msgid,Callback(None,function,parameters).receive)
@@ -929,8 +930,7 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         self.master = master
 
     def destroy(self):
-        #send('THIS_TOPLEVEL_CLOSED',self)
-        send('CANVAS_PAINT_CLOSED')
+        send_immediate('THIS_TOPLEVEL_CLOSED',self)
         selection = Selection()
         GuiElement.destroy(self)
         send('TOPLEVEL_CLOSED',selection)

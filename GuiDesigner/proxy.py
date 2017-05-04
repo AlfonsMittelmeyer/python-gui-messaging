@@ -64,10 +64,11 @@ class Proxy:
         if not self._Queue_HighPrio.empty(): data = self._Queue_HighPrio.get()
         elif not self._Queue.empty(): data = self._Queue.get()
         else: return False
+        self.send_immediate(*data)
+        return True
 
+    def send_immediate(self,msgid,msgdata):
         # look up message id and registered callbacks for it and call callback
-        msgid = data[0]
-        msgdata = data[1]
         if msgid in self._Dictionary:
             receivers = self._Dictionary[msgid].items() # items contain callback function and optional_parameter
             for callback,optional_parameter in receivers:
@@ -75,7 +76,6 @@ class Proxy:
                     if optional_parameter: callback((msgid,msgdata))
                     else: callback(msgdata)
                 else: callback((optional_parameter,(msgid,msgdata)))
-        return True
 
     # process all messages in the queues ========
     def do_work(self,*args):

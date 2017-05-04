@@ -454,9 +454,8 @@ class Access:
 
         def noop(): pass
 
-        def check_closed(cont=container(),noop=noop):
-            #if msg == cont.myRoot():
-            if widget_exists(self.canvas):
+        def check_closed(msg,cont=container(),noop=noop):
+            if msg == cont.myRoot() and widget_exists(self.canvas):
                 '''
                 self.canvas.do_event('<Button-1>',noop)
                 self.canvas.do_event('<ButtonRelease-1>',noop)
@@ -469,7 +468,7 @@ class Access:
                 self.canvas.unbind('<Button-3>')
                 send("UPDATE_CANVAS_MOUSE_SELECT_ON",self.canvas)
 
-        do_receive('CANVAS_PAINT_CLOSED',check_closed)
+        do_receive('THIS_TOPLEVEL_CLOSED',check_closed,wishMessage=True)
 
         def check_container_destroyed(msg,root = widget('/')):
             if msg == canvas: root.destroy()
