@@ -929,7 +929,8 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         self.master = master
 
     def destroy(self):
-        send('THIS_TOPLEVEL_CLOSED',self)
+        #send('THIS_TOPLEVEL_CLOSED',self)
+        send('CANVAS_PAINT_CLOSED')
         selection = Selection()
         GuiElement.destroy(self)
         send('TOPLEVEL_CLOSED',selection)

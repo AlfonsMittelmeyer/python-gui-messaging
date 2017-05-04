@@ -454,22 +454,22 @@ class Access:
 
         def noop(): pass
 
-        def check_closed(msg,cont=container(),noop=noop):
-            if msg == cont.myRoot():
-                if widget_exists(self.canvas):
-                    '''
-                    self.canvas.do_event('<Button-1>',noop)
-                    self.canvas.do_event('<ButtonRelease-1>',noop)
-                    self.canvas.do_event('<Button-3>',noop)
-                    '''
+        def check_closed(cont=container(),noop=noop):
+            #if msg == cont.myRoot():
+            if widget_exists(self.canvas):
+                '''
+                self.canvas.do_event('<Button-1>',noop)
+                self.canvas.do_event('<ButtonRelease-1>',noop)
+                self.canvas.do_event('<Button-3>',noop)
+                '''
 
-                    self.canvas['cursor'] = ''
-                    self.canvas.unbind('<Button-1>')
-                    self.canvas.unbind('<ButtonRelease-1>')
-                    self.canvas.unbind('<Button-3>')
-                    send("UPDATE_CANVAS_MOUSE_SELECT_ON",self.canvas)
+                self.canvas['cursor'] = ''
+                self.canvas.unbind('<Button-1>')
+                self.canvas.unbind('<ButtonRelease-1>')
+                self.canvas.unbind('<Button-3>')
+                send("UPDATE_CANVAS_MOUSE_SELECT_ON",self.canvas)
 
-        do_receive('THIS_TOPLEVEL_CLOSED',check_closed,wishMessage = True)
+        do_receive('CANVAS_PAINT_CLOSED',check_closed)
 
         def check_container_destroyed(msg,root = widget('/')):
             if msg == canvas: root.destroy()
