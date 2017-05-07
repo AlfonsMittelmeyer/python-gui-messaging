@@ -61,7 +61,8 @@ def function(layout_before):
     else:
         send("BASE_LAYOUT_REFRESH",this())
         send("SHOW_LAYOUT",this())
-        if layout_before == NOLAYOUT: send('SELECTION_LAYOUT_CHANGED')
+        if layout_before == NOLAYOUT:
+            send('SELECTION_LAYOUT_CHANGED')
 
 do_receive('BASE_LAYOUT_CHANGED',function,wishMessage=True)
 

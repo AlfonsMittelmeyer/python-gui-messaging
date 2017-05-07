@@ -31,6 +31,7 @@ def create_widget(msg):
         text(msg[1])
         send('SELECTION_CHANGED')
 
+
 do_receive('CREATE_WIDGET_REQUEST',create_widget,wishMessage=True)
 do_receive("SELECTION_CHANGED", lambda: send('SHOW_SELECTION'))
 do_receive("SELECTION_LAYOUT_CHANGED", lambda: send('SHOW_SELECTION'))

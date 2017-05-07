@@ -147,7 +147,11 @@ def look_up_refs(RefDict=RefDict,for_names=for_names,Default_bg=Default_bg,RefCo
             else:
                 button['bg'] = Default_bg[0]
 
-do_receive('SHOW_SELECTION',look_up_refs)
+def check_for_menu(for_names=for_names,look_up_refs=look_up_refs):
+    if isinstance(this(),Menu): for_names()
+    else: look_up_refs()
+
+do_receive('SHOW_SELECTION',check_for_menu)
 do_receive('SHOW_SELECTION_UPDATE',for_names)
 
 ### ========================================================
