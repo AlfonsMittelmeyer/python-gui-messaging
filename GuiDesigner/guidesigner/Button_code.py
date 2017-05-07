@@ -1,4 +1,5 @@
 ### CODE ===================================================
+import os
 
 def test_syntax(me,textwidget):
     result = True
@@ -17,12 +18,12 @@ def test_syntax(me,textwidget):
     setSelection(selection)
     return result
 
-def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax):
+def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax,os=os):
     result = False
     selection = Selection()
     if test_Syntax(me,textwidget):
         try:
-            fh = open("tempcode.txt","w")
+            fh = open(os.path.join(os.getcwd(),'Testcode','tempcode.txt'),"w")
             is_open = True
         except:
             is_open = False
@@ -58,12 +59,12 @@ def create_LoadFrame():
     Label("IOError")
     goOut()
 
-def load_from_file(me,textwidget):
+def load_from_file(me,textwidget,os=os):
     selection = Selection()
     setWidgetSelection(me)
     widget('IOError').unlayout()
     try:
-        fh = open(widget('Entry').get(),'r')
+        fh = open(os.path.join(os.getcwd(),'Testcode',widget('Entry').get()),'r')
         textwidget.delete(1.0, END)	
         textwidget.insert(END,fh.read())
         fh.close()

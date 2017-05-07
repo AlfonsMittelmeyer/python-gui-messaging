@@ -17,7 +17,7 @@ def activate_mousemenu(menu=widget("MouseMenu")):
 
 do_receive('ACTIVATE_MOUSEMENU',activate_mousemenu)
 
-Frame('Inside',link="introduction/img.py").pack()
+Frame('Inside',link="introduction/img.py").grid(row=0,column=0)
 
 cdApp()
 this().config(title = 'Application Window')

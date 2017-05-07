@@ -5,6 +5,7 @@ Frame('Frame')
 goIn()
 
 ### CODE ===================================================
+import os
 
 Lock()
 
@@ -57,19 +58,21 @@ do_receive('SELECTION_CHANGED',lambda: send("SHOW_CONFIG",this()))
 
 
 
-def choose_bitmap(entry,title,root=widget('/')):
-    file_opt = options = {}
-    options['filetypes'] = [('all files', '*')]
-    options['parent'] = root
-    options['initialdir'] = 'Bitmaps'
-    options['title'] = title
+def choose_bitmap(entry,title,root=widget('/'),os=os):
+
+    file_opt = {
+        'filetypes' : [('Graphics Interchange Format', '.gif'),('Portable Pixmap', '.ppm'),('Portable Graymap','.pgm'),('all files', '*')],
+        'filetypes' : [('all files', '*')],
+        'parent' : root,
+        'title' : title,
+        'initialdir' : os.path.join(os.getcwd(),'Bitmaps') }
+
 
     filename = tkFileDialog.askopenfilename(**file_opt)
-    if filename != None:
+    if filename:
         setconfig(entry.mydata,'@'+filename)
         entry.delete(0,END)	
         entry.insert(0,'@'+filename)
-
 
 # for Return key or mouse klick: get active selection from the listbox, hide the listbox, set the layout and insert the text in the Entry for showing
 
@@ -145,16 +148,17 @@ def entry_event(me,button=None):
 enable_flag = [False,False,False]
 
 
-def choose_image(entry,title,root=widget('/')):
-    file_opt = options = {}
-    options['defaultextension'] = '.gif'
-    options['filetypes'] = [('Graphics Interchange Format', '.gif'),('Portable Pixmap', '.ppm'),('Portable Graymap','.pgm'),('all files', '*')]
-    options['parent'] = root
-    options['initialdir'] = 'Images'
-    options['title'] = title
+def choose_image(entry,title,root=widget('/'),os=os):
+
+    file_opt = {
+        'defaultextension' : '.gif',
+        'filetypes' : [('Graphics Interchange Format', '.gif'),('Portable Pixmap', '.ppm'),('Portable Graymap','.pgm'),('all files', '*')],
+        'parent' : root,
+        'title' : title,
+        'initialdir' : os.path.join(os.getcwd(),'Images') }
 
     filename = tkFileDialog.askopenfilename(**file_opt)
-    if filename != None:
+    if filename:
         setconfig(entry.mydata,filename)
         entry.delete(0,END)	
         entry.insert(0,filename)

@@ -1,3 +1,7 @@
+### CODE ===================================================
+this_container=container()
+### ========================================================
+
 config(**{'grid_cols': '(4, 75, 0, 0)', 'grid_multi_cols': '[4, (0, 15, 0, 0), (1, 57, 0, 0), (3, 18, 0, 0)]', 'grid_multi_rows': '[13, (0, 14, 0, 0), (2, 13, 0, 0), (3, 26, 0, 0), (4, 11, 0, 0), (5, 22, 0, 0), (6, 10, 0, 0), (12, 9, 0, 0)]', 'grid_rows': '(13, 25, 0, 0)'})
 
 Message('Attention',**{'text': "Please notice: this window isn't an Application window, it's only a Toplevel window. When you continue, you should find the application window, which until now was hidden.\n\nThe principle of the GuiDesigner is, that you modify live the original Application window. If you close it, also this introduction will be closed.", 'width': '400', 'bd': '2', 'bg': '#ffffd4', 'relief': 'solid'}).grid(**{'column': '2', 'sticky': 'ew', 'pady': '7', 'padx': '8', 'row': '10'})
@@ -12,3 +16,7 @@ Message('pack_info',**{'text': "A very simple layout. It's just 'top' - from top
 LinkLabel('place',**{'text': 'place', 'font': 'TkFixedFont 12 bold underline', 'link': 'introduction/place.py', 'fg': 'blue'}).grid(**{'column': '1', 'sticky': 'w', 'row': '5'})
 Message('place_info',**{'text': 'The widgets are positioned by using y and x coordinates. Easy to do with the GuiDesigner, but complicated without.', 'width': '400', 'bg': 'white', 'anchor': 'w'}).grid(**{'column': '2', 'sticky': 'ew', 'row': '5'})
 LinkLabel('to_pack',**{'text': 'pack', 'font': 'TkFixedFont 12 bold underline', 'link': 'introduction/pack.py', 'fg': 'blue'}).grid(**{'column': '2', 'sticky': 'e', 'row': '11'})
+### CODE ===================================================
+this_container.grid_remove()
+this_container.after(100,this_container.grid)
+### ========================================================

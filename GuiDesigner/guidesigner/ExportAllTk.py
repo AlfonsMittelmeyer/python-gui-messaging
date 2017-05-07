@@ -1,13 +1,15 @@
 ### CODE ===================================================
+import os
 
-def show_save_dialog(msg,root = widget('/')):
+def show_save_dialog(msg,root = widget('/'),os=os):
 
-    file_opt = options = {}
-    options['defaultextension'] = '.py'
-    options['filetypes'] = [('python files', '.py'),('all files', '.*')]
-    options['initialfile'] = 'guiexport.py'
-    options['parent'] = root
-    options['title'] = 'Export Tk: ' + msg
+    file_opt = {
+        'defaultextension' : '.py',
+        'filetypes' : [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')],
+        'initialfile' : 'export.py',
+        'parent' : root,
+        'title' : 'Export Tk: ' + msg,
+        'initialdir' : os.path.join(os.getcwd(),'Export') }
 
     name = tkFileDialog.asksaveasfilename(**file_opt)
     if name:

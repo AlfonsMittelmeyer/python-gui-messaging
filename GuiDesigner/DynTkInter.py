@@ -38,12 +38,19 @@ from DynTkImports import *
 #from dyntkinter.callback import *
 
 def dynTkImage(widget,filename):
-    DynTkImage.dynTkImage(widget,filename)
+    if filename == "":
+        widget.image = None
+        widget.setconfig('image',"")
+    else:
+        DynTkImage.dynTkImage(widget,filename)
     widget.photoimage = filename
+    
 
 def dynTkLoadImage(widget,filename):
     DynTkImage.dynTkLoadImage(widget,filename)
 
+# instead dynTkLoadImage is used by Canvas - create_image, get_image
+'''
 def dynTkActiveImage(widget,filename):
     DynTkImage.dynTkActiveImage(widget,filename)
     widget.activephotoimage = filename
@@ -51,7 +58,7 @@ def dynTkActiveImage(widget,filename):
 def dynTkDisabledImage(widget,filename):
     DynTkImage.dynTkDisabledImage(widget,filename)
     widget.disabledphotoimage = filename
-
+'''
 '''
 def dynTkBitmap(widget,filename):
     DynTkImage.dynTkBitmap(widget,filename)
@@ -193,6 +200,7 @@ CanvasDefaults = {}
 
 class Dummy: pass
 
+# wird aufgerufen von _initGuiElement und divdersen anderen Klassen
 class GuiElement:
 
     def __init__(self,dyn_name="nn",select=True):
@@ -811,8 +819,7 @@ def _initGuiElement(kwargs,tkClass,element,myname,altname,isContainer=False):
     element.master = master
     element.isContainer = isContainer
     GuiElement.__init__(element,myname,select)
-    if not element.photoimage == '': element.config(photoimage = element.photoimage)
-        
+    if not element.photoimage == '': element.config(photoimage = element.photoimage)    
 
 
 def _initGuiContainer(kwargs,tkClass,element,myname,altname,mayhave_grid=False,isMainWindow=False,tk_master = None,self_master = None):
@@ -847,6 +854,8 @@ class Tk(GuiContainer,StatTkInter.Tk):
         _initGuiContainer(kwargs,StatTkInter.Tk,self,myname,"Application",True,True,'Application')
         cdApp()
 
+
+        # create default attributes for Canvas
         canvas = Canvas('canvas')
         
         item = canvas.create_line(0,0,0,0)
@@ -1281,6 +1290,8 @@ class MenuDelimiter(GuiElement):
         self.isContainer = False
         GuiElement.__init__(self,myname,select)
         self.Layout = LAYOUTNEVER
+        self.config(photoimage = self.photoimage)
+
 
     def config(self,**kwargs):
         index = 0
@@ -1402,6 +1413,7 @@ def CanvasItem(master,item_id,do_append = True):
     _Selection._widget = this_widget
     '''
 
+
 class MenuItem(GuiElement):
     def __init__(self,myname="menuitem",mytype='command',**kwargs):
         self.myclass = kwargs.pop('myclass','')
@@ -1419,6 +1431,12 @@ class MenuItem(GuiElement):
         self.isContainer = mytype == 'cascade'
         GuiElement.__init__(self,myname,select)
         self.Layout = MENUITEMLAYOUT
+        self.config(photoimage = self.photoimage)
+
+    # required for dynTkImage
+    def __setitem__(self, key, item): 
+        confdict = { key : item }
+        self.config(**confdict)
 
     def get_index(self):
         offset = self.master['tearoff']
@@ -1731,6 +1749,12 @@ def get_layout_dictionary():
 
 def is_immediate_layout(): return this().Layout & (GRIDLAYOUT | PLACELAYOUT | MENULAYOUT)
 
+def generate_keyvalues(dictionary):
+    result = []
+    for key, value in dictionary.items():
+        result.append("{}={!r}".format(key, value))
+    return ", ".join(result)
+
 def save_immediate_layout(filehandle):
     if not is_immediate_layout(): return
 
@@ -1744,7 +1768,7 @@ def save_immediate_layout(filehandle):
         filehandle.write(indent+"select_menu(")
         layout = {}
         
-    if len(layout) != 0: filehandle.write("**"+repr(layout))
+    if len(layout) != 0: filehandle.write(generate_keyvalues(layout))
     filehandle.write(")")
 
 def save_pack_entries(filehandle):
@@ -1786,7 +1810,7 @@ def save_pack_entries(filehandle):
                 for n,e in layoutWidget.items():
                     if class_type(type(e)) == "Tcl_Obj":
                         layoutWidget[n] = str(e)
-                filehandle.write('**'+repr(layoutWidget))
+                filehandle.write(generate_keyvalues(layoutWidget))
            
             filehandle.write(")\n")
         
@@ -1897,7 +1921,7 @@ def save_widget(filehandle,name):
             conf_dict['link'] = mylink
     
     if len(conf_dict) != 0:
-        filehandle.write(",**"+repr(conf_dict)+")")
+        filehandle.write(","+generate_keyvalues(conf_dict)+")")
     else:
          filehandle.write(")")
 
@@ -2031,7 +2055,8 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
             if withConfig:
                 conf_dict = get_save_config()
                 conf_dict.pop('link',None)
-                if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
+                #if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
+                if len(conf_dict) != 0: filehandle.write('config('+generate_keyvalues(conf_dict)+")\n\n")
             saveContainer(filehandle)
 
     else: 
@@ -2259,7 +2284,7 @@ def export_pack_entries(filehandle):
                     if class_type(type(e)) == "Tcl_Obj":
                         layoutWidget[n] = str(e)
  
-                filehandle.write('**'+repr(layoutWidget))
+                filehandle.write(generate_keyvalues(layoutWidget))
 
             filehandle.write(")\n")
 
@@ -2292,7 +2317,7 @@ def export_immediate_layout(filehandle,name):
         filehandle.write("select_menu(")
         layout = {}
         
-    if len(layout) != 0: filehandle.write("**"+repr(layout))
+    if len(layout) != 0: filehandle.write(generate_keyvalues(layout))
     filehandle.write(")\n")
 
 def exportWidget(filehandle,name,widgetname=None,camelcase_name = None):
@@ -2346,16 +2371,15 @@ def exportWidget(filehandle,name,widgetname=None,camelcase_name = None):
     grid_dict = get_grid_dict(conf_dict)
 
     if len(conf_dict) != 0:
-        filehandle.write(",**"+repr(conf_dict)+")\n")
+        filehandle.write(","+generate_keyvalues(conf_dict)+")\n")
     else:
          filehandle.write(")\n")
 
-    if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self.'+name+',**'+repr(grid_dict)+')\n')
+    if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self.'+name+','+generate_keyvalues(grid_dict)+')\n')
     if lbtext != None: filehandle.write('        ext.fill_listbox_with_string(self.'+name+','+repr(lbtext)+')\n')
 
     if photoimage != None:
         filehandle.write('        ext.dynTkImage(self.'+name+",'"+photoimage+"')\n")
-        filehandle.write('        self.'+name+"['image'] = self."+name+'.image\n')
 
     export_immediate_layout(filehandle,name)
 
@@ -2430,9 +2454,9 @@ def exportSubcontainer(filehandle,class_name):
         if geo != None: filehandle.write('        self.geometry('+repr(geo)+")\n")
         
         grid_dict = get_grid_dict(conf_dict)
-        if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self,**'+repr(grid_dict)+')\n')
+        if len(grid_dict) != 0: filehandle.write('        ext.grid_table(self,'+generate_keyvalues(grid_dict)+')\n')
 
-        if len(conf_dict) != 0: filehandle.write('        self.config(**'+repr(conf_dict)+")\n")
+        if len(conf_dict) != 0: filehandle.write('        self.config('+generate_keyvalues(conf_dict)+")\n")
  
     goIn()
     exportContainer(filehandle)
@@ -2451,10 +2475,10 @@ def saveExport(readhandle,writehandle,flag=False):
     exphandle = ExportBuffer()
 
     if EXPORT_NAME:
-        exphandle.write('import DynTkInter as tk\n')
-        exphandle.write('import DynTkInter as ext\n')
-        exphandle.write('#import tkinter as tk\n')
-        exphandle.write('#import DynTkExtend as ext\n\n')
+        exphandle.write('#import DynTkInter as tk\n')
+        exphandle.write('#import DynTkInter as ext\n')
+        exphandle.write('import tkinter as tk\n')
+        exphandle.write('import DynTkExtend as ext\n\n')
     else:
         exphandle.write('import tkinter as tk\n')
         exphandle.write('import DynTkExtend as ext\n\n')
@@ -2485,8 +2509,8 @@ def saveExport(readhandle,writehandle,flag=False):
             writehandle.write(entry[1]+"\n")
         if this() == _Application:
             if EXPORT_NAME:
-                writehandle.write(name+"().mainloop('guidesigner/Guidesigner.py')\n")
-                writehandle.write("#"+name+"().mainloop()\n")
+                writehandle.write("#"+name+"().mainloop('guidesigner/Guidesigner.py')\n")
+                writehandle.write(name+"().mainloop()\n")
             else:
                 writehandle.write(name+"().mainloop()\n")
 
@@ -2696,5 +2720,4 @@ class Geometry_Refresh():
         self.widget.geometry(my_geo)
         self.widget.deiconify()
         
-
     

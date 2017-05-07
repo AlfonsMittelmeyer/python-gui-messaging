@@ -1,3 +1,6 @@
+### CODE ===================================================
+this_container=container()
+### ========================================================
 config(**{'grid_rows': '(11, 25, 0, 0)', 'grid_cols': '(4, 300, 0, 0)', 'grid_multi_rows': '[11, (0, 11, 0, 0), (1, 24, 0, 0), (2, 13, 0, 0), (4, 11, 0, 0), (6, 31, 0, 0), (8, 10, 0, 0), (10, 8, 0, 0)]', 'grid_multi_cols': '[4, (0, 19, 0, 0), (3, 19, 0, 0)]'})
 
 LinkButton('Back',**{'text': 'Back', 'bd': '3', 'link': 'introduction/img.py'}).grid(**{'column': 1, 'row': 9, 'sticky': 'w'})
@@ -163,7 +166,6 @@ Message('Message',**{'text': "Do you think, it doesn't work, because it doesn't 
 LinkButton('Next',**{'text': 'Next', 'bd': '3', 'link': 'introduction/navy.py'}).grid(**{'column': 2, 'row': 9, 'sticky': 'e'})
 
 ### CODE ===================================================
-
-Geometry_Refresh(200,widget('/'))
-
+this_container.grid_remove()
+this_container.after(100,this_container.grid)
 ### ========================================================

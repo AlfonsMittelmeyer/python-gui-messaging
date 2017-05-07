@@ -1,13 +1,15 @@
 
 ### CODE ===================================================
+import os
 
-def show_save_dialog(msg,root = widget('/')):
-    file_opt = options = {}
-    options['defaultextension'] = '.py'
-    options['filetypes'] = [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')]
-    options['initialfile'] = 'guipart.py'
-    options['parent'] = root
-    options['title'] = 'Save (part): ' + msg
+def show_save_dialog(msg,root = widget('/'),os=os):
+    file_opt = {
+        'defaultextension' : '.py',
+        'filetypes' : [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')],
+        'initialfile' : 'guipart.py',
+        'parent' : root,
+        'title' : 'Save (part): ' + msg,
+        'initialdir' : os.path.join(os.getcwd(),'Scripts') }
 
     fh = tkFileDialog.asksaveasfile(mode='w', **file_opt)
     if fh != None:

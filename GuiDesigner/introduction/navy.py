@@ -1,3 +1,6 @@
+### CODE ===================================================
+this_container=container()
+### ========================================================
 config(**{'grid_cols': '(4, 75, 0, 0)', 'grid_multi_cols': '[4, (0, 16, 0, 0), (3, 12, 0, 0)]', 'grid_multi_rows': '[10, (0, 8, 0, 0), (1, 23, 0, 0), (2, 10, 0, 0), (4, 13, 0, 0), (5, 23, 0, 0), (8, 12, 0, 0), (9, 23, 0, 0)]', 'grid_rows': '(10, 25, 0, 0)'})
 
 LinkButton('Back',**{'text': 'Back', 'bd': '3', 'link': 'introduction/create.py'}).grid(**{'column': '1', 'sticky': 'nsw', 'row': '9'})
@@ -19,6 +22,7 @@ Message('Message',**{'text': "Do you wonder why you don't see them? Because they
 LinkButton('Next',**{'text': 'Next', 'bd': '3', 'link': 'introduction/layouts.py'}).grid(**{'column': '2', 'sticky': 'nes', 'row': '9'})
 
 ### CODE ===================================================
+this_container.grid_remove()
+this_container.after(100,this_container.grid)
 send("SELECTION_CHANGED")
-Geometry_Refresh(200,widget('/'))
 ### ========================================================

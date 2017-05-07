@@ -1,3 +1,7 @@
+### CODE ===================================================
+this_container=container()
+### ========================================================
+
 config(**{'grid_cols': '(4, 75, 0, 0)', 'grid_multi_cols': '[4, (0, 11, 0, 0), (1, 67, 0, 0), (3, 10, 0, 0)]', 'grid_multi_rows': '[7, (0, 10, 0, 0), (4, 8, 0, 0), (6, 8, 0, 0)]', 'grid_rows': '(7, 25, 0, 0)'})
 
 Frame('Frame',**{'grid_multi_rows': '[2, (0, 0, 0, 0)]', 'height': '50', 'width': '50', 'grid_cols': '(2, 75, 0, 0)', 'grid_rows': '(2, 25, 0, 0)'})
@@ -21,12 +25,11 @@ LinkLabel('layouts',**{'text': 'layouts', 'font': 'TkFixedFont 12 bold underline
 LinkLabel('place',**{'text': 'place', 'font': 'TkFixedFont 12 bold underline', 'link': 'introduction/place.py', 'fg': 'blue'}).grid(**{'column': '2', 'sticky': 'e', 'row': '5'})
 
 ### CODE ===================================================
+this_container.grid_remove()
+this_container.after(100,this_container.grid)
 
 unregister_msgid('TOPLEVEL_CLOSED')
 send('ACTIVATE_MOUSEMENU')
 _Application.deiconify()
 send('SELECTION_CHANGED')
-
-Geometry_Refresh(200,widget('/'))
-
 ### ========================================================

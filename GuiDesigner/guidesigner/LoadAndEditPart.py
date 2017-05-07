@@ -1,14 +1,16 @@
 ### CODE ===================================================
+import os
 
-def show_load_dialog_part2(msg,root = widget('/')):
+def show_load_dialog_part2(msg,root = widget('/'),os=os):
 
-    file_opt = options = {}
-    options['defaultextension'] = '.py'
-    options['filetypes'] = [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')]
-    options['initialfile'] = 'Backup.py'
-    options['parent'] = root
-    options['title'] = 'Load & Edit (part): ' + msg
-    
+    file_opt = {
+        'defaultextension' : '.py',
+        'filetypes' : [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')],
+        'initialfile' : 'guipart.py',
+        'parent' : root,
+        'title' : 'Load & Edit (part): ' + msg,
+        'initialdir' : os.path.join(os.getcwd(),'Scripts') }
+
     filename = tkFileDialog.askopenfilename(**file_opt)
     if filename:
         selection_before = Selection()
