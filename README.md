@@ -2,7 +2,10 @@
 Tkinter GUI Designer, the only one with advanced Grid Design
 and individual table settings per row and column
 
-New : Further File Dialogs and Images for MenuItems
+New :
+
+- Export of Menus and PhotoImages in tkinter style
+- better name export und reimport for export 'tk (names)' 
 
 The GUI Designer includes Help pages and an introduction
 

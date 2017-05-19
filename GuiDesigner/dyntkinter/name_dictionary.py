@@ -10,6 +10,16 @@ class GuiDictionary:
         if name in self.elements: return self.elements[name][nr]
         return None
 
+    def eraseEntry(self,name,index):
+        dictionary=self.elements	
+        if name in dictionary:
+            elist = dictionary[name]
+            e = elist[index]
+            elist.pop(index)
+            if len(elist)==0: dictionary.pop(name,None)
+            return e
+        else: return None
+
     def getChildrenList(self):
         element_list = []
         for name,entry in self.elements.items():
@@ -26,14 +36,14 @@ class GuiDictionary:
         for name,entry in self.elements.items():
             for index in range(len(entry)):
                 if entry[index] == reference:
-                    if len(entry) == 1: return (name,-1)
-                    else: return (name,index)
-        return (None,None)
+                    if len(entry) == 1: return name,-1
+                    else: return name,index
+        return None,None
 
     def getNameAndIndexByStringAddress(self,reference_string):
         for name,entry in self.elements.items():
             for index in range(len(entry)):
                 if str(entry[index]) == reference_string:
-                    if len(entry) == 1: return (name,-1)
-                    else: return (name,index)
-        return (None,None)
+                    if len(entry) == 1: return name,-1
+                    else: return name,index
+        return None,None

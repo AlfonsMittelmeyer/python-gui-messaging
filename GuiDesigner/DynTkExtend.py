@@ -1,6 +1,6 @@
 # encoding: UTF-8
 #
-# Copyright 2015 Alfons Mittelmeyer
+# Copyright 2017 Alfons Mittelmeyer
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -14,17 +14,9 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 import tkinter as tk
-import DynTkImage
-from DynTkImage import dynTkLoadImage
-
-def dynTkImage(widget,filename):
-    if filename == "":
-        widget.image = None
-        widget['image'] = ""
-    else:
-        DynTkImage.dynTkImage(widget,filename)
+from tkinter import *
+from functools import partial
 
 # == Fill Listbox with Text ==============================================
 
@@ -84,158 +76,36 @@ def grid_table(container,grid_rows = None, grid_cols = None, grid_multi_rows = N
 # =========  Trigger sash_place in a PanedWindow after some time ==========================
 
 def trigger_sash_place(pane_window,time,index,x_coord,y_coord):
-    pane_window.after(time,lambda i = index, x = x_coord, y=y_coord, function = pane_window.sash_place: function(i,x,y))
+    pane_window.after(time,partial(pane_window.sash_place,index,x_coord,y_coord))
 
-
-# =========  Menu and MenuItem ==========================
-
-def find_root(begin):
-    root = begin
-    while not (isinstance(root,tk.Tk) or isinstance(root,tk.Toplevel)):
-        root = root.master
-    return root
+# =========  Menu  ===================================================
 
 class Menu(tk.Menu):
 
     def __init__(self,master,**kwargs):
- 
-        if isinstance(master,MenuItem):
-            tk.Menu.__init__(self,find_root(master),**kwargs)
-        else:
-            tk.Menu.__init__(self,master,**kwargs)
-        self.master = master
-        self.itemlist = []
+        kwargs.pop('name',None)        
+        tk.Menu.__init__(self,master,**kwargs)
 
-    def select_menu(self):
-        menubase = self.master if (isinstance(self.master,MenuItem) or isinstance(self.master,tk.Menubutton)) else find_root(self)
-        menubase.config(menu=self)
-
-    def selectmenu_forget(self):
-        menubase = self.master if (isinstance(self.master,MenuItem) or isinstance(self.master,tk.Menubutton)) else find_root(self)
-        menubase.config(menu='')
-
-    def layout(self): self.select_menu()
-    def unlayout(self): self.selectmenu_forget()
-
-    def add_to_itemlist(self,menu_item):
-        self.itemlist.append(menu_item)
-
-    def get_item_index(self,menu_item):
-
-        index = -1
-        for i in range(len(self.itemlist)):
-            if self.itemlist[i] == menu_item:
-                index = i;
-                break
-        return index
-
-    def remove_from_itemlist(self,menu_item):
-        self.itemlist.pop(self.itemlist.index(menu_item))
-
-    def item_list_len(self):
-        return len(self.itemlist)
-
-    def destroy(self):
-        if isinstance(self.master,MenuItem): self.master = find_root(self)
-        tk.Menu.destroy(self)
-
-
-
-class MenuItem:
-
-    def __init__(self,master,mytype='command',**kwargs):
-
-        self.photoimage = kwargs.pop('photoimage','')
-        self.mytype = mytype
-        self.master = master
-        master.add_to_itemlist(self)
+    def add(self,itemtype,**kwargs):
         kwargs.pop('name',None)
-        master.add(mytype,**kwargs)
-        self.config(photoimage = self.photoimage)
+        tk.Menu.add(self,itemtype,**kwargs)
 
-    # required for dynTkImage
-    def __setitem__(self, key, item): 
-        confdict = { key : item }
-        self.config(**confdict)
+    def add_command(self,**kwargs):
+        self.add('command',**kwargs)
 
-    def destroy(self):
-        offset = self.master['tearoff']
-        index = self.master.get_item_index(self)
-        self.master.delete(index+offset)
-        self.master.remove_from_itemlist(self)
+    def add_separator(self,**kwargs):
+        self.add('separator',**kwargs)
 
-    def layout(self,**kwargs):
-        self.item_change_index(**kwargs)
+    def add_checkbutton(self,**kwargs):
+        self.add('checkbutton',**kwargs)
 
-    def item_change_index(self,index):
+    def add_radiobutton(self,**kwargs):
+        self.add('radiobutton',**kwargs)
 
-        offset = self.master['tearoff']
-        old_index = self.master.get_item_index(self)
-        new_index = old_index
-        try:
-            new_index = int(index) -1
-        except ValueError: return
+    def add_cascade(self,**kwargs):
+        self.add('cascade',**kwargs)
 
-        if new_index != old_index:
-            limit = self.master.item_list_len()
-            if new_index >= 0 and new_index < limit:
-
-                confdict = dict(self.get_confdict())
-                self.master.delete(old_index+offset)
-                self.master.insert(new_index+offset,self.mytype,confdict)
-                del self.master.itemlist[old_index]
-                self.master.itemlist.insert(new_index,self)
-
-    def config(self,**kwargs):
-        offset = self.master['tearoff']
-        index = self.master.get_item_index(self) + offset
-        if 'photoimage' in kwargs: dynTkImage(self,kwargs.pop('photoimage'))
-        self.master.entryconfig(index,**kwargs)
-
-    def get_index(self):
-        offset = self.master['tearoff']
-        return self.master.get_item_index(self) + offset
-
-    def get_confdict(self):
-        offset = self.master['tearoff']
-        index = self.master.get_item_index(self) + offset
-        dictionary = {}
-        for entry in (
-'activebackground',
-'activeforeground',
-'accelerator',
-'background',
-'bitmap',
-'columnbreak',
-'command',
-'font',
-'foreground',
-'hidemargin',
-'image',
-'indicatoron',
-'label',
-'menu',
-'offvalue',
-'onvalue',
-'selectcolor',
-'selectimage',
-'state',
-'underline',
-'value',
-'variable'
-):
-            try:
-                dictionary[entry] = self.master.entrycget(index,entry)
-            except tk.TclError: pass
-        return dictionary
-
-class MenuDelimiter():
-    def __init__(self,master,**kwargs):
-
-        self.master = master
+    def entryconfig(self,index,**kwargs):
         kwargs.pop('name',None)
-        self.master.entryconfig(0,**kwargs)
-
-    def config(self,**kwargs):
-        self.master.entryconfig(0,**kwargs)
+        tk.Menu.entryconfig(self,index,**kwargs)
 

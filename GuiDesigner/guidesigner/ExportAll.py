@@ -6,7 +6,7 @@ def show_save_dialog(msg,root = widget('/'),os=os):
     file_opt = {
         'defaultextension' : '.py',
         'filetypes' : [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')],
-        'initialfile' : 'exportnames.py',
+        'initialfile' : 'expn.py',
         'parent' : root,
         'title' : 'Export Tk with names: ' + msg,
         'initialdir' : os.path.join(os.getcwd(),'Export') }
