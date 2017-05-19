@@ -1,15 +1,15 @@
 MenuItem('Config','command',background='green', label='Config ON')
-MenuItem('Create','command',background='green', label='Create ON', columnbreak=1)
+MenuItem('Create','command',background='green', columnbreak=1, label='Create ON')
 MenuItem('File','cascade',label='File')
 goIn()
 
-Menu('Menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('Access','cascade',label='Save Access')
 goIn()
 
-Menu('Menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('Container','command',label='Container Depth')
@@ -41,7 +41,7 @@ goOut()
 MenuItem('Export','cascade',label='Export tkinter')
 goIn()
 
-Menu('Menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('Help','command',label='Help')
@@ -86,7 +86,7 @@ MenuItem('Save','command',label='Save')
 MenuItem('Split & Join','cascade',label='Split & Join')
 goIn()
 
-Menu('Menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('Help','command',label='Help')
@@ -203,13 +203,13 @@ MenuItem('Mouse','command',background='green', label='Mouse ON')
 MenuItem('Special','cascade',label='Special')
 goIn()
 
-Menu('Menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('ExpertOptions','cascade',label='Expert Options')
 goIn()
 
-Menu('Menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('Code','command',label='Code')
@@ -294,14 +294,14 @@ goOut()
 MenuItem('help','cascade',label='Help')
 goIn()
 
-Menu('menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('backup','command',label='Backup')
 MenuItem('code_in_scripts','cascade',label='Code in Scripts')
 goIn()
 
-Menu('menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('dynaccess','command',label='DynAccess')
@@ -349,7 +349,7 @@ MenuItem('menu_entries','command',label='Menu Entries')
 MenuItem('programming','cascade',label='Programming')
 goIn()
 
-Menu('menu',bg='white', tearoff=0, activebackground='#7bfeff', relief='solid')
+Menu('menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
 goIn()
 
 MenuItem('access_toplevel','command',label='Access Toplevel')
@@ -430,9 +430,9 @@ select_menu()
 
 goOut()
 
-MenuItem('space','command')
-MenuItem('space','command')
-MenuItem('space','command')
+MenuItem('space','command',state='disabled')
+MenuItem('space','command',state='disabled')
+MenuItem('space','command',state='disabled')
 
 widget('File').layout(index=1)
 widget('Special').layout(index=2)

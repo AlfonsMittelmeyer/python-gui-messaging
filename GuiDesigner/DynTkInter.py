@@ -1626,7 +1626,7 @@ class MenuItem(GuiElement):
 
     def get_index(self):
         offset = self.master['tearoff']
-        return self.master.get_item_index(self) + offset
+        return self.getPackListIndex() + offset
 
     def destroy(self):
         offset = self.master['tearoff']
@@ -2534,8 +2534,13 @@ def saveExport(readhandle,writehandle,flag=False):
 
         setWidgetSelection(widget)
         var_name = getAccessName(widget_name)
-        camelcase_name = makeCamelCase(var_name)
-        camelcase_name = getCamelCaseName(camelcase_name)
+
+        if widget.myclass:
+            camelcase_name = widget.myclass
+        else:
+            camelcase_name = makeCamelCase(var_name)
+            camelcase_name = getCamelCaseName(camelcase_name)
+
         ExportNames[this()] = (var_name,camelcase_name)
         export_menu_entry(filehandle,var_name,camelcase_name)
         return var_name if widget.Layout==MENULAYOUT else None , camelcase_name
@@ -2586,7 +2591,9 @@ def saveExport(readhandle,writehandle,flag=False):
         thisClass = WidgetClass(this())
 
         # own class name, if has widgets
-        if this().hasWidgets():
+        if this().myclass:
+            class_name = this().myclass
+        elif this().hasWidgets():
             class_name = camelcase_name
         else:
             class_name = 'tk.'+thisClass
@@ -2606,12 +2613,13 @@ def saveExport(readhandle,writehandle,flag=False):
             filehandle.write('        self.' + var_name+"_img = tk.PhotoImage(file = '" + this().photoimage + "')\n")
 
         if isinstance(this(),MenuDelimiter):
+            filehandle.write('        # tear off element\n')
             if EXPORT_NAME:
                 export_info['need_ext'] = True
                 filehandle.write('        self.entryconfig(0' + ',' + name_expr(uni_name))
             else:
                 filehandle.write('        self.entryconfig(0')
-            
+
         elif isinstance(this(),MenuItem):
             if this().mytype == 'cascade' :
                 # die Menus in der Cascade abarbeiten
@@ -2628,12 +2636,14 @@ def saveExport(readhandle,writehandle,flag=False):
                 active_menu,create_classes = generate_menu_entries(filehandle)
                 create_menu_list.extend(create_classes)
                 setWidgetSelection(this_widget)
+                filehandle.write('        self.{}_index = {} # index for entryconfig later\n'.format(var_name,this().get_index()))
                 filehandle.write(get_write_add_menuitem(this().mytype,uni_name))
                 if not uni_name: colon = ''
                 if active_menu:
                     filehandle.write(colon + 'menu=self.' +active_menu)
                     colon = ','
             else:
+                filehandle.write('        self.{}_index = {} # index for entryconfig later\n'.format(var_name,this().get_index()))
                 filehandle.write(get_write_add_menuitem(this().mytype,uni_name))
                 if not uni_name: colon = ''
 
@@ -2736,16 +2746,17 @@ def saveExport(readhandle,writehandle,flag=False):
         setWidgetSelection(widget)
         var_name = (widget_name)
 
-        camelcase_name = None
-        if this().hasWidgets():
+        if this().myclass:
+            camelcase_name = this().myclass
+        elif this().hasWidgets():
             camelcase_name = makeCamelCase(var_name)
             camelcase_name = getCamelCaseName(camelcase_name)
-
+        else:
+            camelcase_name = None
         
         uni_name = getAccessAllName(widget_name) if EXPORT_NAME else None
         ExportNames[this()] = (var_name,camelcase_name)
         return exportWidget(filehandle,var_name,camelcase_name,uni_name)
-
 
     # exportContainer called by exportSubcontainer
     # calls exportWidget for the widgets in this container
@@ -2818,7 +2829,7 @@ def saveExport(readhandle,writehandle,flag=False):
             for x in e:
                 setWidgetSelection(x)
                 # shall not be called for MenuItem type 'cascade', which has widgets
-                if this().hasWidgets() and not isinstance(this(),MenuItem): exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
+                if this().myclass or this().hasWidgets() and not isinstance(this(),MenuItem): exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
 
         AccessDictionary.clear()
 
@@ -2836,6 +2847,9 @@ def saveExport(readhandle,writehandle,flag=False):
         filehandle.write('class '+class_name+'(tk.'+thisClass+'):\n\n')
         filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
         filehandle.write('        tk.'+thisClass+'.__init__(self'+thisMaster+',**kwargs)\n')
+        if this().myclass:
+            filehandle.write("        self.myclass = '{}'\n".format(this().myclass))
+            
      
         # only for Application or Toplevel 
         if isinstance(this(),Tk) or isinstance(this(),Toplevel):
