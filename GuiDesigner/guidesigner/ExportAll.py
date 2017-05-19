@@ -15,7 +15,9 @@ def show_save_dialog(msg,root = widget('/'),os=os):
     if name:
         
         import os
-        if os.path.exists(name):
+        # we don't like to merge now
+        #if os.path.exists(name):
+        if False:
 
             head,tail = os.path.split(name)
             readfile = os.path.join(head,"~"+tail)

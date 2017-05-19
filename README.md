@@ -5,7 +5,11 @@ and individual table settings per row and column
 New :
 
 - Export of Menus and PhotoImages in tkinter style
-- better name export und reimport for export 'tk (names)' 
+- better name export and reimport for export 'tk (names)' 
+- indexes for menu entries for easy entryconfig later
+- class names for export
+- overwriting files instead of merging when exporting
+
 
 The GUI Designer includes Help pages and an introduction
 
