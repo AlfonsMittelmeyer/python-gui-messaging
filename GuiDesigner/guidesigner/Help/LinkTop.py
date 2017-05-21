@@ -1,1 +1,1 @@
-Toplevel('HelpLink',**{'link': 'guidesigner/HelpLinkOption.py'})
+Toplevel('HelpLink',**{'link': 'guidesigner/Help/LinkOption.py'})

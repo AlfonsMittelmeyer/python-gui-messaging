@@ -90,6 +90,7 @@ def main():
         ypos = me.winfo_rooty()-me.container().winfo_rooty()
 
         me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True,False]
+        me.lift()
         mouse_move(me)
 
         if this() != me:

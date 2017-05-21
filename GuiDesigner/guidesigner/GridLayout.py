@@ -337,11 +337,13 @@ def main():
 
         if cols <= old_cols:
             container().grid_multi_conf_cols = container().grid_multi_conf_cols[:cols]
+            container().grid_cols = container().grid_cols[:cols]
         else:
             for i in range(cols-old_cols): container().grid_multi_conf_cols.append([False,None])
  
         if rows <= old_rows:
             container().grid_multi_conf_rows = container().grid_multi_conf_rows[:rows]
+            container().grid_rows = container().grid_rows[:rows]
         else:
             for i in range(rows-old_rows): container().grid_multi_conf_rows.append([False,None])
 
@@ -381,6 +383,8 @@ def main():
         if individ:
             container().grid_columnconfigure(cols,minsize = 15,pad=0,weight=0)
             container().grid_rowconfigure(rows,minsize = 15,pad=0,weight=0)
+            container().grid_cols =  container().grid_cols[0:cols]
+            container().grid_rows =  container().grid_rows[0:rows]
             container().grid_conf_individual_done = True
 
         setSelection(selection_before)
@@ -462,6 +466,7 @@ def main():
         #send('SHOW_CONFIG',(None,True))
 
         me.yxplace(ypos,xpos)
+        me.lift()
         app_id[0] = me.myRoot().bind('<ButtonRelease-1>',lambda event=event, wi = me, func=on_app_mouse_up: func(wi))
         mouse_move(me)
 
@@ -530,7 +535,10 @@ set_row_height=set_row_height,
 set_col_width=set_col_width,
 individual = widget('Individual')):
 
+        container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols)
+        container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows)
 
+        
         if this().Layout != LAYOUTNEVER:
             
             if not (container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT or isinstance(this(),Menu) or isinstance(container(),PanedWindow)):
@@ -561,7 +569,7 @@ individual = widget('Individual')):
                     if container().grid_conf_individual_wish: individual.select()
                     else: individual.deselect()
 
-                    update_individual(container())
+                    update_individual_mark(container())
 
                     #set_row_height()
                     #set_col_width()

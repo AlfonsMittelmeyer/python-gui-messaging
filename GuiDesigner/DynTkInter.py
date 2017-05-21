@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
+from collections import Counter
 import tkinter as StatTkInter
 from tkinter import *
 #from tkinter import ttk
@@ -35,8 +35,9 @@ from dyntkinter.grid_tables import *
 from DynTkImports import *
 #from dyntkinter.gui_element import *
 #from dyntkinter.callback import *
+import os
 
-_image_dictionary = None
+_image_dictionary = {}
 
 def PhotoImage(**kwargs):
     img_file = kwargs['file']
@@ -44,20 +45,55 @@ def PhotoImage(**kwargs):
     _image_dictionary[image] = img_file
     return image
 
+try:
+    HAS_PIL = True
+    from PIL import Image as Pil_Image
+    from PIL import ImageTk as Pil_ImageTk
+
+    import dyntkinter.DynTkPil as Image
+    import dyntkinter.DynTkPil as ImageTk
+    Image.init(_image_dictionary)
+except ImportError:
+    HAS_PIL = False
+
+
 def dynTkImage(widget,filename):
-    if filename == "":
+    
+    if filename:
+        path,ext = os.path.splitext(filename)
+        ext = ext.lower()
+
+        if ext in ('.gif','.pgm','.ppm'):
+            widget.image=StatTkInter.PhotoImage(file=filename)
+            widget['image'] = widget.image
+
+        elif HAS_PIL:
+            try:
+                widget.image=Pil_ImageTk.PhotoImage(Pil_Image.open(filename))
+                widget['image'] = widget.image
+            except TypeError:
+                filename = None
+        else:
+            filename = ''
+
+    if not filename:
         widget.image = None
         image = widget.getconfig('image')
         if image:
             widget['image'] = None
-    else:
-        widget.image=StatTkInter.PhotoImage(file=filename)
-        widget['image'] = widget.image
+
     widget.photoimage = filename
     
 
 def dynTkLoadImage(widget,filename):
-    widget.loadimage=StatTkInter.PhotoImage(file=filename)
+        path,ext = os.path.splitext(filename)
+        ext = ext.lower()
+        if ext in ('.gif','.pgm','.ppm'):
+            widget.loadimage=StatTkInter.PhotoImage(file=filename)
+        elif HAS_PIL:
+            # exception handling is missing   
+            widget.loadimage=Pil_ImageTk.PhotoImage(Pil_Image.open(filename))
+           
 
 # instead dynTkLoadImage is used by Canvas - create_image, get_image
 '''
@@ -209,6 +245,9 @@ def set_photoimage_from_image(element,kwargs):
         if image in _image_dictionary:
             element.photoimage = _image_dictionary[image]
 
+def remove_trailing_elements(my_list,trailing_value):
+    while my_list[-1] == trailing_value:
+         my_list.pop()         
 
 # wird aufgerufen von _initGuiElement und divdersen anderen Klassen
 class GuiElement:
@@ -262,6 +301,54 @@ class GuiElement:
         self.grid_conf_individual_done = False
         self.grid_multi_conf_cols = []
         self.grid_multi_conf_rows = []
+        self.grid_cols = []
+        self.grid_rows = []
+
+    def grid_rowconfigure(self,row,**kwargs):
+        self.tkClass.grid_rowconfigure(self,row,**kwargs)
+        self._do_rowconfigure(row,**kwargs)
+
+    def rowconfigure(self,row,**kwargs):
+        self.tkClass.rowconfigure(self,row,**kwargs)
+        self._do_rowconfigure(row,**kwargs)
+
+    def _do_rowconfigure(self,row,**kwargs):
+        # extend grid_cols if not long enough
+        for index in range(len(self.grid_rows),row+1):
+            self.grid_rows.append((0,0,0))
+        # get entry as list, overwite parameters and store it back
+        entry = list(self.grid_rows[row])
+        for key,value in kwargs.items():
+            if key == 'minsize':
+                entry[0] = value
+            elif key == 'pad':
+                entry[1] = value
+            elif key == 'weight':
+                entry[2] = value
+        self.grid_rows[row] = tuple(entry)
+
+    def grid_columnconfigure(self,column,**kwargs):
+        self.tkClass.columnconfigure(self,column,**kwargs)
+        self._do_columnconfigure(column,**kwargs)
+
+    def columnconfigure(self,column,**kwargs):
+        self.tkClass.columnconfigure(self,column,**kwargs)
+        self._do_columnconfigure(column,**kwargs)
+
+    def _do_columnconfigure(self,column,**kwargs):
+        # extend grid_cols if not long enough
+        for index in range(len(self.grid_cols),column+1):
+            self.grid_cols.append((0,0,0))
+        # get entry as list, overwite parameters and store it back
+        entry = list(self.grid_cols[column])
+        for key,value in kwargs.items():
+            if key == 'minsize':
+                entry[0] = value
+            elif key == 'pad':
+                entry[1] = value
+            elif key == 'weight':
+                entry[2] = value
+        self.grid_cols[column] = tuple(entry)
 
     def config(self,**kwargs):
         if len(kwargs) == 0:
@@ -587,6 +674,7 @@ class GuiElement:
             del dictionary['disabledimage']
             dictionary['disabledphotoimage'] = self.disabledphotoimage
         return dictionary
+
 
 class GuiContainer(GuiElement):
 
@@ -920,7 +1008,7 @@ class Tk(GuiContainer,StatTkInter.Tk):
     def __init__(self,myname=None,**kwargs):
 
         global proxy,_image_dictionary,Stack,SelfStack,ObjectStack,CanvasDefaults
-        _image_dictionary = {}
+        _image_dictionary.clear()
         Stack= []
         ObjectStack = []
         SelfStack = []
@@ -1531,7 +1619,7 @@ def CanvasItem(master,item_id,do_append = True):
     '''
 
 class MenuDelimiter(GuiElement):
-    def __init__(self,myname="menu_delimiter",**kwargs):
+    def __init__(self,myname="tearoff",**kwargs):
         self.photoimage = kwargs.pop('photoimage','')
         self.myclass = kwargs.pop('myclass','')
         master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem",kwargs)
@@ -1849,6 +1937,34 @@ def EraseNames():
 
 def Lock(): this().isLocked=True
 
+
+# =============== grid_config aus tuples
+def get_grid_multilist(iterable,most_common,keys):
+    return [ [item != most_common, dict(zip(keys, item))] for item in iterable ]
+
+def most_in(sequence):
+    most_common = None
+    if sequence:
+        most_common = Counter(sequence).most_common(1)[0][0]
+    return most_common
+       
+def remove_trailing(sequence, value):
+    while sequence and sequence[-1] == value:
+        sequence.pop()
+
+def get_gridconfig(iterable):
+    if not iterable:
+        return None,[]
+
+    #remove_trailing(iterable,(0,0,0))
+    most_common = most_in(iterable)
+    config = get_grid_multilist(iterable,most_common,('minsize','pad','weight'))
+
+    general = [len(iterable)]
+    general.extend(most_common)
+    return tuple(general),config
+
+
 # ============= New Save Functions ===================================================================
 
 indent = ""
@@ -2051,6 +2167,8 @@ def check_individual_grid(multi_list):
             break
     return is_individual
 
+
+
 def get_save_config():
 
     dictionaryConfig = getconfdict()
@@ -2065,28 +2183,31 @@ def get_save_config():
         if class_type(type(e)) == "Tcl_Obj":
             dictionaryConfig[n] = str(e)
 
+    this().grid_conf_rows,this().grid_multi_conf_rows = get_gridconfig(this().grid_rows)
+
     if this().grid_conf_rows != None:
         if this().grid_conf_rows[0] != 0:
-            if this().grid_conf_individual_has:
-                if check_individual_grid(this().grid_multi_conf_rows):
-                    conf_list = [len(this().grid_multi_conf_rows)]
-                    index = 0
-                    for entry in this().grid_multi_conf_rows:
-                        if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
-                        index += 1
-                    dictionaryConfig['grid_multi_rows'] = repr(conf_list)
+            if check_individual_grid(this().grid_multi_conf_rows):
+                conf_list = [len(this().grid_multi_conf_rows)]
+                index = 0
+                for entry in this().grid_multi_conf_rows:
+                    if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
+                    index += 1
+                dictionaryConfig['grid_multi_rows'] = repr(conf_list)
             dictionaryConfig['grid_rows'] =repr(this().grid_conf_rows)
+
+    
+    this().grid_conf_cols,this().grid_multi_conf_cols = get_gridconfig(this().grid_cols)
 
     if this().grid_conf_cols != None:
         if this().grid_conf_cols[0] != 0:
-            if this().grid_conf_individual_has:
-                if check_individual_grid(this().grid_multi_conf_cols):
-                    conf_list = [len(this().grid_multi_conf_cols)]
-                    index = 0
-                    for entry in this().grid_multi_conf_cols:
-                        if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
-                        index += 1
-                    dictionaryConfig['grid_multi_cols'] = repr(conf_list)
+            if check_individual_grid(this().grid_multi_conf_cols):
+                conf_list = [len(this().grid_multi_conf_cols)]
+                index = 0
+                for entry in this().grid_multi_conf_cols:
+                    if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
+                    index += 1
+                dictionaryConfig['grid_multi_cols'] = repr(conf_list)
             dictionaryConfig['grid_cols'] = repr(this().grid_conf_cols)
             
     return dictionaryConfig
@@ -2384,7 +2505,7 @@ def saveAccess(filehandle,isWidgets=False):
 def saveExport(readhandle,writehandle,flag=False):
 
     EXPORT_NAME = flag # export with or without names
-    export_info = { 'NameNr': 0 , 'need_ext' : False }
+    export_info = { 'NameNr': 0 , 'need_ext' : False , 'need_pil' : False, 'need_grid' : False }
 
     # ExportNames contains the widgwet names {widget : (name,nameCamelCase)}
     # entries are made by exportContainer
@@ -2483,7 +2604,7 @@ def saveExport(readhandle,writehandle,flag=False):
         # !!! Achtung grid sollte im container behandelt werden und nicht zweimal
         # add irregular parameters as additionale functions
         if len(grid_dict) != 0:
-            export_info['need_ext'] = True
+            export_info['need_grid'] = True
             filehandle.write('        tk.grid_table(self.'+var_name+','+generate_keyvalues(grid_dict)+')\n')
         if lbtext:
             export_info['need_ext'] = True
@@ -2610,7 +2731,14 @@ def saveExport(readhandle,writehandle,flag=False):
             optional = "'"+this().mytype
 
         if this().photoimage:
-            filehandle.write('        self.' + var_name+"_img = tk.PhotoImage(file = '" + this().photoimage + "')\n")
+            fotofile = this().photoimage
+            path,ext = os.path.splitext(fotofile)
+            ext = ext.lower()
+            if ext in ('.gif','.pgm','.ppm'):
+                filehandle.write("        self.{}_img = tk.PhotoImage(file = '{}')\n".format(var_name,fotofile))
+            else:
+                export_info['need_pil'] = True
+                filehandle.write("        self.{}_img = ImageTk.PhotoImage(Image.open('{}'))\n".format(var_name,fotofile))
 
         if isinstance(this(),MenuDelimiter):
             filehandle.write('        # tear off element\n')
@@ -2636,14 +2764,14 @@ def saveExport(readhandle,writehandle,flag=False):
                 active_menu,create_classes = generate_menu_entries(filehandle)
                 create_menu_list.extend(create_classes)
                 setWidgetSelection(this_widget)
-                filehandle.write('        self.{}_index = {} # index for entryconfig later\n'.format(var_name,this().get_index()))
+                this().master.named_indexes.append(var_name)
                 filehandle.write(get_write_add_menuitem(this().mytype,uni_name))
                 if not uni_name: colon = ''
                 if active_menu:
                     filehandle.write(colon + 'menu=self.' +active_menu)
                     colon = ','
             else:
-                filehandle.write('        self.{}_index = {} # index for entryconfig later\n'.format(var_name,this().get_index()))
+                this().master.named_indexes.append(var_name)
                 filehandle.write(get_write_add_menuitem(this().mytype,uni_name))
                 if not uni_name: colon = ''
 
@@ -2779,6 +2907,9 @@ def saveExport(readhandle,writehandle,flag=False):
         # for MenuDelimiter and MenuItems
         if isinstance(container(),Menu):
             accesslist = []
+            container().named_indexes = []
+            
+            
 
             # first look for MenuDelimiter
             if container()['tearoff']:
@@ -2814,6 +2945,15 @@ def saveExport(readhandle,writehandle,flag=False):
 
             export_pack_entries(filehandle)
 
+        if isinstance(container(),Menu):
+            if container().named_indexes:
+                offset = container()['tearoff']
+                filehandle.write('        # indexes for entryconfig later\n')
+                for index,name in enumerate(container().named_indexes):
+                    filehandle.write('        self.{}_index = {}\n'.format(name,index+offset))
+                del container().named_indexes
+
+
         # now we save sub containers ==============================================
 
     
@@ -2843,6 +2983,11 @@ def saveExport(readhandle,writehandle,flag=False):
         
         if isinstance(this(),Tk): thisMaster = ''
         else: thisMaster = ',master'
+
+        if isinstance(this(),Tk):
+            filehandle.write("# Application definition ============================\n\n")
+        elif isinstance(this(),Toplevel):
+            filehandle.write("# Toplevel definition ===============================\n\n")
             
         filehandle.write('class '+class_name+'(tk.'+thisClass+'):\n\n')
         filehandle.write('    def __init__(self'+thisMaster+',**kwargs):\n')
@@ -2863,11 +3008,34 @@ def saveExport(readhandle,writehandle,flag=False):
             if geo: filehandle.write('        self.geometry('+repr(geo)+")\n")
             
             grid_dict = get_grid_dict(conf_dict)
-            if len(grid_dict) != 0:
-                filehandle.write('        tk.grid_table(self,'+generate_keyvalues(grid_dict)+')\n')
-                print("gridtable in Class Definition")
+            if len(conf_dict) != 0:
+                filehandle.write('        # self configuration ===================================\n')
+                filehandle.write('        self.config('+generate_keyvalues(conf_dict)+")\n")
 
-            if len(conf_dict) != 0: filehandle.write('        self.config('+generate_keyvalues(conf_dict)+")\n")
+            if len(grid_dict) != 0:
+
+                export_info['need_grid'] = True
+
+                if 'grid_rows' in grid_dict or 'grid_cols' in grid_dict:
+                    filehandle.write('        # general grid definition ==============================\n')
+                    if 'grid_rows' in grid_dict:
+                        filehandle.write('        grid_general_rows(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_rows))
+                    if 'grid_cols' in grid_dict:
+                        filehandle.write('        grid_general_cols(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_cols))
+
+                if 'grid_multi_rows' in grid_dict or 'grid_multi_cols' in grid_dict:
+                    filehandle.write('        # individual grid definition ===========================\n')
+                    if 'grid_multi_rows' in grid_dict:
+                        for index,entry in enumerate(this().grid_multi_conf_rows):
+                            if entry[0]:
+                                filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                                
+                    if 'grid_multi_cols' in grid_dict:
+                        for index,entry in enumerate(this().grid_multi_conf_cols):
+                            if entry[0]:
+                                filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+
+        filehandle.write('        # widget definitions ===================================\n')
 
         # after class definition export the content     
         goIn()
@@ -2878,6 +3046,8 @@ def saveExport(readhandle,writehandle,flag=False):
 
         export_info['NameNr'] = 0
         export_info['need_ext'] = False
+        export_info['need_pil'] = False
+        export_info['need_grid'] = False
 
         # clear global dictionary
         CamelCaseDictionary.clear()
@@ -2914,6 +3084,27 @@ def saveExport(readhandle,writehandle,flag=False):
             writehandle.write('import tkinter as tk\n')
         writehandle.write('#import DynTkInter as tk # for GuiDesigner\n\n')
 
+        if export_info['need_pil']:
+            writehandle.write('from PIL import Image,ImageTk\n')
+            writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n\n')
+
+        if export_info['need_grid']:
+            writehandle.write('''# for development ==================================
+def show_grid_table(container,rows,columns):
+    for row in range(rows):
+        for column in range(columns):
+            tk.Frame(container,relief= 'solid',bd =1,bg ='#b3d9d9').grid(row=row, column=column, sticky='news')
+
+# === general grid table definition =================
+def grid_general_rows(container,rows,**kwargs):
+    for row in range(rows):
+        container.rowconfigure(row,**kwargs)
+ 
+def grid_general_cols(container,columns,**kwargs):
+    for column in range(columns):
+        container.columnconfigure(column,**kwargs)
+
+''')
 
         # if no readhandle then write the generated GUI to file
         if readhandle == None:

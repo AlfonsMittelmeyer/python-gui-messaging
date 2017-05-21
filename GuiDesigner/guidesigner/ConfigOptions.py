@@ -67,12 +67,12 @@ def choose_bitmap(entry,title,root=widget('/'),os=os):
         'title' : title,
         'initialdir' : os.path.join(os.getcwd(),'Bitmaps') }
 
-
     filename = tkFileDialog.askopenfilename(**file_opt)
     if filename:
+        filename = os.path.relpath(filename)
         setconfig(entry.mydata,'@'+filename)
         entry.delete(0,END)	
-        entry.insert(0,'@'+filename)
+        entry.insert(0,getconfig(entry.mydata))
 
 # for Return key or mouse klick: get active selection from the listbox, hide the listbox, set the layout and insert the text in the Entry for showing
 
@@ -159,10 +159,10 @@ def choose_image(entry,title,root=widget('/'),os=os):
 
     filename = tkFileDialog.askopenfilename(**file_opt)
     if filename:
+        filename = os.path.relpath(filename)
         setconfig(entry.mydata,filename)
         entry.delete(0,END)	
-        entry.insert(0,filename)
-
+        entry.insert(0,getconfig(entry.mydata))
 
 def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame,color_action = do_color_action,text_color = do_text_color,color_button = create_color_button,e_event=entry_event,lbox_select=listbox_selection,wcanvas = my_canvas,no_refresh=undo_refresh,geo_refresh=geometry_refresh,choose_image=choose_image):
 
@@ -383,11 +383,11 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                     # help info message box for sticky option
                     elif entry[0] =="myclass":
                         Button(text="?").rcgrid(0,2)
-                        do_command(lambda par = this(): messagebox.showinfo("Widget Class","The Widget Class 'myclass' isn't supported for GUI Export",parent=par))
+                        do_command(lambda par = this(): messagebox.showinfo("Widget Class","If you enter a class name, this name for the class will be exported instead a generated one",parent=par))
 
                     elif entry[0] =="link":
                         Button(text="?").rcgrid(0,2)
-                        do_command(lambda: load_script('guidesigner/HelpLinkTop.py'))
+                        do_command(lambda: load_script('guidesigner/Help/LinkTop.py'))
 
                     elif entry[0] =="cursor":
                         Button(text="?").rcgrid(0,2)

@@ -24,55 +24,6 @@ def fill_listbox_with_string(listbox,string):
     listbox.delete(0,'end')		
     for e in string.split("\n"): listbox.insert('end',e)
 
-# ======= Grid Table ======================================================
-
-def grid_configure_multi(data):
-    count = data[0]
-    multi = []
-    for i in range(count): multi.append([False,None])
-    for i in range(len(data)):
-        if i != 0:
-            multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3]}]
-    return multi
-
-def grid_configure_cols(container,grid_conf_cols,grid_multi_conf_cols,isColumns=True):
-
-    cols = grid_conf_cols[0]
-
-    if len(grid_multi_conf_cols) == 0:
-        for i in range(cols): grid_multi_conf_cols.append([False,None])
-
-    to_insert =  {'minsize':grid_conf_cols[1],'pad':grid_conf_cols[2],'weight':grid_conf_cols[3]}
-    
-    for col in range(cols):
-        if grid_multi_conf_cols[col][0] == False:
-            grid_multi_conf_cols[col][1] = dict(to_insert)
-
-    for col in range(cols):
-        if isColumns:
-            container.grid_columnconfigure(col,**(grid_multi_conf_cols[col][1]))
-        else:
-            container.grid_rowconfigure(col,**(grid_multi_conf_cols[col][1]))
-
-def grid_table(container,grid_rows = None, grid_cols = None, grid_multi_rows = None, grid_multi_cols = None):
-
-    grid_multi_conf_cols = []
-    grid_multi_conf_rows = []
-
-    if grid_multi_rows != None:
-        grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
-
-    if grid_multi_cols != None:
-        grid_multi_conf_cols = grid_configure_multi(eval(grid_multi_cols))
-
-    if grid_cols != None:
-        grid_conf_cols = eval(grid_cols)
-        grid_configure_cols(container,grid_conf_cols,grid_multi_conf_cols)
-
-    if grid_rows != None:
-        grid_conf_rows = eval(grid_rows)
-        grid_configure_cols(container,grid_conf_rows,grid_multi_conf_rows,False)
-
 # =========  Trigger sash_place in a PanedWindow after some time ==========================
 
 def trigger_sash_place(pane_window,time,index,x_coord,y_coord):
