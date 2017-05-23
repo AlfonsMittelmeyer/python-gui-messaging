@@ -337,13 +337,11 @@ def main():
 
         if cols <= old_cols:
             container().grid_multi_conf_cols = container().grid_multi_conf_cols[:cols]
-            container().grid_cols = container().grid_cols[:cols]
         else:
             for i in range(cols-old_cols): container().grid_multi_conf_cols.append([False,None])
  
         if rows <= old_rows:
             container().grid_multi_conf_rows = container().grid_multi_conf_rows[:rows]
-            container().grid_rows = container().grid_rows[:rows]
         else:
             for i in range(rows-old_rows): container().grid_multi_conf_rows.append([False,None])
 
@@ -383,8 +381,6 @@ def main():
         if individ:
             container().grid_columnconfigure(cols,minsize = 15,pad=0,weight=0)
             container().grid_rowconfigure(rows,minsize = 15,pad=0,weight=0)
-            container().grid_cols =  container().grid_cols[0:cols]
-            container().grid_rows =  container().grid_rows[0:rows]
             container().grid_conf_individual_done = True
 
         setSelection(selection_before)
@@ -535,10 +531,13 @@ set_row_height=set_row_height,
 set_col_width=set_col_width,
 individual = widget('Individual')):
 
-        container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols)
-        container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows)
 
-        
+        if not container().grid_conf_cols:
+            container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols,this().grid_cols_how_many)
+
+        if not container().grid_conf_rows:
+            container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows,this().grid_rows_how_many)
+
         if this().Layout != LAYOUTNEVER:
             
             if not (container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT or isinstance(this(),Menu) or isinstance(container(),PanedWindow)):

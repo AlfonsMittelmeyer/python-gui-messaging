@@ -24,6 +24,7 @@ from tkinter import filedialog as tkFileDialog
 from tkinter import messagebox
 from tkinter import colorchooser
 from copy import copy
+from functools import partial
 
 import traceback
 import queue
@@ -303,6 +304,8 @@ class GuiElement:
         self.grid_multi_conf_rows = []
         self.grid_cols = []
         self.grid_rows = []
+        self.grid_rows_how_many = {}
+        self.grid_cols_how_many = {}
 
     def grid_rowconfigure(self,row,**kwargs):
         self.tkClass.grid_rowconfigure(self,row,**kwargs)
@@ -325,7 +328,13 @@ class GuiElement:
                 entry[1] = value
             elif key == 'weight':
                 entry[2] = value
-        self.grid_rows[row] = tuple(entry)
+        t_entry = tuple(entry)
+        self.grid_rows[row] = t_entry
+
+        if t_entry not in self.grid_rows_how_many:
+            self.grid_rows_how_many[t_entry] = set()
+        self.grid_rows_how_many[t_entry].add(row)
+            
 
     def grid_columnconfigure(self,column,**kwargs):
         self.tkClass.columnconfigure(self,column,**kwargs)
@@ -348,7 +357,14 @@ class GuiElement:
                 entry[1] = value
             elif key == 'weight':
                 entry[2] = value
-        self.grid_cols[column] = tuple(entry)
+
+        t_entry = tuple(entry)
+        self.grid_cols[column] = t_entry
+
+        if t_entry not in self.grid_cols_how_many:
+            self.grid_cols_how_many[t_entry] = set()
+        self.grid_cols_how_many[t_entry].add(column)
+        
 
     def config(self,**kwargs):
         if len(kwargs) == 0:
@@ -1245,6 +1261,7 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
         self.canvas_pyimages = {}
         self.canvas_image_files = {}
         self.canvas_widget = None
+
         
     def delete(self,item):
 
@@ -1292,11 +1309,22 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
         if 'disabledphotoimage' in kwargs: kwargs['disabledimage'] = self.get_image(kwargs.pop('disabledphotoimage'))
         if 'window' in kwargs: kwargs['window'].Layout = WINDOWLAYOUT
         if 'tags' in kwargs: send('CANVAS_TAGCHANGED',item)
+        if 'image' in kwargs: self.get_given_image(kwargs['image'])
+        if 'activeimage' in kwargs: self.get_given_image(kwargs['activeimage'])
+        if 'diabledimage' in kwargs: self.get_given_image(kwargs['disabledimage'])
         self.tkClass.itemconfig(self,item,**kwargs)
 
     def destroy(self):
         self.delete(ALL)
         GuiElement.destroy(self)
+
+    def get_given_image(self,image):
+        if not image in self.canvas_pyimages:
+            if image in _image_dictionary:
+                filename = _image_dictionary[image]
+                self.canvas_image_files[filename] = image
+                self.canvas_pyimages[str(image)] = filename
+        return image
 
     def get_image(self,filename):
         if filename in self.canvas_image_files: return self.canvas_image_files[filename]
@@ -1306,7 +1334,6 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
         loadimage = self.loadimage
         self.loadimage = None
         return loadimage
-
 
     def get_itemconfig(self,item_id):
         dictionary = {}
@@ -1446,7 +1473,7 @@ class PanedWindow(GuiElement,StatTkInter.PanedWindow):
         _initGuiElement(kwargs,StatTkInter.PanedWindow,self,myname,"panedwindow",True)
 
     def trigger_sash_place(self,time,index,x_coord,y_coord):
-        self.after(time,lambda pwin = self, i = index, x = x_coord, y=y_coord, function = self.tkClass.sash_place: function(pwin,i,x,y))
+        self.after(time,lambda i = index, x = x_coord, y=y_coord, function = self.sash_place: function(i,x,y))
 
     def add(self,child,**kwargs):
         global PANELAYOUT
@@ -1584,15 +1611,21 @@ class CanvasItemWidget(GuiElement):
         if len(kwargs) == 0:
     
             if self.master.type(self.item_id) == 'image':
-               self.photoimage = '' 
-               self.activephotoimage = '' 
-               self.disabledphotoimage = ''
-               img = self.master.itemcget(self.item_id,'image')
-               if img in self.master.canvas_pyimages: self.photoimage = self.master.canvas_pyimages[img]
-               img = self.master.itemcget(self.item_id,'activeimage')
-               if img in self.master.canvas_pyimages: self.activephotoimage = self.master.canvas_pyimages[img]
-               img = self.master.itemcget(self.item_id,'disabledimage')
-               if img in self.master.canvas_pyimages: self.disabledphotoimage = self.master.canvas_pyimages[img]
+                self.photoimage = '' 
+                self.activephotoimage = '' 
+                self.disabledphotoimage = ''
+
+                img = self.master.itemcget(self.item_id,'image')
+                if img in self.master.canvas_pyimages:
+                    self.photoimage = self.master.canvas_pyimages[img]
+
+                img = self.master.itemcget(self.item_id,'activeimage')
+                if img in self.master.canvas_pyimages:
+                    self.activephotoimage = self.master.canvas_pyimages[img]
+
+                img = self.master.itemcget(self.item_id,'disabledimage')
+                if img in self.master.canvas_pyimages:
+                    self.disabledphotoimage = self.master.canvas_pyimages[img]
 
             return self.master.get_itemconfig(self.item_id)
         else:
@@ -1626,12 +1659,14 @@ class MenuDelimiter(GuiElement):
         self.master = master
         kwargs.pop('name',None)
         StatTkInter.Menu.entryconfig(self.master,0,**kwargs)
+        # neccessary during menu creation at start up time
+        if self.master['tearoff']:
+            self.master.after(1,lambda kwargs=kwargs,master=self.master: StatTkInter.Menu.entryconfig(master,0,**kwargs))
+        
         self.tkClass = Dummy
         self.isContainer = False
         GuiElement.__init__(self,myname,select)
         self.Layout = LAYOUTNEVER
-        if _Application.config_menuitems['delimiter'] == None:
-            self.config()
 
 
     def config(self,**kwargs):
@@ -1678,6 +1713,9 @@ class MenuDelimiter(GuiElement):
             if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
             if 'photoimage' in kwargs: dynTkImage(self,kwargs.pop('photoimage'))
             StatTkInter.Menu.entryconfig(self.master,0,**kwargs)
+            # neccessary during menu creation at start up time
+            if self.master['tearoff']:
+                self.master.after(1,lambda kwargs=kwargs,master=self.master: StatTkInter.Menu.entryconfig(master,0,**kwargs))
 
 
 class MenuItem(GuiElement):
@@ -1939,31 +1977,34 @@ def Lock(): this().isLocked=True
 
 
 # =============== grid_config aus tuples
-def get_grid_multilist(iterable,most_common,keys):
-    return [ [item != most_common, dict(zip(keys, item))] for item in iterable ]
+def get_grid_multilist(iterable,most_used,keys):
+    return [ [item != most_used, dict(zip(keys, item))] for item in iterable ]
 
-def most_in(sequence):
-    most_common = None
-    if sequence:
-        most_common = Counter(sequence).most_common(1)[0][0]
-    return most_common
-       
-def remove_trailing(sequence, value):
-    while sequence and sequence[-1] == value:
-        sequence.pop()
+def most_of(how_many):
+    count = 0
+    element = None
+    for key,value in how_many.items():
+        if len(value) > count:
+            count = len(value)
+            element = key
+    return element,count
+        
+def get_gridconfig(iterable,how_many):
 
-def get_gridconfig(iterable):
     if not iterable:
         return None,[]
 
-    #remove_trailing(iterable,(0,0,0))
-    most_common = most_in(iterable)
-    config = get_grid_multilist(iterable,most_common,('minsize','pad','weight'))
+    if len(iterable) == 1:
+        most_used = (0,0,0)
+    else:
+        most_used,count = most_of(how_many)
+        if count < len(iterable):
+            most_used = (0,0,0)
 
+    config = get_grid_multilist(iterable,most_used,('minsize','pad','weight'))
     general = [len(iterable)]
-    general.extend(most_common)
+    general.extend(most_used)
     return tuple(general),config
-
 
 # ============= New Save Functions ===================================================================
 
@@ -2183,9 +2224,11 @@ def get_save_config():
         if class_type(type(e)) == "Tcl_Obj":
             dictionaryConfig[n] = str(e)
 
-    this().grid_conf_rows,this().grid_multi_conf_rows = get_gridconfig(this().grid_rows)
 
-    if this().grid_conf_rows != None:
+    if not this().grid_conf_rows:
+        this().grid_conf_rows,this().grid_multi_conf_rows = get_gridconfig(this().grid_rows,this().grid_rows_how_many)
+
+    if this().grid_conf_rows:
         if this().grid_conf_rows[0] != 0:
             if check_individual_grid(this().grid_multi_conf_rows):
                 conf_list = [len(this().grid_multi_conf_rows)]
@@ -2197,9 +2240,10 @@ def get_save_config():
             dictionaryConfig['grid_rows'] =repr(this().grid_conf_rows)
 
     
-    this().grid_conf_cols,this().grid_multi_conf_cols = get_gridconfig(this().grid_cols)
+    if not this().grid_conf_cols:
+        this().grid_conf_cols,this().grid_multi_conf_cols = get_gridconfig(this().grid_cols,this().grid_cols_how_many)
 
-    if this().grid_conf_cols != None:
+    if this().grid_conf_cols:
         if this().grid_conf_cols[0] != 0:
             if check_individual_grid(this().grid_multi_conf_cols):
                 conf_list = [len(this().grid_multi_conf_cols)]
@@ -2255,7 +2299,8 @@ def save_canvas(filehandle):
 
     filehandle.write("\ncanvas=container()\n\n")
     for item in item_list:
-        coords = canvas.coords(item)
+        floatcoords = canvas.coords(item)
+        coords = (int(i) for i in floatcoords)
         filehandle.write('coords = (')
         begin = True
         for entry in coords:
@@ -2308,6 +2353,7 @@ def save_canvas(filehandle):
         for key,value in conf_copy.items():
             if value == '': del config[key]
             
+        '''
         if len(config) != 0:
             filehandle.write('canvas.itemconfig(item,**{')
             begin = True
@@ -2319,6 +2365,19 @@ def save_canvas(filehandle):
                 else:
                     filehandle.write("'"+key+"':"+repr(value))
             filehandle.write("})\n\n")
+        '''
+
+        if len(config) != 0:
+            filehandle.write('canvas.itemconfig(item,')
+            begin = True
+            for key,value in config.items():
+                if begin: begin = False
+                else: filehandle.write(',')
+                if key == 'window':
+                    filehandle.write(key+" = "+value)
+                else:
+                    filehandle.write(key+" = "+repr(value))
+            filehandle.write(")\n\n")
         
         
 
@@ -2505,7 +2564,7 @@ def saveAccess(filehandle,isWidgets=False):
 def saveExport(readhandle,writehandle,flag=False):
 
     EXPORT_NAME = flag # export with or without names
-    export_info = { 'NameNr': 0 , 'need_ext' : False , 'need_pil' : False, 'need_grid' : False }
+    export_info = { 'NameNr': 0 , 'need_ext' : False , 'need_ext_tearoff' : False, 'need_pil' : False, 'need_grid_cols' : False, 'need_grid_cols' : False, 'need_sash' : False, 'need_lbox' : False }
 
     # ExportNames contains the widgwet names {widget : (name,nameCamelCase)}
     # entries are made by exportContainer
@@ -2597,18 +2656,15 @@ def saveExport(readhandle,writehandle,flag=False):
 
         # generate regular parameters
         if len(conf_dict) != 0:
+            if isinstance(this(),MenuDelimiter):
+                export_info['need_ext_tearoff'] = True
             filehandle.write(colon + generate_keyvalues(conf_dict)+")\n")
         else:
              filehandle.write(")\n")
 
-        # !!! Achtung grid sollte im container behandelt werden und nicht zweimal
-        # add irregular parameters as additionale functions
-        if len(grid_dict) != 0:
-            export_info['need_grid'] = True
-            filehandle.write('        tk.grid_table(self.'+var_name+','+generate_keyvalues(grid_dict)+')\n')
         if lbtext:
-            export_info['need_ext'] = True
-            filehandle.write('        tk.fill_listbox_with_string(self.'+var_name+','+repr(lbtext)+')\n')
+            export_info['need_lbox'] = True
+            filehandle.write('        fill_listbox_with_string(self.'+var_name+','+repr(lbtext)+')\n')
         # if photoimage: filehandle.write('        ext.dynTkImage(self.'+var_name+",'"+photoimage+"')\n")
 
 
@@ -2857,8 +2913,117 @@ def saveExport(readhandle,writehandle,flag=False):
                 except: break
 
             for i in range(len(sash_list)):
-                export_info['need_ext'] = True
-                filehandle.write("        tk.trigger_sash_place(self,"+str((i+1)*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+                export_info['need_sash'] = True
+                filehandle.write("        trigger_sash_place(self,"+str((i+1)*500)+","+str(i)+","+str(sash_list[i][0])+","+str(sash_list[i][1])+")\n")
+
+
+    def export_photo(image_ref,fotofile,filehandle):
+
+        path,ext = os.path.splitext(fotofile)
+        ext = ext.lower()
+
+        if ext in ('.gif','.pgm','.ppm'):
+            filehandle.write("        {} = tk.PhotoImage(file = '{}')\n".format(image_ref,fotofile))
+        else:
+            export_info['need_pil'] = True
+            filehandle.write("        {} = ImageTk.PhotoImage(Image.open('{}'))\n".format(image_ref,fotofile))
+
+
+    def export_canvas(filehandle):
+
+
+
+        image_nr = 0
+
+        canvas = container()
+        item_list = canvas.find_all()
+        if len(item_list) == 0: return
+
+        for item in item_list:
+            floatcoords = canvas.coords(item)
+            coords = (int(i) for i in floatcoords)
+            filehandle.write('        coords = (')
+            begin = True
+            for entry in coords:
+                if begin: begin = False
+                else: filehandle.write(',')
+                filehandle.write(str(entry))
+            filehandle.write(')\n')
+            filehandle.write('        item = self.create_')
+            filehandle.write(canvas.type(item))
+            filehandle.write('(*coords)\n')
+
+            config = canvas.get_itemconfig(item)
+            ConfDictionaryShort(config)
+            
+            dictionaryCompare = CanvasDefaults[canvas.type(item)]
+
+            for n,e in dict(config).items():
+                if n in dictionaryCompare:
+                    if e == dictionaryCompare[n]: config.pop(n,None)
+
+            if canvas.type(item) == 'image':
+
+                img_ref = 'self.image_{}'.format(image_nr)
+                image_nr += 1
+
+                config.pop('image',None)
+                config.pop('activeimage',None)
+                config.pop('disabledimage',None)
+
+
+                img = canvas.itemcget(item,'image')
+                if img in canvas.canvas_pyimages:
+                    fotofile = canvas.canvas_pyimages[img]
+                    img_ref = 'self.image_{}'.format(image_nr)
+                    image_nr += 1
+                    export_photo(img_ref,fotofile,filehandle)
+                    config['image'] = img_ref
+                    
+                   
+                img = canvas.itemcget(item,'activeimage')
+                if img in canvas.canvas_pyimages:
+                    fotofile = canvas.canvas_pyimages[img]
+                    img_ref = 'self.image_{}'.format(image_nr)
+                    image_nr += 1
+                    export_photo(image_ref,fotofile,filehandle)
+                    config['activeimage'] = img_ref
+
+                img = canvas.itemcget(item,'disabledimage')
+                if img in canvas.canvas_pyimages:
+                    fotofile = canvas.canvas_pyimages[img]
+                    img_ref = 'self.image_{}'.format(image_nr)
+                    image_nr += 1
+                    export_photo(image_ref,fotofile,filehandle)
+                    config['disabledimage'] = img_ref
+
+
+            elif canvas.type(item) == 'window':
+                window = canvas.itemcget(item,'window')
+                if window != "":
+                    name,index = canvas.Dictionary.getNameAndIndexByStringAddress(window)
+                    if name != None:
+                        if index == -1:
+                            config['window'] = "self."+name
+                        else:
+                            config['window'] = "widget('"+name+"',"+str(index)+')'
+                
+            conf_copy = dict(config)
+            for key,value in conf_copy.items():
+                if value == '': del config[key]
+        
+            if len(config) != 0:
+                filehandle.write('        self.itemconfig(item,')
+                begin = True
+                for key,value in config.items():
+                    if begin: begin = False
+                    else: filehandle.write(',')
+                    if key in ('window','image','activeimage','disabledimage'):
+                        filehandle.write(key+" = "+value)
+                    else:
+                        filehandle.write(key+" = "+repr(value))
+                filehandle.write(")\n\n")
+
 
     def get_key_of_value(value,dictionary):
         for key,widgetlist in dictionary.items():
@@ -2945,6 +3110,9 @@ def saveExport(readhandle,writehandle,flag=False):
 
             export_pack_entries(filehandle)
 
+            if isinstance(container(),Canvas): export_canvas(filehandle)
+
+
         if isinstance(container(),Menu):
             if container().named_indexes:
                 offset = container()['tearoff']
@@ -2969,7 +3137,8 @@ def saveExport(readhandle,writehandle,flag=False):
             for x in e:
                 setWidgetSelection(x)
                 # shall not be called for MenuItem type 'cascade', which has widgets
-                if this().myclass or this().hasWidgets() and not isinstance(this(),MenuItem): exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
+                if not isinstance(this(),CanvasItemWidget):
+                    if this().myclass or this().hasWidgets() and not isinstance(this(),MenuItem): exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
 
         AccessDictionary.clear()
 
@@ -3014,26 +3183,32 @@ def saveExport(readhandle,writehandle,flag=False):
 
             if len(grid_dict) != 0:
 
-                export_info['need_grid'] = True
 
-                if 'grid_rows' in grid_dict or 'grid_cols' in grid_dict:
+                if 'grid_rows' in grid_dict and this().grid_conf_cols[1:] != (0,0,0) or 'grid_cols' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
                     filehandle.write('        # general grid definition ==============================\n')
-                    if 'grid_rows' in grid_dict:
+                    if 'grid_rows' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
                         filehandle.write('        grid_general_rows(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_rows))
-                    if 'grid_cols' in grid_dict:
+                        export_info['need_grid_rows'] = True
+                    if 'grid_cols' in grid_dict and this().grid_conf_cols[1:] != (0,0,0):
                         filehandle.write('        grid_general_cols(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_cols))
+                        export_info['need_grid_cols'] = True
 
                 if 'grid_multi_rows' in grid_dict or 'grid_multi_cols' in grid_dict:
                     filehandle.write('        # individual grid definition ===========================\n')
                     if 'grid_multi_rows' in grid_dict:
                         for index,entry in enumerate(this().grid_multi_conf_rows):
-                            if entry[0]:
+                            if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
                                 filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                        if this().grid_conf_rows[1:] == (0,0,0) and this().grid_multi_conf_rows[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                            filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
                                 
                     if 'grid_multi_cols' in grid_dict:
                         for index,entry in enumerate(this().grid_multi_conf_cols):
-                            if entry[0]:
+                            if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
                                 filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                        if this().grid_conf_cols[1:] == (0,0,0) and this().grid_multi_conf_cols[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                            filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
+                            
 
         filehandle.write('        # widget definitions ===================================\n')
 
@@ -3046,8 +3221,12 @@ def saveExport(readhandle,writehandle,flag=False):
 
         export_info['NameNr'] = 0
         export_info['need_ext'] = False
+        export_info['need_ext_tearoff'] = False
         export_info['need_pil'] = False
-        export_info['need_grid'] = False
+        export_info['need_grid_cols'] = False
+        export_info['need_grid_rows'] = False
+        export_info['need_sash'] = False
+        export_info['need_lbox'] = False
 
         # clear global dictionary
         CamelCaseDictionary.clear()
@@ -3076,19 +3255,25 @@ def saveExport(readhandle,writehandle,flag=False):
                 ExportNames.clear()
                 return error
             class_dict[entry[0]] = entry[1]
+                            
             
         # write imports
+
+
         if export_info['need_ext']:
             writehandle.write('import DynTkExtend as tk\n')
+        elif export_info['need_ext_tearoff']:
+            writehandle.write('import DynTkExtend as tk  # required because entryconfig(0, ...) needs some time for taking effect\n')
         else:
             writehandle.write('import tkinter as tk\n')
+                            
         writehandle.write('#import DynTkInter as tk # for GuiDesigner\n\n')
 
         if export_info['need_pil']:
             writehandle.write('from PIL import Image,ImageTk\n')
             writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n\n')
 
-        if export_info['need_grid']:
+        if export_info['need_grid_cols'] or export_info['need_grid_rows']:
             writehandle.write('''# for development ==================================
 def show_grid_table(container,rows,columns):
     for row in range(rows):
@@ -3096,15 +3281,39 @@ def show_grid_table(container,rows,columns):
             tk.Frame(container,relief= 'solid',bd =1,bg ='#b3d9d9').grid(row=row, column=column, sticky='news')
 
 # === general grid table definition =================
-def grid_general_rows(container,rows,**kwargs):
+''')
+
+        if export_info['need_grid_rows']:
+            writehandle.write('''def grid_general_rows(container,rows,**kwargs):
     for row in range(rows):
         container.rowconfigure(row,**kwargs)
+
+''')
  
-def grid_general_cols(container,columns,**kwargs):
+        if export_info['need_grid_cols']:
+            writehandle.write('''def grid_general_cols(container,columns,**kwargs):
     for column in range(columns):
         container.columnconfigure(column,**kwargs)
 
 ''')
+
+
+        if export_info['need_sash']:
+            writehandle.write('''# =========  Trigger sash_place in a PanedWindow after some time ==========================
+def trigger_sash_place(pane_window,time,index,x_coord,y_coord):
+    pane_window.after(time,lambda i = index, x = x_coord, y=y_coord, function = pane_window.sash_place: function(i,x,y))
+
+''')
+
+        if export_info['need_lbox']:
+            writehandle.write('''# == Fill Listbox with Text ==============================================
+def fill_listbox_with_string(listbox,string):
+    listbox.delete(0,'end')		
+    for e in string.split('\\n'):
+        listbox.insert('end',e)
+
+''')
+
 
         # if no readhandle then write the generated GUI to file
         if readhandle == None:

@@ -13,6 +13,7 @@ New before:
 Very New:
 - export and reimport of grid tables in tkinter style
   via rowconfigure and columnconfigure
+- Export of Canvas Items
 
 The GUI Designer includes Help pages and an introduction
 
