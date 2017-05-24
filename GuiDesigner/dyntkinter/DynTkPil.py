@@ -1,17 +1,20 @@
-from PIL import Image as Pil_Image
-from PIL import ImageTk as Pil_ImageTk
-
-def open(filename):
-    global Pil_Imagefile
-    Pil_Imagefile = filename
-    return Pil_Image.open(filename)
-
-def PhotoImage(pil_image):
-    image = Pil_ImageTk.PhotoImage(pil_image)
-    _image_dictionary[image] = Pil_Imagefile
+from PIL.Image import *
+from PIL.Image import open as image_open
+ 
+from PIL.ImageTk import BitmapImage as BitmapImage
+from PIL.ImageTk import PhotoImage as imagetk_photoimage
+ 
+ 
+def open(filename,mode='r'):
+    image = image_open(filename,mode)
+    image.filename = filename
     return image
-
-def init(image_dict):
-    global _image_dictionary
-    _image_dictionary = image_dict
-    
+ 
+   
+def PhotoImage(pil_image):
+    image = imagetk_photoimage(pil_image)
+    image.filename = getattr(pil_image, 'filename', '')
+    if image.filename:
+        pil_image.filename = None
+    return image
+ 

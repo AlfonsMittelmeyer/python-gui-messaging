@@ -38,12 +38,11 @@ from DynTkImports import *
 #from dyntkinter.callback import *
 import os
 
-_image_dictionary = {}
-
 def PhotoImage(**kwargs):
-    img_file = kwargs['file']
-    image = StatTkInter.PhotoImage(file=img_file)
-    _image_dictionary[image] = img_file
+    if 'file' in kwargs:
+        img_file = kwargs['file']
+        image = StatTkInter.PhotoImage(file=img_file)
+        image.filename = img_file
     return image
 
 try:
@@ -53,9 +52,10 @@ try:
 
     import dyntkinter.DynTkPil as Image
     import dyntkinter.DynTkPil as ImageTk
-    Image.init(_image_dictionary)
+
 except ImportError:
     HAS_PIL = False
+
 
 
 def dynTkImage(widget,filename):
@@ -95,31 +95,14 @@ def dynTkLoadImage(widget,filename):
             # exception handling is missing   
             widget.loadimage=Pil_ImageTk.PhotoImage(Pil_Image.open(filename))
            
+#Stack = []
 
-# instead dynTkLoadImage is used by Canvas - create_image, get_image
-'''
-def dynTkActiveImage(widget,filename):
-    DynTkImage.dynTkActiveImage(widget,filename)
-    widget.activephotoimage = filename
-
-def dynTkDisabledImage(widget,filename):
-    DynTkImage.dynTkDisabledImage(widget,filename)
-    widget.disabledphotoimage = filename
-'''
-'''
-def dynTkBitmap(widget,filename):
-    DynTkImage.dynTkBitmap(widget,filename)
-    widget.bitmapfile = filename
-'''
-
-Stack = []
-
-def pop(index=-1): return Stack.pop(index)
-def push(x): Stack.append(x)
-def top(): return Stack[-1]
-def first(): return Stack[-1]
-def second(): return Stack[-2]
-def third(): return Stack[-3]
+#def pop(index=-1): return Stack.pop(index)
+#def push(x): Stack.append(x)
+#def top(): return Stack[-1]
+#def first(): return Stack[-1]
+#def second(): return Stack[-2]
+#def third(): return Stack[-3]
 
 ObjectStack = []
 SelfStack = []
@@ -155,13 +138,8 @@ class CommandFromDataEvCode:
         SelfStack.pop()
 
 
-def EvCmd(evstring): return CommandFromEvCode(compile(evstring,'<string>', 'exec'))
+# def EvCmd(evstring): return CommandFromEvCode(compile(evstring,'<string>', 'exec'))
 
-def EvDataCmd(evstring,data=None):
-    if type(evstring) is str: return CommandFromDataEvCode(compile(evstring,'<string>', 'exec'),data)
-    cmd = copy(evstring)
-    cmd.data = data
-    return cmd 
 
 def dummyfunction(par):pass
 
@@ -186,9 +164,9 @@ class Callback:
             elif parameters != None: self.parameters = [parameters]
         else:
             self.parameters = parameters
-            if type(function) is str: self.function = EvCmd(function)
-            else:
-                self.function = function
+            #if type(function) is str: self.function = EvCmd(function)
+            #else:
+            self.function = function
 
     # for execution later =======
         
@@ -241,11 +219,10 @@ CanvasDefaults = {}
 class Dummy: pass
 
 def set_photoimage_from_image(element,kwargs):
-    if 'image' in kwargs:
-        image = kwargs['image']
-        if image in _image_dictionary:
-            element.photoimage = _image_dictionary[image]
-
+    image = kwargs.pop('image',None)
+    if image:
+        element.photoimage = getattr(image, 'filename', '')
+        
 def remove_trailing_elements(my_list,trailing_value):
     while my_list[-1] == trailing_value:
          my_list.pop()         
@@ -439,9 +416,6 @@ class GuiElement:
         if self.tkClass != Dummy:
             if self.tkClass == Tk: self.quit()
             else: 
-                # changed
-                # if isinstance(self.master,MenuItem): self.master = self.myRoot()
-                # needed for tkinter?
                 if isinstance(self.master,MenuItem):
                     self.master = self.master.master
                 if widget_exists(self): self.tkClass.destroy(self)
@@ -468,14 +442,10 @@ class GuiElement:
     def do_command(self,function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False):
         cmd = Callback(self,function,parameters,wishWidget,wishEvent,wishSelf).setEvent
         self.config(command = lambda event=None: execute_lambda(cmd(event)))
-        #cmd = Callback(self,function,parameters,wishWidget,wishEvent,wishSelf).receive
-        #self.config(command = cmd)
 
     def do_event(self,eventkey,function,parameters=None,wishWidget=False,wishEvent=False,wishSelf=False):
         cmd = Callback(self,function,parameters,wishWidget,wishEvent,wishSelf).setEvent
         self.bind(eventkey,lambda event: execute_lambda(cmd(event)))
-        #cmd = Callback(self,function,parameters,wishWidget,wishEvent,wishSelf).receive
-        #self.bind(eventkey,cmd)
 
     # used by the GUI Creator: it tries to take the name of the widget as text. So Labels, Buttons and LabelFrames may be easily identified when doing the layout
     def text(self,mytext):
@@ -1023,9 +993,8 @@ class Tk(GuiContainer,StatTkInter.Tk):
 
     def __init__(self,myname=None,**kwargs):
 
-        global proxy,_image_dictionary,Stack,SelfStack,ObjectStack,CanvasDefaults
-        _image_dictionary.clear()
-        Stack= []
+        global proxy,SelfStack,ObjectStack,CanvasDefaults
+        #Stack= []
         ObjectStack = []
         SelfStack = []
         VAR.clear()
@@ -1312,7 +1281,7 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
         if 'image' in kwargs: self.get_given_image(kwargs['image'])
         if 'activeimage' in kwargs: self.get_given_image(kwargs['activeimage'])
         if 'diabledimage' in kwargs: self.get_given_image(kwargs['disabledimage'])
-        self.tkClass.itemconfig(self,item,**kwargs)
+        return self.tkClass.itemconfig(self,item,**kwargs)
 
     def destroy(self):
         self.delete(ALL)
@@ -1320,8 +1289,8 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
 
     def get_given_image(self,image):
         if not image in self.canvas_pyimages:
-            if image in _image_dictionary:
-                filename = _image_dictionary[image]
+            filename = getattr(image, 'filename', None)
+            if filename:
                 self.canvas_image_files[filename] = image
                 self.canvas_pyimages[str(image)] = filename
         return image
@@ -1636,7 +1605,7 @@ class CanvasItemWidget(GuiElement):
             if 'disabledphotoimage' in kwargs:
                 self.disabledphotoimage = kwargs['disabledphotoimage']
 
-            self.master.itemconfig(self.item_id,**kwargs)
+            return self.master.itemconfig(self.item_id,**kwargs)
 
 
 def CanvasItem(master,item_id,do_append = True):
@@ -1879,32 +1848,6 @@ def get(): return this().get()
 def Selection(): return copy(_Selection)
 
 
-'''
-def allDictEntries(dictionary,cmd,data=None):
-    for n,e in dictionary.items():
-        ObjectStack.append((e,n,data))
-        cmd()
-        ObjectStack.pop()
-'''
-    
-'''
-GetContLayoutsCmd = EvCmd("Stack[-1] |= this().Layout")
-
-def allContainerEntries(container,cmd=EvCmd("pass")):
-    SelectionBefore=Selection()
-    dictionary=container.Dictionary.elements
-    elementlist = []
-    values=dictionary.values()	
-
-    for e in values:
-        for n in e:
-            elementlist.append(n)
-    for e in elementlist:
-        setWidgetSelection(e)
-        cmd.execute()
-    
-    setSelection(SelectionBefore)
-'''
 
 def getNameAndIndex():
     name,index = container().Dictionary.getNameAndIndex(this())
