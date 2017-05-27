@@ -59,7 +59,7 @@ def hide_pack_or_grid(gridly=widget('GridLayout')):
         if this().tkClass == StatTkInter.Menu:
             gridly.unlayout()
 
-        elif container() != this() and container().tkClass == StatTkInter.PanedWindow:
+        elif container() != this() and container().tkClass in (StatTkInter.PanedWindow,tkinter.tk.PanedWindow):
             gridly.unlayout()
 
         elif container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT:

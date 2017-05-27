@@ -58,7 +58,7 @@ def hide_pack_or_grid(placely=widget('PlaceLayout')):
         if this().tkClass == StatTkInter.Menu:
             placely.unlayout()
 
-        elif container() != this() and container().tkClass == StatTkInter.PanedWindow:
+        elif container() != this() and container().tkClass in (StatTkInter.PanedWindow,StatTtk.PanedWindow):
             placely.unlayout()
 
         elif container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT:

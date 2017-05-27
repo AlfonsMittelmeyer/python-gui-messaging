@@ -63,7 +63,7 @@ def hide_pack_or_grid(itemly=widget('ItemLayout'),menuly=widget('MenuLayout')):
             itemly.unlayout()
             menuly.grid()
 
-        elif container() != this() and container().tkClass == StatTkInter.PanedWindow:
+        elif container() != this() and container().tkClass in (StatTkInter.PanedWindow,tkinter.tk.PanedWindow):
             itemly.unlayout()
             menuly.unlayout()
 

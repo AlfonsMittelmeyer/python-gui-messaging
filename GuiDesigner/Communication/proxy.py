@@ -67,7 +67,7 @@ class Proxy:
         self.send_immediate(*data)
         return True
 
-    def send_immediate(self,msgid,msgdata):
+    def send_immediate(self,msgid,msgdata=None):
         # look up message id and registered callbacks for it and call callback
         if msgid in self.__Dictionary:
             receivers = self.__Dictionary[msgid].items() # items contain callback function and optional_parameter

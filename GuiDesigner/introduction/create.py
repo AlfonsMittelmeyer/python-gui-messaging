@@ -132,7 +132,7 @@ def switch_buttons(buttons=widget('SelectType'),menubuttons=widget('MenuEntryTyp
             menubuttons.pack()
             send('CREATE_CLASS_SELECTED','command')
 
-    elif isinstance(container(),MenuItem) or isinstance(container(),Menubutton):
+    elif isinstance(container(),MenuItem) or isinstance(container(),Menubutton) or isinstance(container(),ttk.Menubutton):
         if cont.mydata[1] != MENULAYOUT:
             cont.mydata[1] = MENULAYOUT
             buttons.unlayout()

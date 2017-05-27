@@ -11,15 +11,17 @@ pack(anchor='nw')
 
 def create_widget(msg):
     widget_type = msg[0]
+    name = msg[1]
+    kwargs = msg[2]
 
     if widget_type in ('cascade','radiobutton','command','separator','checkbutton','delimiter'):
         if isinstance(container(),Menu):
             if widget_type == 'separator':
-                eval("MenuItem('"+msg[1]+"','"+widget_type+"')")
+                eval("MenuItem('{}','{}')".format(name,widget_type))
             elif widget_type == 'delimiter':
-                eval("MenuDelimiter('"+msg[1]+"')")
+                eval("MenuDelimiter('{}')".format(name))
             else:
-                eval("MenuItem('"+msg[1]+"','"+widget_type+"',label='"+msg[1]+"')")
+                eval("MenuItem('{}','{}',label = '{}')".format(name,widget_type,name))
             send('SELECTION_CHANGED')
         else:
             print("Wrong handling: cannot create a menu item outside a menu")
@@ -27,8 +29,9 @@ def create_widget(msg):
         print("Wrong handling: cannot create a widget inside a menu")
     else:
         if widget_type == "Toplevel": cdApp()
-        eval(widget_type+"('"+msg[1]+"')")
-        text(msg[1])
+        #eval("{}('{}')".format(widget_type,name))
+        eval("{}('{}',**{})".format(widget_type,name,kwargs))
+        text(name)
         send('SELECTION_CHANGED')
 
 

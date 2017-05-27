@@ -10,7 +10,7 @@ for widget_type in ("Message","Label","Button","Checkbutton","Radiobutton","Entr
     row,column = divmod(index,3) # position in 3 columns
     rcgrid(row,column) # grid layout row,column
 
-    do_command(lambda msg = widget_type: send('CREATE_CLASS_SELECTED',msg)) # buttons send message with class name
+    do_command(lambda msg = (decapitalize(widget_type),widget_type): send('CREATE_CLASS_SELECTED',msg)) # buttons send message with class name
     index += 1 # increase index
 
 widget("Paint Canvas").config(fg='blue',font="TkDefaultFont 9 bold",activeforeground="blue",command="")

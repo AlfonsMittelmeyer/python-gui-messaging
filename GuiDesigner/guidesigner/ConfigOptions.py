@@ -194,6 +194,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 
             no_refresh()
             current_selection = Selection() # save current selection
+            selected_widget = this()
             cont.grid()
             setWidgetSelection(msg) # set selection for current user widget
             maxlen = 0
@@ -324,6 +325,8 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                 elif entry[0] in (
 "digits", # Scale (Integer default 0)
 "width", # often (Integer default 0)
+"borderwidth", # often (Integer default 0)
+"padding", # often (Integer default 0)
 "activewidth", # often (Integer default 0)
 "disabledwidth", # often (Integer default 0)
 "height", # often (Integer default 0)
@@ -411,7 +414,8 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                         Listbox(width=7,height=3).fillList(("normal","menubar","tearoff"))
                         lbox_select()
 
-                    elif entry[0] == "style":
+                    elif entry[0] == "style" and isinstance(selected_widget,CanvasItemWidget):
+                        
                         Listbox(width=8,height=3).fillList(("pieslice","chord","arc"))
                         lbox_select()
 
@@ -436,8 +440,12 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                         Listbox(width=5,height=3).fillList(('round','bevel','miter'))
                         lbox_select()
 
-                    elif entry[0] =="anchor":
+                    elif entry[0] in "anchor":
                         Listbox(width=7,height=9).fillList(("center","n","ne","e","se","s","sw","w","nw"))
+                        lbox_select()
+
+                    elif entry[0] in "labelanchor":
+                        Listbox(width=7,height=8).fillList(("n","ne","e","se","s","sw","w","nw"))
                         lbox_select()
 
                     elif entry[0] =="justify":
@@ -457,8 +465,11 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                         lbox_select()
 
                     elif entry[0] =="orient":
-                        Listbox(width=10,height=2).fillList(("vertical","horizontal"))
-                        lbox_select()
+                        if isinstance(selected_widget,StatTtk.PanedWindow):
+                            this()['state'] = 'readonly'
+                        else:
+                            Listbox(width=10,height=2).fillList(("vertical","horizontal"))
+                            lbox_select()
 
                     elif entry[0] =="showhandle":
                         Listbox(width=4,height=2).fillList(("0","1"))

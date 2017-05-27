@@ -540,38 +540,37 @@ individual = widget('Individual')):
 
         if this().Layout != LAYOUTNEVER:
             
-            if not (container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT or isinstance(this(),Menu) or isinstance(container(),PanedWindow)):
+            if not (container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT or isinstance(this(),Menu) or isinstance(container(),PanedWindow) or isinstance(container(),StatTtk.PanedWindow)):
+                not_initialized = container().grid_conf_rows == None
+                if not_initialized:
+                    container().grid_conf_rows = (0,25,0,0)
+                    container().grid_conf_cols = (0,75,0,0)
+                
+                Rows.delete(0,'end')
+                Rows.insert(0,container().grid_conf_rows[0])
+                Height.delete(0,'end')
+                Height.insert(0,container().grid_conf_rows[1])
+                RowPad.delete(0,'end')
+                RowPad.insert(0,container().grid_conf_rows[2])
+                RowWeight.delete(0,'end')
+                RowWeight.insert(0,container().grid_conf_rows[3])
 
-                    not_initialized = container().grid_conf_rows == None
-                    if not_initialized:
-                        container().grid_conf_rows = (0,25,0,0)
-                        container().grid_conf_cols = (0,75,0,0)
-                    
-                    Rows.delete(0,'end')
-                    Rows.insert(0,container().grid_conf_rows[0])
-                    Height.delete(0,'end')
-                    Height.insert(0,container().grid_conf_rows[1])
-                    RowPad.delete(0,'end')
-                    RowPad.insert(0,container().grid_conf_rows[2])
-                    RowWeight.delete(0,'end')
-                    RowWeight.insert(0,container().grid_conf_rows[3])
+                Cols.delete(0,'end')
+                Cols.insert(0,container().grid_conf_cols[0])
+                Width.delete(0,'end')
+                Width.insert(0,container().grid_conf_cols[1])
+                ColPad.delete(0,'end')
+                ColPad.insert(0,container().grid_conf_cols[2])
+                ColWeight.delete(0,'end')
+                ColWeight.insert(0,container().grid_conf_cols[3])
+                
+                if container().grid_conf_individual_wish: individual.select()
+                else: individual.deselect()
 
-                    Cols.delete(0,'end')
-                    Cols.insert(0,container().grid_conf_cols[0])
-                    Width.delete(0,'end')
-                    Width.insert(0,container().grid_conf_cols[1])
-                    ColPad.delete(0,'end')
-                    ColPad.insert(0,container().grid_conf_cols[2])
-                    ColWeight.delete(0,'end')
-                    ColWeight.insert(0,container().grid_conf_cols[3])
-                    
-                    if container().grid_conf_individual_wish: individual.select()
-                    else: individual.deselect()
+                update_individual_mark(container())
 
-                    update_individual_mark(container())
-
-                    #set_row_height()
-                    #set_col_width()
+                #set_row_height()
+                #set_col_width()
 
     do_receive("SELECTION_CHANGED",update_grid_table_on_enter)
 

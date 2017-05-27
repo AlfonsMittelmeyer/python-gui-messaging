@@ -85,7 +85,7 @@ def hide_pack_or_grid(packly=widget('PackLayout'),gridly=widget('GridLayout'),pl
             menuly.grid()
             send("ENABLE_SASH_LIST",False)
 
-        elif container() != this() and container().tkClass == StatTkInter.PanedWindow:
+        elif container() != this() and container().tkClass in (StatTkInter.PanedWindow,StatTtk.PanedWindow):
             packly.unlayout()
             gridly.unlayout()
             placely.unlayout()
