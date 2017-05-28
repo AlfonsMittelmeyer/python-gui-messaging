@@ -188,7 +188,8 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 "padx", # Pack Layout und Grid Layout (Integer default 0)
 "pady", # Pack Layout und Grid Layout (Integer default 0)
 "ipadx", # Pack Layout und Grid Layout (Integer default 0)
-"ipady"): # Pack Layout und Grid Layout (Integer default 0)
+"ipady",
+"weight"): # Pack Layout und Grid Layout (Integer default 0)
                     Spinbox("Entry",from_=0,to=3000,increment=1,width=entry_width)
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
                 elif entry[0] in (

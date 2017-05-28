@@ -37,6 +37,7 @@ def function_get_sash_list(pane_win = container()):
     return sash_list
 
 def change_sash_position(index,x_entry,y_entry,pane_win=container()):
+        
     if isinstance(pane_win.panewindow,StatTtk.PanedWindow):
         if str(pane_win.panewindow['orient']) =='vertical':
             try:
@@ -65,6 +66,7 @@ def change_sash_position(index,x_entry,y_entry,pane_win=container()):
     
 
 def refresh_sash_list(msg,me=container(),get_sash_list = function_get_sash_list,change_pos=change_sash_position,pane_win = container()):
+
     sash_list = get_sash_list()
     if sash_list != None:
         xy_list = []
@@ -104,7 +106,15 @@ def update_sash_values(index,coordinates,sashes = container()):
     sashes.mydata[index][1].delete(0,END)
     sashes.mydata[index][1].insert(0,coordinates[1])
 
-def paned_win_event(event,sash_update=update_sash_values):
+def paned_win_event(event,sash_update=update_sash_values,pane_win=container()):
+
+    if pane_win.panewindow == None or not widget_exists(pane_win.panewindow):
+        return None
+
+    if not pane_win.panewindow.is_setsashes:
+        pane_win.panewindow.is_setsashes = True
+        pane_win.grid()
+
     widget = event.widget
     xpos = event.x
     ypos = event.y
@@ -138,15 +148,25 @@ def enable_motion(enable,pane_win=container(),refresh=refresh_sash_list,paned_ev
         refresh(None)
         enabled_sash.b1_functionid = container().bind('<B1-Motion>',paned_event)
         enabled_sash.enabled = True
+        if pane_win.panewindow.is_setsashes:
+            pane_win.grid()
     else:
         if pane_win.panewindow != None and widget_exists(pane_win.panewindow):
             if enabled_sash.enabled:
                 pane_win.panewindow.unbind('<B1-Motion>',enabled_sash.b1_functionid)
         enabled_sash.enabled = False
+        pane_win.unlayout()
+
+def reset_sashes(msg=None,pane_win=container()):
+    if not pane_win.panewindow.is_setsashes:
+        pane_win.unlayout()
+    
+
 
 # == take another owner because of me.destroyContent() in refresh_sash_list
 proxy.do_receive(container().master,'BASE_LAYOUT_REFRESH',refresh_sash_list)
 proxy.do_receive(container().master,'ENABLE_SASH_LIST',enable_motion)
+proxy.do_receive(container().master,'RESET_SASHES',reset_sashes)
 
 
 ### ========================================================

@@ -31,17 +31,25 @@ def do_color_action(me,msg,parameters=parameters):
         me.delete(0,END)
         me.insert(0,get_entry_as_string(parameters[me.mydata]))
 
-def entry_event(me,parameters=parameters,setconfig=setconfig):
+def entry_event(me,setconfig=setconfig):
     setconfig(me.mydata,me.get())
     me['bg']='gray'
     informLater(300,me,'color',True)
+
+def return_event(me,entry_event=entry_event,parameters=parameters):
+    entry_event(me)
+    pane(**parameters)
+
+    send('UPDATE_MOUSE_SELECT_ON')
+    send("BASE_LAYOUT_CHANGED",NOLAYOUT) # NOLAYOUT because always trigger a sash_list_refreh via event BASE_LAYOUT_REFRESH
+   
 
 widget('weight').delete(0,'end')
 widget('weight').insert(0,parameters['weight'])
 widget('weight').mydata = 'weight'
 widget('weight').do_action('color',do_color_action,wishWidget=True,wishMessage=True)
 widget('weight').do_command(entry_event,wishWidget=True) # via up and down buttons the option value can be changed
-widget('weight').do_event("<Return>",entry_event,None,True)
+widget('weight').do_event("<Return>",return_event,wishWidget=True)
 
 ### ========================================================
 

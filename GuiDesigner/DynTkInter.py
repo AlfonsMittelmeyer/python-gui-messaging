@@ -492,7 +492,6 @@ class GuiElement:
         self.master.add(self,*args,**kwargs)
 
     def pack_forget(self):
-        global NOLAYOUT
         self._removeFromPackList()
         self.tkClass.pack_forget(self)
         self.Layout = NOLAYOUT
@@ -589,7 +588,39 @@ class GuiElement:
         if layout == PACKLAYOUT: self.pack(**kwargs)
         elif layout == GRIDLAYOUT: self.grid(**kwargs)
         elif layout == PLACELAYOUT: self.place(**kwargs)
-        elif layout == PANELAYOUT: self.master.paneconfig(self,**kwargs)
+
+    
+        elif layout == TTKPANELAYOUT:
+
+            if 'weight' in kwargs:
+                try:
+                    int(kwargs['weight'])
+                except ValueError:
+                    kwargs['weight'] = '1'
+                    
+                self.master.child_layouts[self] = kwargs['weight']
+                self.master.is_setsashes = False
+                send("RESET_SASHES")
+                packlist = self.master.PackList
+                for widget in packlist:
+                    widget.master.forget(widget)
+                for widget in packlist:
+                    StatTtk.PanedWindow.add(widget.master,widget,**widget.master.pane_layout(widget))
+                
+
+        elif layout == PANELAYOUT:
+            self.master.paneconfig(self,**kwargs)
+            configlist = []
+            packlist = self.master.PackList
+            self.master.is_setsashes = False
+            send("RESET_SASHES")
+            for widget in packlist:
+                configlist.append((widget,widget.layout_info()))
+            for widget in list(packlist):
+                widget.pane_forget()
+            for item in configlist:
+                item[0].pane(**item[1])
+                
         elif layout == MENUITEMLAYOUT: self.item_change_index(**kwargs)
         elif layout == MENULAYOUT: self.select_menu()
 
@@ -1440,9 +1471,7 @@ class PanedWindow(GuiElement,StatTkInter.PanedWindow):
 
     def __init__(self,myname=None,**kwargs):
         _initGuiElement(kwargs,StatTkInter.PanedWindow,self,myname,"panedwindow",True)
-
-    def trigger_sash_place(self,time,index,x_coord,y_coord):
-        self.after(time,lambda i = index, x = x_coord, y=y_coord, function = self.sash_place: function(i,x,y))
+        self.is_setsashes = False
 
     def add(self,child,*args,**kwargs):
         if child.Layout != PANELAYOUT:
@@ -2109,7 +2138,7 @@ def save_pack_entries(filehandle):
 
             elif this().Layout == TTKPANELAYOUT:
                 filehandle.write(".pane(")
-                layoutCompare = {}
+                layoutCompare = {'weight' : '0' }
 
             for n,e in dict(layoutWidget).items():
                 if e == layoutCompare[n]: layoutWidget.pop(n,None)
@@ -2122,8 +2151,8 @@ def save_pack_entries(filehandle):
            
             filehandle.write(")\n")
 
-    if container().tkClass == StatTkInter.PanedWindow:
-
+    if container().tkClass == StatTkInter.PanedWindow and container().is_setsashes:
+    
         index = 0
         sash_list = []
         while True:
@@ -2137,7 +2166,7 @@ def save_pack_entries(filehandle):
         for i in range(len(sash_list)):
             filehandle.write('container().after(100,lambda funct=container().sash_place: funct({},{},{}))\n'.format(i,sash_list[i][0],sash_list[i][1]))
 
-    elif container().tkClass == StatTtk.PanedWindow:
+    elif container().tkClass == StatTtk.PanedWindow and container().is_setsashes:
 
         index = 0
         sash_list = []
@@ -2880,13 +2909,13 @@ def saveExport(readhandle,writehandle,flag=False):
 
                 elif this().Layout == TTKPANELAYOUT:
                     filehandle.write("add(self."+name) # point already written 'self.'
-                    layoutCompare = {}
+                    layoutCompare = {'weight' : '0'}
 
                 for n,e in dict(layoutWidget).items():
                     if e == layoutCompare[n]: layoutWidget.pop(n,None)
      
                 if len(layoutWidget) != 0:
-                    if this().Layout == PANELAYOUT: filehandle.write(",")
+                    if this().Layout in (PANELAYOUT,TTKPANELAYOUT): filehandle.write(",")
                     
                     for n,e in layoutWidget.items():
                         if class_type(type(e)) == "Tcl_Obj":
@@ -2898,7 +2927,7 @@ def saveExport(readhandle,writehandle,flag=False):
 
             
         # if the container is a PanedWindow, we add the sashes and trigger, that they update correct after 500 ms
-        if isinstance(container(),ttk.PanedWindow):
+        if isinstance(container(),ttk.PanedWindow) and container().is_setsashes:
             index = 0
             sash_list = []
             while True:
@@ -2914,7 +2943,7 @@ def saveExport(readhandle,writehandle,flag=False):
                 filehandle.write('{}self.after(100,lambda funct=self.sashpos: funct({},{}))\n'.format('        ',i,sash_list[i]))
 
         # if the container is a PanedWindow, we add the sashes and trigger, that they update correct after 500 ms
-        elif isinstance(container(),PanedWindow):
+        elif isinstance(container(),PanedWindow) and container().is_setsashes:
 
             index = 0
             sash_list = []
@@ -3523,9 +3552,6 @@ def get_entry_as_string(value):
     
 
 # ========== For Compatibility with Export with Names =============
-
-def trigger_sash_place(pane_window,time,index,x_coord,y_coord):
-    pane_window.after(time,lambda i = index, x = x_coord, y=y_coord, function = pane_window.sash_place: function(i,x,y))
 
 def fill_listbox_with_string(listbox,string):
     listbox.delete(0,END)		

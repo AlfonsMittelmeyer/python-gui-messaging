@@ -50,7 +50,14 @@ class PanedWindow(tk.GuiElement,StatTtk.PanedWindow):
 
     def __init__(self,myname=None,**kwargs):
         tk._initGuiElement(kwargs,StatTtk.PanedWindow,self,myname,"panedwindow",True)
+        
         self.child_layouts = {}
+        self.is_setsashes = False
+
+    def sash_coord(*args):
+        if len(args):
+            self.is_setsashes = True
+        return self.tkClass.sash_coord(self,*args)
 
     def trigger_sash_place(self,time,index,x_coord,y_coord):
         self.after(time,lambda i = index, x = x_coord, y=y_coord, function = self.sash_place: function(i,x,y))
@@ -62,6 +69,8 @@ class PanedWindow(tk.GuiElement,StatTtk.PanedWindow):
             self.tkClass.add(self,child,*args,**kwargs)
             if 'weight' in kwargs:
                 self.child_layouts[child] = kwargs['weight']
+            else:
+                self.child_layouts[child] = '0'
 
     def pane_layout(self,child):
         if child in self.child_layouts:

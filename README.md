@@ -3,13 +3,18 @@ Tkinter GUI Designer, the only one with advanced Grid Design
 and individual table settings per row and column
 
 very new:
+- improvements for PanedWindow and ttk.PanedWindow
+- sashpos and sash_coord will only be saved and exported, if manually changed
+- may be reset by changing a layout option
+- weight may be changed for ttk.PanedWindow panes also afterwards as a layout option
+
+relative new:
+
 - ttk widgets (which also exist in tkinter)
 - you may experiment with TtkSyles.styles.py. This file may be loaded by the GuiDesigner
 
 - bug fixing for PhotoImages (were not deletable, didn't show in menu intems)
 - bug fixing for PanedWindow (was not stable, exceptions could happen)
-
-relative new:
 
 - full support for PIL Image and PIL ImageTk
   (if you import "from DynTkInter import Image, ImageTk"
