@@ -28,7 +28,14 @@ class LanguageSubmenu:
     def _start(self,container = container()):
         self.container = container
         self.deutsch_index = self.container['tearoff']
-        
+        self._create_menu()
+               
+
+    def _create_menu(self):
+        current_selection = Selection()
+        self.create_menu()
+        setSelection(current_selection)
+
         # here should follow own code in tkinter style
         # later the GuiDesigner should be able to export this code
 
@@ -37,14 +44,15 @@ class LanguageSubmenu:
     # after GUI definition: the Code ===========================
     # this code may also be inserted in GuiDesigner Scripts
     
-        self.create_menu()
 
     def create_menu(self):    
+
 
         # for calling more times, delete the menu, which existed before,
         # except the first command
 
         # for marking the end
+        
         self.container.add_checkbutton()
 
         # now we delete the menu entries after deutsch
@@ -68,15 +76,19 @@ class LanguageSubmenu:
 
         languages = ('deutsch','english','russisch','polnisch','italienisch',None,'spanisch','französisch',None,'dänisch')
 
-        for language in languages:
+        for index,language in enumerate(languages):
 
             if not language:
                 self.container.add_separator()
                 continue
-                
+
             command_config['label'] = language
             command_config['command'] = partial(self.do_action,language)
-            self.container.add_command(**command_config)
+                
+            try:
+                self.container.entryconfig(index+self.deutsch_index,**command_config)
+            except IndexError:
+                self.container.add_command(**command_config)
                  
     def do_action(self,language):
         publish("SELECT_LANGUAGE",language)
