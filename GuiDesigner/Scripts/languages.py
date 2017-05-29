@@ -1,13 +1,4 @@
-config(myclass='BOStrab_Fahrzeugeinschraenkung')
-
-Menu('MainMenu',myclass='MenuGUI')
-goIn()
-
-MenuItem('languages','cascade',label='Sprachen')
-goIn()
-
-Menu('language_submenu',myclass='LanguageSubmenu', tearoff=0)
-goIn()
+config(myclass='LanguageSubmenu', tearoff=0)
 
 MenuItem('deutsch','command',label='deutsch')
 
@@ -20,21 +11,16 @@ widget('deutsch').layout(index=1)
 
 # this name doesn't matter. Only for better recognition
 class LanguageSubmenu:
-    def __init__(self):
-
-        self._start()
-        self._dont_save_dynamically_created()
-
-    def _start(self,container = container()):
+    def __init__(self,container = container()):
         self.container = container
         self.deutsch_index = self.container['tearoff']
-        self._create_menu()
+        subscribe('SUBMENU_LANGUAGES',self.receive_languages)
                
-
-    def _create_menu(self):
-        current_selection = Selection()
-        self.create_menu()
-        setSelection(current_selection)
+    def receive_languages(self,languages):
+        current_selection = Selection() # for GuiDesigner the selection shouldn't change
+        self.create_menu(languages) # create the submenu commands annd separators
+        self._dont_save_dynamically_created() # the GUIDesigner shouldn't save dynamically created commands
+        setSelection(current_selection) # for GuiDesigner the selection shouldn't change
 
         # here should follow own code in tkinter style
         # later the GuiDesigner should be able to export this code
@@ -45,7 +31,7 @@ class LanguageSubmenu:
     # this code may also be inserted in GuiDesigner Scripts
     
 
-    def create_menu(self):    
+    def create_menu(self,languages):    
 
 
         # for calling more times, delete the menu, which existed before,
@@ -74,7 +60,8 @@ class LanguageSubmenu:
 
         # now we create dynamic commands
 
-        languages = ('deutsch','english','russisch','polnisch','italienisch',None,'spanisch','französisch',None,'dänisch')
+        # Example
+        # languages = (('Deutsch','german'),None,('English','english'),('Spanisch','spanish'),('Französisch','french'))
 
         for index,language in enumerate(languages):
 
@@ -82,8 +69,8 @@ class LanguageSubmenu:
                 self.container.add_separator()
                 continue
 
-            command_config['label'] = language
-            command_config['command'] = partial(self.do_action,language)
+            command_config['label'] = language[0]
+            command_config['command'] = partial(self.do_action,language[1])
                 
             try:
                 self.container.entryconfig(index+self.deutsch_index,**command_config)
@@ -106,14 +93,3 @@ class LanguageSubmenu:
 LanguageSubmenu()
 
 ### ========================================================
-
-goOut()
-select_menu()
-
-goOut()
-
-
-widget('languages').layout(index=1)
-
-goOut()
-select_menu()

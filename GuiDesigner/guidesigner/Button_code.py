@@ -7,7 +7,7 @@ def test_syntax(me,textwidget):
     setWidgetSelection(me)
     goto("Syntax")
     try:
-        compile(textwidget.get("1.0",'end-1c').encode('utf-8'),'<string>', 'exec')
+        compile(str(textwidget.get("1.0",'end-1c').encode('utf-8')),'<string>', 'exec')
         config(text="Syntax OK",fg="#006000")
         pack(side=LEFT)
     except SyntaxError as e:
@@ -30,7 +30,7 @@ def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax,os=os):
             setWidgetSelection(me)
             widget("Syntax").config(text="IOError: couldn't open file 'tempcode.py'",fg="red")
         if is_open:
-            fh.write(textwidget.get("1.0",'end-1c').encode('utf-8'))
+            fh.write(str(textwidget.get("1.0",'end-1c').encode('utf-8')))
             fh.close()
             undo_receiveAll(current_selection._widget)
             setWidgetSelection(current_selection._widget)
