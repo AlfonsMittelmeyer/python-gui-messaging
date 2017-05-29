@@ -3,12 +3,14 @@ Tkinter GUI Designer, the only one with advanced Grid Design
 and individual table settings per row and column
 
 very new:
+- GuiDesigner and DynTkInter work now also with Python 2.7 instead only with Python 3
+
+relative new:
+
 - improvements for PanedWindow and ttk.PanedWindow
 - sashpos and sash_coord will only be saved and exported, if manually changed
 - may be reset by changing a layout option
 - weight may be changed for ttk.PanedWindow panes also afterwards as a layout option
-
-relative new:
 
 - ttk widgets (which also exist in tkinter)
 - you may experiment with TtkSyles.styles.py. This file may be loaded by the GuiDesigner

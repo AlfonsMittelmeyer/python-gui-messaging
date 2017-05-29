@@ -17,17 +17,30 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import Counter
-import tkinter as StatTkInter
-from tkinter import *
-from tkinter import filedialog as tkFileDialog
-from tkinter import messagebox
-from tkinter import colorchooser
+import sys
+
+try:
+    import tkinter as StatTkInter
+    from tkinter import *
+    from tkinter import filedialog as tkFileDialog
+    from tkinter import messagebox
+    from tkinter import colorchooser
+    import queue
+except ImportError:
+    import Tkinter as StatTkInter
+    from Tkinter import *
+    import tkFileDialog
+    import tkMessageBox as messagebox
+    import tkColorChooser as colorchooser
+    import Queue as queue
+
+def output(param):
+    sys.stdout.write(param+'\n')
 
 from copy import copy
 from functools import partial
 
 import traceback
-import queue
 import Communication.proxy as dynproxy
 from dyntkinter.Selection import Create_Selection
 from dyntkinter.name_dictionary import GuiDictionary
@@ -196,7 +209,7 @@ class Callback:
 
     def call(self,*args): 
         if self.isFunction: return self.function(*args) # a function cannot be copied, but a Callback can. Using different mydata, the functions can behave different.
-        else: print("Please, call only functions.")
+        else: output("Please, call only functions.")
 
 
 _Selection=Create_Selection()
@@ -434,7 +447,7 @@ class GuiElement:
         
 
     def destroyContent(self):
-        if not self.isContainer: print("destroyContent requires a container widget")
+        if not self.isContainer: output("destroyContent requires a container widget")
         else:
             self.CODE = ""
             undo_receiveAll(self)
@@ -577,7 +590,7 @@ class GuiElement:
                 confdict = self.getconfdict()
                 confdict.pop('photoimage',None)
                 confdict.pop('myclass',None)
-                self.master.delete(old_index+offset)
+                StatTkInter.Menu.delete(self.master,old_index+offset)
                 self.master.insert(new_index+offset,self.mytype,confdict)
                 del self.master.PackList[old_index]
                 self.master.PackList.insert(new_index,self)
@@ -1122,9 +1135,9 @@ class Tk(GuiContainer,StatTkInter.Tk):
         StatTkInter.Tk.mainloop(self)
 
 
-    def pack(self,**kwargs): print("Sorry, no pack for the Application!")
-    def grid(self,**kwargs): print("Sorry, no grid for the Application!")
-    def place(self,**kwargs): print("Sorry, no place for the Application!")
+    def pack(self,**kwargs): output("Sorry, no pack for the Application!")
+    def grid(self,**kwargs): output("Sorry, no grid for the Application!")
+    def place(self,**kwargs): output("Sorry, no place for the Application!")
 
 
 class _CreateTopLevelRoot(GuiElement,Dummy):
@@ -1136,9 +1149,9 @@ class _CreateTopLevelRoot(GuiElement,Dummy):
         self.hasConfig = False
         self.Layout = LAYOUTNEVER
         
-    def pack(self,**kwargs): print("Sorry, no pack for the Toplevel Root!")
-    def grid(self,**kwargs): print("Sorry, no grid for the Toplevel Root!")
-    def place(self,**kwargs): print("Sorry, no place for the Toplevel Root!")
+    def pack(self,**kwargs): output("Sorry, no pack for the Toplevel Root!")
+    def grid(self,**kwargs): output("Sorry, no grid for the Toplevel Root!")
+    def place(self,**kwargs): output("Sorry, no place for the Toplevel Root!")
 
 
 class Toplevel(GuiContainer,StatTkInter.Toplevel):
@@ -1169,9 +1182,9 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         GuiElement.destroy(self)
         send('TOPLEVEL_CLOSED',selection)
 
-    def pack(self,**kwargs): print("Sorry, no pack for a Toplevel!")
-    def grid(self,**kwargs): print("Sorry, no grid for a Toplevel!")
-    def place(self,**kwargs): print("Sorry, no place for a Toplevel!")
+    def pack(self,**kwargs): output("Sorry, no pack for a Toplevel!")
+    def grid(self,**kwargs): output("Sorry, no grid for a Toplevel!")
+    def place(self,**kwargs): output("Sorry, no place for a Toplevel!")
 
     def geometry(self,geometry=None):
         if geometry:
@@ -1228,6 +1241,12 @@ class Menu(GuiContainer,StatTkInter.Menu):
                 set_photoimage_from_image(widget,kwargs)
 
             StatTkInter.Menu.entryconfig(self,index,**kwargs)
+
+    def delete(self,index):
+        index -= self['tearoff']
+        if index >= 0:
+            self.PackList[index].destroy()
+
 
     def _delimiter_exists(self):
 
@@ -1755,11 +1774,9 @@ class MenuItem(GuiElement):
     def destroy(self):
         offset = self.master['tearoff']
         index = self.getPackListIndex()
-        self.master.delete(index+offset)
+        StatTkInter.Menu.delete(self.master,index+offset)
         self._removeFromPackList()
         GuiElement.destroy(self)
-
-
 
     def config(self,**kwargs):
         offset = self.master['tearoff']
@@ -1844,18 +1861,18 @@ def do_receive(msgid,function,parameters=None,wishWidget=False,wishMessage=False
 
 def ls():
     if _Selection._container is _Selection._widget:
-        print("=> "+"\\.")
+        output("=> "+"\\.")
     else:
-        print("   "+"\\.")
+        output("   "+"\\.")
 
     for n,e in _Selection._container.Dictionary.elements.items():
         isNameSelected = False
         number = len(e)
         if _Selection._widget in e:
-            print("=>",end=" ")
+            output("=>",end=" ")
             isNameSelected = True
         else:
-            print("  ",end=" ")
+            output("  ",end=" ")
 
         if number == 1: print (n)
         else:
@@ -1869,8 +1886,8 @@ def ls():
 def showconf():
     dictionary = getconfdict()
     for n,e in dictionary.items():
-        print(n,end=" : ")
-        print(e)
+        output(n,end=" : ")
+        output(e)
 
 
 def get(): return this().get()
@@ -1987,9 +2004,20 @@ SAVE_ALL = False
 
 def class_type(myclass):
     classString = str(myclass)
+
+    # python 2
+    if classString[:4] == 'ttk.':
+        return classString
+
     begin = classString.find(".")+1
     end = classString.find("'",begin)
-    return classString[begin:end]
+
+    #python 2
+    if end < 0:
+        return classString[begin:]
+    #python 3
+    else:
+        return classString[begin:end]
 
 
 def WidgetClass(widget):
@@ -1999,10 +2027,13 @@ def WidgetClass(widget):
     elif isinstance(widget,LinkLabel): return 'LinkLabel'
     else:
         thisClass = class_type(widget.tkClass)
-        if thisClass == 'ttk.Labelframe':
-            thisClass = 'ttk.LabelFrame'
-        elif thisClass == 'ttk.Panedwindow':
-            thisClass = 'ttk.PanedWindow'
+        corrections = {
+        # corrections for ttk with python3
+            'ttk.Labelframe': 'ttk.LabelFrame',
+            'ttk.Panedwindow' : 'ttk.PanedWindow',
+            }
+        thisClass = corrections.pop(thisClass,thisClass)
+            
 
         return thisClass
 
@@ -2041,7 +2072,7 @@ def get_config_compare():
         dictionaryCompare = dict(_Application.config_menuitems['menu'])
         ConfDictionaryShort(dictionaryCompare)
     else:
-        if isinstance(this(),MenuItem): print("Shoudn't be")
+        if isinstance(this(),MenuItem): output("Shoudn't be")
         CompareWidget = this().tkClass(container())
         dictionaryCompare = dict(CompareWidget.config())
         CompareWidget.destroy()
@@ -2111,45 +2142,47 @@ def save_pack_entries(filehandle):
     filehandle.write("\n")
     item_index = 1
     for e in packlist:
-        filehandle.write(indent+"widget('")
-        setWidgetSelection(e)
-        nameAndIndex = getNameAndIndex()
-        if nameAndIndex[1] == -1:
-            filehandle.write(nameAndIndex[0]+"')")
-        else: filehandle.write(nameAndIndex[0]+"',"+str(nameAndIndex[1])+")")
+        if e.save:
+            filehandle.write(indent+"widget('")
+            setWidgetSelection(e)
+            nameAndIndex = getNameAndIndex()
+            if nameAndIndex[1] == -1:
+                filehandle.write(nameAndIndex[0]+"')")
+            else: filehandle.write(nameAndIndex[0]+"',"+str(nameAndIndex[1])+")")
 
-        if this().Layout == MENUITEMLAYOUT:
-            filehandle.write(".layout(index="+str(item_index)+")\n")
-            item_index += 1
-        else:
-       
-            layoutWidget = layout_info()
-
-            if this().Layout == PACKLAYOUT:
-                CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
-                layoutWidget.pop(".in",None)
-                filehandle.write(".pack(")
-                CompareWidget.pack()
-                layoutCompare = dict(CompareWidget.pack_info())
-                CompareWidget.destroy()
-            elif this().Layout == PANELAYOUT:
-                filehandle.write(".pane(")
-                layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
-
-            elif this().Layout == TTKPANELAYOUT:
-                filehandle.write(".pane(")
-                layoutCompare = {'weight' : '0' }
-
-            for n,e in dict(layoutWidget).items():
-                if e == layoutCompare[n]: layoutWidget.pop(n,None)
-        
-            if len(layoutWidget) != 0:
-                for n,e in layoutWidget.items():
-                    if class_type(type(e)) == "Tcl_Obj":
-                        layoutWidget[n] = str(e)
-                filehandle.write(generate_keyvalues(layoutWidget))
+            if this().Layout == MENUITEMLAYOUT:
+                filehandle.write(".layout(index="+str(item_index)+")\n")
+            else:
            
-            filehandle.write(")\n")
+                layoutWidget = layout_info()
+
+                if this().Layout == PACKLAYOUT:
+                    CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
+                    layoutWidget.pop(".in",None)
+                    filehandle.write(".pack(")
+                    CompareWidget.pack()
+                    layoutCompare = dict(CompareWidget.pack_info())
+                    CompareWidget.destroy()
+                elif this().Layout == PANELAYOUT:
+                    filehandle.write(".pane(")
+                    layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
+
+                elif this().Layout == TTKPANELAYOUT:
+                    filehandle.write(".pane(")
+                    layoutCompare = {'weight' : '0' }
+
+                for n,e in dict(layoutWidget).items():
+                    if e == layoutCompare[n]: layoutWidget.pop(n,None)
+            
+                if len(layoutWidget) != 0:
+                    for n,e in layoutWidget.items():
+                        if class_type(type(e)) == "Tcl_Obj":
+                            layoutWidget[n] = str(e)
+                    filehandle.write(generate_keyvalues(layoutWidget))
+               
+                filehandle.write(")\n")
+        item_index += 1
+
 
     if container().tkClass == StatTkInter.PanedWindow and container().is_setsashes:
     
@@ -2580,7 +2613,6 @@ def saveExport(readhandle,writehandle,flag=False):
         'need_pil' : False,
         'need_grid_cols' : False,
         'need_grid_cols' : False,
-        'need_lbox' : False,
         'need_ttk' : False}
 
     # ExportNames contains the widgwet names {widget : (name,nameCamelCase)}
@@ -2680,8 +2712,12 @@ def saveExport(readhandle,writehandle,flag=False):
              filehandle.write(")\n")
 
         if lbtext:
-            export_info['need_lbox'] = True
-            filehandle.write('        fill_listbox_with_string(self.'+var_name+','+repr(lbtext)+')\n')
+            #filehandle.write('        fill_listbox_with_string(self.'+var_name+','+repr(lbtext)+')\n')
+            
+            filehandle.write("        self.{}.delete(0,'end')\n".format(var_name))
+            filehandle.write('''        for e in {}.split('\\n'):\n'''.format(repr(lbtext)))
+            filehandle.write("            self.{}.insert('end',e)\n".format(var_name))
+                
         # if photoimage: filehandle.write('        ext.dynTkImage(self.'+var_name+",'"+photoimage+"')\n")
 
 
@@ -3273,7 +3309,6 @@ def saveExport(readhandle,writehandle,flag=False):
         export_info['need_pil'] = False
         export_info['need_grid_cols'] = False
         export_info['need_grid_rows'] = False
-        export_info['need_lbox'] = False
         export_info['need_ttk'] = False
 
         # clear global dictionary
@@ -3283,8 +3318,12 @@ def saveExport(readhandle,writehandle,flag=False):
         exphandle = ExportBuffer()
 
         # name of application or toplevel
-        name = getNameAndIndex()[0]
-        name = getCamelCaseName(name)
+        if this().myclass:
+            name = this().myclass
+        else:
+            name = getNameAndIndex()[0]
+            name = getCamelCaseName(name)
+            
         ExportNames[this()] = (name,name)
 
         # generate the GUI 
@@ -3313,10 +3352,18 @@ def saveExport(readhandle,writehandle,flag=False):
         elif export_info['need_ext_tearoff']:
             writehandle.write('import DynTkExtend as tk  # required because entryconfig(0, ...) needs some time for taking effect\n')
         else:
-            writehandle.write('import tkinter as tk\n')
+            writehandle.write('''try:
+    import tkinter as tk
+except ImportError:
+    import Tkinter as tk
+''')
 
         if export_info['need_ttk']:
-            writehandle.write('from tkinter import ttk\n')
+            writehandle.write('''try:
+    from tkinter import ttk
+except ImportError:
+    import ttk
+''')
 
                             
         writehandle.write('#import DynTkInter as tk # for GuiDesigner\n\n')
@@ -3348,15 +3395,6 @@ def show_grid_table(container,rows,columns):
             writehandle.write('''def grid_general_cols(container,columns,**kwargs):
     for column in range(columns):
         container.columnconfigure(column,**kwargs)
-
-''')
-
-        if export_info['need_lbox']:
-            writehandle.write('''# == Fill Listbox with Text ==============================================
-def fill_listbox_with_string(listbox,string):
-    listbox.delete(0,'end')		
-    for e in string.split('\\n'):
-        listbox.insert('end',e)
 
 ''')
 
@@ -3427,18 +3465,18 @@ def decapitalize(name):
 def DynImportCode(filename):
     global LOADforEdit
 
-    ĥandle = None
+    fi = None
     try:
-        handle = open(filename,'r')
+        fi = open(filename,'r')
     except: 
-        print("Couldn't open file: " + filename)
+        output("Couldn't open file: " + filename)
         return
 
     guicode = ""
     while True:
         isEnd = False
         while True:
-            line = handle.readline()
+            line = fi.readline()
             if not line:
                 isEnd = True
                 break
@@ -3452,10 +3490,10 @@ def DynImportCode(filename):
 
         code = ""	
         while True:
-            line = handle.readline()
+            line = fi.readline()
     
             if not line or line[0:5] == "### =":
-                if not line: print("Code end '### =' missing in file: ",filename)
+                if not line: output("Code end '### =' missing in file: ",filename)
                 container().CODE = code
                 if not LOADforEdit:	
                     evcode = compile(code,filename,'exec')
@@ -3464,7 +3502,7 @@ def DynImportCode(filename):
 
             code+=line
         guicode = ""
-    handle.close()
+    fi.close()
 
 LOADwithCODE = False
 LOADforEdit = False
@@ -3483,11 +3521,11 @@ def DynLoad(filename):
     if LOADwithCODE: DynImportCode(filename)
     else:
         try:
-            handle = open(filename,'r')
+            fi = open(filename,'r')
         except: 
-            print("Couldn't open file: " + filename)
+            output("Couldn't open file: " + filename)
             return
-        code = handle.read()
+        code = fi.read()
         evcode = compile(code,filename,'exec')
         exec(evcode)
 

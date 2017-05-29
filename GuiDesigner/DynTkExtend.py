@@ -1,6 +1,11 @@
-import tkinter as tk
-from tkinter import *
-from tkinter import ttk as ttk
+try:
+    import tkinter as tk
+    from tkinter import *
+    from tkinter import ttk as ttk
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import *
+    import ttk
 
 # =========  Menu  ===================================================
 

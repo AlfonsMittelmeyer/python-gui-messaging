@@ -1,0 +1,77 @@
+
+# this shall later be exported in another form from widgets in tkinter style
+# later the GuiDesigner should be able to create such a code
+
+class LanguageSubmenu:
+    def __init__(self):
+
+        self._start()
+        self._dont_save_dynamically_created()
+
+    def _start(self,container = container()):
+        self.container = container
+        offset = self.container['tearoff']
+        self.deutsch_index = offset
+        
+
+        # here should follow own code in tkinter style
+        # later the GuiDesigner should be able to export this code
+
+# EXPORT =============================
+
+        self.create_menu()
+        
+        # for calling more times
+
+    def create_menu(self):    
+
+        index = self.deutsch_index + 1
+        while True:
+            try:
+                self.container.delete(index)
+            except IndexError:
+                break
+ 
+        # we make a dynamic creation
+        # first we get the style of the first command
+        # this style should also be used for the other commands
+
+        command_config = get_entryconfig(self.container,self.deutsch_index)
+        
+        # we dont't use some now not defined languagefile[i]
+        # we can think later of this
+
+        # now we create dynamic commands
+
+        languages = ('deutsch','english','russisch','polnisch','italienisch',None,'spanisch','französisch',None,'dänisch')
+
+        for index,language in enumerate(languages):
+
+            if not language:
+                self.container.add_separator()
+                continue
+                
+            command_config['label'] = language
+            command_config['command'] = partial(self.do_action,language)
+
+            try:
+                self.container.entryconfig(index+self.deutsch_index,**command_config)
+            except IndexError:
+                self.container.add_command(**command_config)
+                
+                 
+    def do_action(self,language):
+        publish("SELECT_LANGUAGE",language)
+            
+# /EXPORT =============================
+
+    # we don't want to save dynamically created widgets after self.deutsch_index
+    # by the GuiDesigner
+    def _dont_save_dynamically_created(self):
+        start_index = self.deutsch_index - self.container['tearoff']
+        for element in self.container.PackList[start_index+1:]:
+            element.dontSave()
+        
+        
+LanguageSubmenu()
+

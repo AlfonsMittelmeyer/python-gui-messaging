@@ -1,6 +1,11 @@
 import DynTkInter as tk
-from tkinter import ttk as StatTtk
-from tkinter.ttk import *
+
+try:
+    from tkinter import ttk as StatTtk
+    from tkinter.ttk import *
+except ImportError:
+    import ttk as StatTtk
+    from ttk import *
 
 class Label(tk.GuiElement,StatTtk.Label):
 
