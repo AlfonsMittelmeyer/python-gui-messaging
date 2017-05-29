@@ -7,7 +7,7 @@ def test_syntax(me,textwidget):
     setWidgetSelection(me)
     goto("Syntax")
     try:
-        compile(textwidget.get("1.0",'end-1c'),'<string>', 'exec')
+        compile(textwidget.get("1.0",'end-1c').encode('utf-8'),'<string>', 'exec')
         config(text="Syntax OK",fg="#006000")
         pack(side=LEFT)
     except SyntaxError as e:
@@ -23,19 +23,21 @@ def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax,os=os):
     selection = Selection()
     if test_Syntax(me,textwidget):
         try:
-            fh = open(os.path.join(os.getcwd(),'Testcode','tempcode.txt'),"w")
+            fh = open(os.path.join(os.getcwd(),'Testcode','tempcode.py'),"w")
             is_open = True
         except:
             is_open = False
             setWidgetSelection(me)
-            widget("Syntax").config(text="IOError: couldn't open file 'tempcode.txt'",fg="red")
+            widget("Syntax").config(text="IOError: couldn't open file 'tempcode.py'",fg="red")
         if is_open:
-            fh.write(textwidget.get("1.0",'end-1c'))
+            fh.write(textwidget.get("1.0",'end-1c').encode('utf-8'))
             fh.close()
             undo_receiveAll(current_selection._widget)
             setWidgetSelection(current_selection._widget)
             goIn()
-            eval(compile(textwidget.get("1.0",'end-1c'),'<string>', 'exec'))
+            exec(compile(open('Testcode/tempcode.py', "r").read(), 'Testcode/tempcode.py', 'exec'))
+
+            #eval(compile(textwidget.get("1.0",'end-1c'),'<string>', 'exec'))
             setWidgetSelection(me)
             widget("Syntax").config(text="Code Run OK",fg="#006000")
             result = True
@@ -54,7 +56,7 @@ def create_LoadFrame():
     Label('Label',text="File:").pack(side=LEFT)
     Entry('Entry',width=15).pack(side=LEFT)
     this().delete(0,END)
-    this().insert(0,"tempcode.txt")
+    this().insert(0,"tempcode.py")
     Button("Load",text="Load").pack(side=LEFT)
     Label("IOError")
     goOut()

@@ -2,6 +2,7 @@
 # this shall later be exported in another form from widgets in tkinter style
 # later the GuiDesigner should be able to create such a code
 
+# this name doesn't matter. Only for better recognition
 class LanguageSubmenu:
     def __init__(self):
 
@@ -10,29 +11,43 @@ class LanguageSubmenu:
 
     def _start(self,container = container()):
         self.container = container
-        offset = self.container['tearoff']
-        self.deutsch_index = offset
-        
+        self.deutsch_index = self.container['tearoff']
+        self._create_menu()
+               
+
+    def _create_menu(self):
+        current_selection = Selection()
+        self.create_menu()
+        setSelection(current_selection)
 
         # here should follow own code in tkinter style
         # later the GuiDesigner should be able to export this code
 
 # EXPORT =============================
 
-        self.create_menu()
-        
-        # for calling more times
+    # after GUI definition: the Code ===========================
+    # this code may also be inserted in GuiDesigner Scripts
+    
 
     def create_menu(self):    
 
-        index = self.deutsch_index + 1
+
+        # for calling more times, delete the menu, which existed before,
+        # except the first command
+
+        # for marking the end
+        
+        self.container.add_checkbutton()
+
+        # now we delete the menu entries after deutsch
+        after_deutsch = self.deutsch_index + 1
         while True:
-            try:
-                self.container.delete(index)
-            except IndexError:
+            itemtype = self.container.type(after_deutsch)
+            self.container.delete(after_deutsch)
+            if itemtype == 'checkbutton':
                 break
  
-        # we make a dynamic creation
+        # now we make a dynamic creation
         # first we get the style of the first command
         # this style should also be used for the other commands
 
@@ -50,15 +65,14 @@ class LanguageSubmenu:
             if not language:
                 self.container.add_separator()
                 continue
-                
+
             command_config['label'] = language
             command_config['command'] = partial(self.do_action,language)
-
+                
             try:
                 self.container.entryconfig(index+self.deutsch_index,**command_config)
             except IndexError:
                 self.container.add_command(**command_config)
-                
                  
     def do_action(self,language):
         publish("SELECT_LANGUAGE",language)

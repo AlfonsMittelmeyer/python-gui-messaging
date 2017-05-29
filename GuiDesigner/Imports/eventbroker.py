@@ -15,7 +15,7 @@ class EventBroker():
  
     def publish(self,message_id,*args,**kwargs):
         if message_id not in self._dictionary_:
-            output('EventBroker: no callback defined for message id: {}'.format(message_id))
+            output('EventBroker: no callback defined for message: {},{},{}'.format(message_id,args,kwargs))
         else:
             self._dictionary_[message_id](*args,**kwargs)
      
