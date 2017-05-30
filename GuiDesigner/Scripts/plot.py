@@ -1,4 +1,4 @@
-config(height=300, text='Madplotlib', width=300)
+config(text='Madplotlib')
 
 
 ### CODE ===================================================
