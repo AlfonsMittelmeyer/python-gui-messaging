@@ -825,29 +825,18 @@ def ConfDictionaryShort(dictionary):
         dictionary[n] = e[-1]
 
     # erase doubles
-    if "bd" in dictionary:	
-        dictionary['bd'] = dictionary['borderwidth']
-        dictionary.pop('borderwidth',None)
-    if "bg" in dictionary:	
-        dictionary['bg'] = dictionary['background']
-        dictionary.pop('background',None)
-    if "fg" in dictionary:	
-        dictionary['fg'] = dictionary['foreground']
-        dictionary.pop('foreground',None)
-    if "validatecommand" in dictionary:
-        dictionary['vcmd'] = dictionary['validatecommand']
-        dictionary.pop('validatecommand',None)
-    if "invalidcommand" in dictionary:
-        dictionary['invcmd'] = dictionary['invalidcommand']
-        dictionary.pop('invalidcommand',None)
+    for entry in (('bd','borderwidth'),('bg','background'),('fg','foreground')):
+        if entry[0] in dictionary:
+            dictionary[entry[0]] = dictionary.pop(entry[1])
 
-    # changing not allowed after widget definition - maybe I should save it?. But then I would need the default value.
-    dictionary.pop('colormap',None)
-    dictionary.pop('screen',None)
-    dictionary.pop('visual',None)
-    dictionary.pop('class',None)
-    dictionary.pop('use',None)
-    dictionary.pop('container',None)
+    for entry in (('vcmd','validatecommand'),('invcmd','invalidcommand')):
+        if entry[1] in dictionary:
+            dictionary[entry[0]] = dictionary.pop(entry[1])
+
+    # changing not allowed after widget definition
+    for entry in ('colormap','screen','visual','class','use','container'):
+        dictionary.pop(entry,None)
+
 
 
 #  doing layouts for the currently selected element
