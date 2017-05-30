@@ -36,6 +36,7 @@ class Plot_Frame:
         if event.xdata and event.ydata: # python3 often has None
             self.ax.axhline(y=event.ydata, color="k") #(y=event.ydata, color="k")
             self.ax.axvline(x=event.xdata, color="k") #(x=event.xdata, color="k")   
+        self.canvas.show()
 
     def fig_ax_request(self):
         publish('FIG,AX',self.fig,self.ax)
