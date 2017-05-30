@@ -24,7 +24,7 @@ class Plot_Frame:
         self.plot_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         self.toolbar.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        self.lineVal, = self.ax.plot(np.zeros(100))
+        self.ax.plot(np.zeros(100))
         self.canvas.mpl_connect('motion_notify_event', self.onMouseMove)
         self.canvas.show()
 

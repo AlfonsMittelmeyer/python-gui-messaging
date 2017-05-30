@@ -51,6 +51,47 @@ class LabelFrame(tk.GuiContainer,StatTtk.LabelFrame):
     def __init__(self,myname=None,**kwargs):
         tk._initGuiContainer(kwargs,StatTtk.LabelFrame,self,myname,"labelframe",True)
 
+class Separator(tk.GuiElement,StatTtk.Separator):
+
+    def __init__(self,myname=None,**kwargs):
+        tk._initGuiElement(kwargs,StatTtk.Separator,self,myname,"separator")
+
+class Combobox(tk.GuiElement,StatTtk.Combobox):
+
+    def __init__(self,myname=None,**kwargs):
+        hastext = kwargs.pop('text',None)
+        tk._initGuiElement(kwargs,StatTtk.Combobox,self,myname,"combobox")
+        if hastext != None:
+            self.fillString(hastext)
+            self.current(newindex=0)
+
+    def fillString(self,string):
+        values = [e for e in string.split("\n")]
+        self['values'] = values
+
+    def getString(self): return "\n".join(self['values'])
+
+    def config(self,**kwargs):
+        if len(kwargs) == 0:
+            dictionary = self.tkClass.config(self)
+            dictionary['text'] = (self.getString(),)
+            dictionary['myclass'] = (self.myclass,)
+            dictionary.pop('values',None)
+            return dictionary
+        else:
+            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
+            if 'text' in kwargs: 
+                self.fillString(kwargs['text'])
+                self.current(newindex=0) 
+                kwargs.pop('text',None)
+            self.tkClass.config(self,**kwargs)
+
+
+class LabelFrame(tk.GuiContainer,StatTtk.LabelFrame):
+
+    def __init__(self,myname=None,**kwargs):
+        tk._initGuiContainer(kwargs,StatTtk.LabelFrame,self,myname,"labelframe",True)
+
 class PanedWindow(tk.GuiElement,StatTtk.PanedWindow):
 
     def __init__(self,myname=None,**kwargs):

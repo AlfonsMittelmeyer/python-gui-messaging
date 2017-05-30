@@ -3,7 +3,12 @@ Tkinter GUI Designer, the only one with advanced Grid Design
 and individual table settings per row and column
 
 very new:
+
+- two new ttk widgets: Separator and Combobox
+
 - GuiDesigner and DynTkInter work now also with Python 2.7 instead only with Python 3
+- - but this doen't work correct now. str() doesn't work as in python3. Before str is used
+- - the data have to be encoded for not standard ascii characters
 
 relative new:
 

@@ -2045,7 +2045,8 @@ def del_config_before_compare(dictionaryWidget):
     if 'photoimage' in dictionaryWidget:
         if dictionaryWidget['photoimage'] == '': del dictionaryWidget['photoimage']
     #dictionaryWidget.pop('link',None) # links shouldn'd be saved. Otherwise we would have the widgets twice
-    if isinstance(this(),Listbox) and dictionaryWidget['text'] == '': del dictionaryWidget['text']
+    if (isinstance(this(),Listbox) or isinstance(this(),ttk.Combobox)) and dictionaryWidget['text'] == '':
+        del dictionaryWidget['text']
     
 def get_config_compare():
 
@@ -2688,8 +2689,15 @@ def saveExport(readhandle,writehandle,flag=False):
         photoimage = conf_dict.pop('photoimage',None)
         if photoimage:
             conf_dict['image'] = 'self.' + var_name + '_img'
+
         lbtext = None
-        if isinstance(this(),Listbox): lbtext = conf_dict.pop('text',None)
+        if isinstance(this(),Listbox):
+            lbtext = conf_dict.pop('text',None)
+
+        combotext = None
+        if isinstance(this(),StatTtk.Combobox):
+            combotext = conf_dict.pop('text',None)
+
         grid_dict = get_grid_dict(conf_dict)
 
         # generate regular parameters
@@ -2701,12 +2709,15 @@ def saveExport(readhandle,writehandle,flag=False):
              filehandle.write(")\n")
 
         if lbtext:
-            #filehandle.write('        fill_listbox_with_string(self.'+var_name+','+repr(lbtext)+')\n')
-            
             filehandle.write("        self.{}.delete(0,'end')\n".format(var_name))
             filehandle.write('''        for e in {}.split('\\n'):\n'''.format(repr(lbtext)))
             filehandle.write("            self.{}.insert('end',e)\n".format(var_name))
                 
+        if combotext:
+            filehandle.write("        self.{}['values'] = {}\n".format(var_name,tuple([e for e in combotext.split("\n")])))
+            filehandle.write("        self.{}.current(newindex = 0)\n".format(var_name))
+            
+
         # if photoimage: filehandle.write('        ext.dynTkImage(self.'+var_name+",'"+photoimage+"')\n")
 
 
