@@ -125,11 +125,14 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
         # reset references for value refresh  to not active
         thisframe.mydata = [None,None,None,None,None,None]
         # if the widget has a layout, then show it
-        if msg.Layout & LAYOUTALL and msg.Layout != MENULAYOUT:
+        if msg.Layout & LAYOUTALL and msg.Layout != MENULAYOUT and msg.Layout != MENUITEMLAYOUT:
 
             cont.grid()			
             linfo = layout_info()
             if can_update(linfo): return
+
+            if this().Layout in ('PANELAYOUT','TTKPANELAYOUT'):
+                linfo.pop('index',None)
 
             RefDict.clear()
             current_selection = Selection() # save current selection

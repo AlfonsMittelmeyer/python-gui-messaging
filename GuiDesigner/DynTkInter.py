@@ -576,6 +576,7 @@ class GuiElement:
         elif layout == PANELAYOUT: self.pane_forget()
         elif layout == MENULAYOUT: self.selectmenu_forget()
 
+
     def item_change_index(self,index):
         offset = self.master['tearoff']
         old_index = self.getPackListIndex()
@@ -590,7 +591,7 @@ class GuiElement:
                 confdict = self.getconfdict()
                 confdict.pop('photoimage',None)
                 confdict.pop('myclass',None)
-                StatTkInter.Menu.delete(self.master,old_index+offset)
+                self.master.tkClass.delete(self.master,old_index+offset)
                 self.master.insert(new_index+offset,self.mytype,confdict)
                 del self.master.PackList[old_index]
                 self.master.PackList.insert(new_index,self)
@@ -602,37 +603,57 @@ class GuiElement:
         elif layout == GRIDLAYOUT: self.grid(**kwargs)
         elif layout == PLACELAYOUT: self.place(**kwargs)
 
-    
-        elif layout == TTKPANELAYOUT:
+        if layout == TTKPANELAYOUT:
+            index = kwargs.pop('index',None)
+            try:
+                new_index = int(index)
+            except ValueError: return
 
             if 'weight' in kwargs:
                 try:
                     int(kwargs['weight'])
                 except ValueError:
                     kwargs['weight'] = '1'
-                    
                 self.master.child_layouts[self] = kwargs['weight']
-                self.master.is_setsashes = False
-                send("RESET_SASHES")
-                packlist = self.master.PackList
-                for widget in packlist:
-                    widget.master.forget(widget)
-                for widget in packlist:
-                    StatTtk.PanedWindow.add(widget.master,widget,**widget.master.pane_layout(widget))
-                
+            self.master.is_setsashes = False
+            send("RESET_SASHES")
+
+            old_index = self.getPackListIndex()
+            packlist = self.master.PackList
+            for widget in packlist:
+                widget.master.forget(widget)
+               
+            del self.master.PackList[old_index]
+            self.master.PackList.insert(new_index,self)
+               
+            for widget in packlist:
+                StatTtk.PanedWindow.add(widget.master,widget,**widget.master.pane_layout(widget))
+           
 
         elif layout == PANELAYOUT:
+            index = kwargs.pop('index',None)
+            try:
+                new_index = int(index)
+            except ValueError: return
+
             self.master.paneconfig(self,**kwargs)
-            configlist = []
+            old_index = self.getPackListIndex()
             packlist = self.master.PackList
             self.master.is_setsashes = False
             send("RESET_SASHES")
+
             for widget in packlist:
-                configlist.append((widget,widget.layout_info()))
-            for widget in list(packlist):
-                widget.pane_forget()
-            for item in configlist:
-                item[0].pane(**item[1])
+                widget.temp_layout = widget.layout_info()
+                widget.temp_layout.pop('index',None)
+                self.master.remove(widget)
+
+            del self.master.PackList[old_index]
+            self.master.PackList.insert(new_index,self)
+
+            for widget in packlist:
+                StatTkInter.PanedWindow.add(widget.master,widget,**widget.temp_layout)
+                widget.temp_layout = None
+
                 
         elif layout == MENUITEMLAYOUT: self.item_change_index(**kwargs)
         elif layout == MENULAYOUT: self.select_menu()
@@ -651,13 +672,18 @@ class GuiElement:
 
     def pane_info(self):
         parent = self.master
-        dictionary = {}
-        dictionary['width'] = parent.panecget(self,'width')
-        dictionary['height'] = parent.panecget(self,'height')
-        dictionary['minsize'] = parent.panecget(self,'minsize')
-        dictionary['padx'] = parent.panecget(self,'padx')
-        dictionary['pady'] = parent.panecget(self,'pady')
-        dictionary['sticky'] = parent.panecget(self,'sticky')
+        if self.Layout == PANELAYOUT:
+            dictionary = {}
+            dictionary['width'] = parent.panecget(self,'width')
+            dictionary['height'] = parent.panecget(self,'height')
+            dictionary['minsize'] = parent.panecget(self,'minsize')
+            dictionary['padx'] = parent.panecget(self,'padx')
+            dictionary['pady'] = parent.panecget(self,'pady')
+            dictionary['sticky'] = parent.panecget(self,'sticky')
+        else:
+            dictionary = parent.pane_layout(self)
+
+        dictionary['index'] = self.getPackListIndex()
         return dictionary
 
 
@@ -671,9 +697,7 @@ class GuiElement:
         if layout == PACKLAYOUT: dictionary=self.pack_info()
         elif layout == GRIDLAYOUT: dictionary=self.grid_info()
         elif layout == PLACELAYOUT: dictionary = self.place_info()
-        elif layout == PANELAYOUT: dictionary = self.pane_info()
-        elif layout == TTKPANELAYOUT:
-            dictionary = self.master.pane_layout(self)
+        elif layout in (PANELAYOUT,TTKPANELAYOUT): dictionary = self.pane_info()
         elif layout == MENUITEMLAYOUT: dictionary = self.menuitem_info()
         else: dictionary = {}
         return dictionary
@@ -2145,10 +2169,10 @@ def save_pack_entries(filehandle):
             else:
            
                 layoutWidget = layout_info()
+                layoutWidget.pop(".in",None)
 
                 if this().Layout == PACKLAYOUT:
                     CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
-                    layoutWidget.pop(".in",None)
                     filehandle.write(".pack(")
                     CompareWidget.pack()
                     layoutCompare = dict(CompareWidget.pack_info())
@@ -2156,10 +2180,12 @@ def save_pack_entries(filehandle):
                 elif this().Layout == PANELAYOUT:
                     filehandle.write(".pane(")
                     layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
+                    layoutWidget.pop('index',None)
 
                 elif this().Layout == TTKPANELAYOUT:
                     filehandle.write(".pane(")
                     layoutCompare = {'weight' : '0' }
+                    layoutWidget.pop('index',None)
 
                 for n,e in dict(layoutWidget).items():
                     if e == layoutCompare[n]: layoutWidget.pop(n,None)
@@ -2285,7 +2311,10 @@ def get_save_config():
                     index += 1
                 dictionaryConfig['grid_multi_cols'] = repr(conf_list)
             dictionaryConfig['grid_cols'] = repr(this().grid_conf_cols)
-            
+           
+    if 'from' in dictionaryConfig:
+        dictionaryConfig['from_'] = dictionaryConfig.pop('from')
+        
     return dictionaryConfig
 
 def save_widget(filehandle,name):
@@ -2942,9 +2971,11 @@ def saveExport(readhandle,writehandle,flag=False):
                 elif this().Layout == PANELAYOUT:
                     filehandle.write("add(self."+name) # point already written 'self.'
                     layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
+                    layoutWidget.pop('index',None)
 
                 elif this().Layout == TTKPANELAYOUT:
                     filehandle.write("add(self."+name) # point already written 'self.'
+                    layoutWidget.pop('index',None)
                     layoutCompare = {'weight' : '0'}
 
                 for n,e in dict(layoutWidget).items():

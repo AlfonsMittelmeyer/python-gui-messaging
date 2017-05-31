@@ -1,4 +1,4 @@
-config(pady='2', padx='1', text='Sashes')
+config(padx='1', text='Sashes', pady='2')
 
 
 ### CODE ===================================================

@@ -27,11 +27,20 @@ def create_widget(msg):
             print("Wrong handling: cannot create a menu item outside a menu")
     elif isinstance(container(),Menu):
         print("Wrong handling: cannot create a widget inside a menu")
+    elif isinstance(container(),PanedWindow):
+        eval("{}('{}',**{})".format(widget_type,name,kwargs))
+        text(name)
+        pane()
+        send('SELECTION_CHANGED')
+        
     else:
         if widget_type == "Toplevel": cdApp()
         #eval("{}('{}')".format(widget_type,name))
         eval("{}('{}',**{})".format(widget_type,name,kwargs))
         text(name)
+        if widget_type == 'Menu':
+            select_menu()
+            goIn()
         send('SELECTION_CHANGED')
 
 
