@@ -355,24 +355,77 @@ class GuiElement:
         if t_entry not in self.grid_cols_how_many:
             self.grid_cols_how_many[t_entry] = set()
         self.grid_cols_how_many[t_entry].add(column)
+
+# =======================================================================================
+
+    def addclearinit_addconfig(self,kwargs):
+        self.myclass = ''
+        self.photoimage = ''
+        self.myclass = ''
+        self.menu = ''
+        self.call_code = ''
+        self.myclass_par = kwargs.pop('myclass','')
+        self.call_code_par = kwargs.pop('call Code(self)','')
+        self.photoimage_par = kwargs.pop('photoimage','')
+        self.menu_par = kwargs.pop('menu','')
+
+
+    def addinit_addconfig(self,kwargs):
+
+        for element in (('myclass',self.myclass_par),('photoimage',self.photoimage_par),('call Code(self)',self.call_code_par),('menu',self.menu_par)):
+            if element[1]:
+                kwargs[element[0]] = element[1]
+
+            self.myclass_par = None
+            self.photoimage_par = None
+            self.call_code_par = None
+            self.menu_par = None
+
+    def executeclear_addconfig(self,kwargs):
+
+        if 'myclass' in kwargs:
+            self.myclass = kwargs.pop('myclass')
+
+        if 'call Code(self)' in kwargs:
+            self.call_code = kwargs.pop('call Code(self)')
+
+        if 'menu' in kwargs and isinstance(kwargs['menu'],Menu):
+            activate_menu(kwargs['menu'],self)
+
+        if 'photoimage' in kwargs:
+            dynTkImage(self,kwargs.pop('photoimage'))
+        else:
+            set_photoimage_from_image(self,kwargs)
+
+
+    def addconfig(self,kwargs):
+
+        for entry in ( ('image','photoimage',self.photoimage), ):
+            if entry in kwargs:
+                del kwargs[entry[0]]
+                kwargs[entry[1]] = entry[2]
+            
+        for entry in (('myclass',self.myclass),('call Code(self)',self.call_code)):
+            kwargs[entry[0]] = entry[1]
+            
+
+    def clear_addconfig(self,kwargs):
+        for element in ('myclass','photoimage','call Code(self)'):
+            kwargs.pop(element,None)
+
         
 
+# config ======================================================================================
+
     def config(self,**kwargs):
-        if len(kwargs) == 0:
-            dictionary = self.tkClass.config(self,**kwargs)
-            dictionary['myclass'] = (self.myclass,)
-            return dictionary
+        if not kwargs:
+            return self.tkClass.config(self,**kwargs)
         else:
-            if 'menu' in kwargs and isinstance(kwargs['menu'],Menu):
-                # activate_menu(menu,menu_entry_widget)
-                activate_menu(kwargs['menu'],self)
-            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
-            if 'photoimage' in kwargs:
-                dynTkImage(self,kwargs.pop('photoimage'))
-            else:
-                set_photoimage_from_image(self,kwargs)
-                
+            self.executeclear_addconfig(kwargs)
             self.tkClass.config(self,**kwargs)
+
+# =======================================================================================
+
 
     def lock(): isLocked = Tue
 
@@ -589,8 +642,7 @@ class GuiElement:
             limit = self.master.PackListLen()
             if new_index >= 0 and new_index < limit:
                 confdict = self.getconfdict()
-                confdict.pop('photoimage',None)
-                confdict.pop('myclass',None)
+                self.clear_addconfig(confdict)
                 self.master.tkClass.delete(self.master,old_index+offset)
                 self.master.insert(new_index+offset,self.mytype,confdict)
                 del self.master.PackList[old_index]
@@ -718,54 +770,17 @@ class GuiElement:
     def getconfdict(self):
         dictionary = self.config()
         ConfDictionaryShort(dictionary)
-        if 'image' in dictionary:
-            del dictionary['image']
-            dictionary['photoimage'] = self.photoimage
-        if 'activeimage' in dictionary:
-            del dictionary['activeimage']
-            dictionary['activephotoimage'] = self.activephotoimage
-        if 'disabledimage' in dictionary:
-            del dictionary['disabledimage']
-            dictionary['disabledphotoimage'] = self.disabledphotoimage
+        self.addconfig(dictionary)
         return dictionary
-
 
 class GuiContainer(GuiElement):
 
-    def __init__(self,dyn_name="nn",select=True,mayhave_grid=False,isMainWindow=False,tk_master = None,**kwargs):
-
-        name = dyn_name
-        if isMainWindow:
-
-            self.title_changed = False
-            self.geometry_changed = False
-
-            mytitle = None
-            mygeometry = None
-            if "title" in kwargs:
-                mytitle = kwargs.pop('title')
-                self.title_changed = True
-
-            if "geometry" in kwargs:
-                mygeometry = kwargs.pop('geometry')
-                self.geometry_changed = True
-        else:
-            kwargs.pop('title',None)
-            kwargs.pop('geometry',None)
-
-
-        self.link = kwargs.pop('link',"")
-
-        self.mayhave_grid = mayhave_grid
-        if mayhave_grid: grids = (kwargs.pop('grid_rows',None),kwargs.pop('grid_cols',None),kwargs.pop('grid_multi_rows',None),kwargs.pop('grid_multi_cols',None))
-
-        mymaster = self.master
-        self.master = tk_master
+    def __init__(self,name="nn",select=True,mayhave_grid=False,isMainWindow=False,tkmaster = None,**kwargs):
 
         if isinstance(self,Tk):
 
             self.tkClass.__init__(self,**kwargs)
-            
+
             global _Application
             _Application = self
             
@@ -791,56 +806,62 @@ class GuiContainer(GuiElement):
             _AppConf.pop("link",None)
             
             self.master = None
+            cdApp()
 
         else:
-            
-            self.tkClass.__init__(self,tk_master,**kwargs)
+            mymaster = self.master
+            self.tkClass.__init__(self,tkmaster,**kwargs)
             self.master = mymaster
             GuiElement.__init__(self,name,select)
 
-        self.isMainWindow = isMainWindow
-        if isMainWindow:
-            self.Layout = LAYOUTNEVER
-            if mytitle != None: self.title(mytitle)
-            if mygeometry != None: self.geometry(mygeometry)
+
+
+# ====================================================================
+
+    def addclearinit_addconfig(self,kwargs):
+        self.link = ''
+        self.link_par = None
+        self.grids_par = None
         
-        if mayhave_grid: grid_table(self,*grids)
-        FileImportContainer(self) # if link != ""
+        GuiElement.addclearinit_addconfig(self,kwargs)
+        if self.mayhave_grid:
+            self.grids_par = (kwargs.pop('grid_rows',None),kwargs.pop('grid_cols',None),kwargs.pop('grid_multi_rows',None),kwargs.pop('grid_multi_cols',None))
+        if 'link' in kwargs:
+            self.link_par = kwargs.pop('link')
+
+    def addinit_addconfig(self,kwargs):
+        GuiElement.addinit_addconfig(self,kwargs)
+        if self.mayhave_grid and self.grids_par:
+            for index,element in enumerate(('grid_rows','grid_cols', 'grid_multi_rows', 'grid_multi_cols')):
+                kwargs[element] = self.grids_par[index]
+            self.grids_par = None
+        if self.link_par:
+            kwargs['link'] = self.link_par
+            self.link_par = None
+
+    def executeclear_addconfig(self,kwargs):
+        GuiElement.executeclear_addconfig(self,kwargs)
+        if self.mayhave_grid:
+            grids = (kwargs.pop('grid_rows',None),kwargs.pop('grid_cols',None),kwargs.pop('grid_multi_rows',None),kwargs.pop('grid_multi_cols',None))
+            grid_table(self,*grids)
+        self.load_link = 'link' in kwargs
+        if self.load_link:
+            self.link = kwargs.pop('link')
+
+    def addconfig(self,kwargs):
+        GuiElement.addconfig(self,kwargs)
+        kwargs['link'] = self.link
+        
+
+# ==============================================================================
 
     def config(self,**kwargs):
-        if len(kwargs) == 0:
-            dictionary = GuiElement.config(self,**kwargs)
-            dictionary['link'] = (self.link,)
-            if self.isMainWindow:
-                dictionary['title'] = (self.title(),)
-                dictionary['geometry'] = (self.geometry(),)
-            
-            return dictionary
+        if not kwargs:
+            return self.tkClass.config(self,**kwargs)
         else:
-            if self.mayhave_grid:
-                grids = (kwargs.pop('grid_rows',None),kwargs.pop('grid_cols',None),kwargs.pop('grid_multi_rows',None),kwargs.pop('grid_multi_cols',None))
-                grid_table(self,*grids)
-        
-            if self.isMainWindow:
-                if 'title' in kwargs:
-                    self.title(kwargs.pop('title'))
-                    self.title_changed = True
-
-                if 'geometry' in kwargs: 
-                    self.geometry_changed = kwargs['geometry'] != ''
-                    self.geometry(kwargs.pop('geometry'))
-            else:
-                kwargs.pop('geometry',None)
-                kwargs.pop('title',None)
-
-            if 'link' in kwargs:
-                self.link = kwargs.pop('link')
-                kwargs.pop('link',None)
-                if len(kwargs) != 0: GuiElement.config(self,**kwargs)
-                FileImportContainer(self)
-
-            else: GuiElement.config(self,**kwargs)
-
+            self.executeclear_addconfig(kwargs)
+            self.tkClass.config(self,**kwargs)
+            if self.load_link: FileImportContainer(self)
 
 def ConfDictionaryShort(dictionary):
 
@@ -956,6 +977,7 @@ def widget(*args):
     name = args[0]
     nr = 0 if len(args) < 2 else args[1]
     par3 = 0 if len(args) < 3 else args[2]
+
     
     if type(name) == str:
         if name in ('//','/','.'):
@@ -1006,50 +1028,40 @@ def _getMasterAndNameAndSelect(name_or_master,altname,kwargs):
         return name_or_master,altname,False
 
 def _initGuiElement(kwargs,tkClass,element,myname,altname,isContainer=False):
-    element.photoimage=kwargs.pop('photoimage','')
-    element.myclass = kwargs.pop('myclass','')
     element.tkClass = tkClass
     master,myname,select = _getMasterAndNameAndSelect(myname,altname,kwargs)
-    element.tkClass.__init__(element,master,**kwargs)
     element.master = master
     element.isContainer = isContainer
+    element.addclearinit_addconfig(kwargs)
+    element.tkClass.__init__(element,master,**kwargs)
     GuiElement.__init__(element,myname,select)
-    if 'menu' in kwargs and isinstance(kwargs['menu'],Menu):
-        # activate_menu(menu,menu_entry_widget)
-        activate_menu(kwargs['menu'],self)
-    if element.photoimage:
-        element.config(photoimage = element.photoimage)
-    else:
-        set_photoimage_from_image(element,kwargs)
-    
+    kwargs = {}
+    element.addinit_addconfig(kwargs)
+    element.executeclear_addconfig(kwargs)
 
 
 def _initGuiContainer(kwargs,tkClass,element,myname,altname,mayhave_grid=False,isMainWindow=False,tk_master = None,self_master = None):
-    element.photoimage=kwargs.pop('photoimage','')
-    element.myclass = kwargs.pop('myclass','')
+    element.isContainer = True
+    element.mayhave_grid = mayhave_grid
     element.tkClass = tkClass
     master,myname,select = _getMasterAndNameAndSelect(myname,altname,kwargs)
-
-    # changed - only one line of code
-    # tkmaster = None
-    # if tk_master == 'Application': tkmaster = None
-    # else: tkmaster = master if tk_master == None else tk_master
     tkmaster = None if tk_master == 'Application' else master if tk_master == None else tk_master
     element.master = master if self_master == None else self_master
     element.isContainer = True
+    element.addclearinit_addconfig(kwargs)
     GuiContainer.__init__(element,myname,select,mayhave_grid,isMainWindow,tkmaster,**kwargs)
-    if 'menu' in kwargs and isinstance(kwargs['menu'],Menu):
-        activate_menu(self,kwargs['menu'])
-    if element.photoimage:
-        element.config(photoimage = element.photoimage)
-    else:
-        set_photoimage_from_image(element,kwargs)
+    element.isMainWindow = isMainWindow
+    kwargs = {}
+    element.addinit_addconfig(kwargs)
+    element.executeclear_addconfig(kwargs)
+    FileImportContainer(element) # if link != "" this is beacause of maximum recursion depth
     return tkmaster
 
 class Tk(GuiContainer,StatTkInter.Tk):
 
     def __init__(self,myname=None,**kwargs):
 
+        
         global proxy,SelfStack,ObjectStack,CanvasDefaults
         #Stack= []
         ObjectStack = []
@@ -1060,7 +1072,9 @@ class Tk(GuiContainer,StatTkInter.Tk):
         self.config_menuitems = { 'command':None,'radiobutton':None,'checkbutton':None,'separator':None,'cascade':None,'delimiter':None,'menu':None }
         proxy = dynproxy.Proxy()
         self.master = None
+
         _initGuiContainer(kwargs,StatTkInter.Tk,self,myname,"Application",True,True,'Application')
+        self.Layout = LAYOUTNEVER
         cdApp()
 
         menu = Menu(self)
@@ -1124,20 +1138,29 @@ class Tk(GuiContainer,StatTkInter.Tk):
 
         canvas.destroy()
 
-    def geometry(self,geometry=None):
-        if geometry:
-            self.geometry_changed = True
-            return StatTkInter.Tk.geometry(self,geometry)
-        else:
-            return StatTkInter.Tk.geometry(self)
 
-    def title(self,text=None):
-        if text:
-            self.title_changed = True
-        if text:
-            return StatTkInter.Tk.title(self,text)
-        else:
-            return StatTkInter.Tk.title(self)
+# =====================================================================
+
+    def title(self,*args):
+        return Toplevel.title(self,*args)
+
+    def geometry(self,*args):
+        return Toplevel.geometry(self,*args)
+
+    def addclearinit_addconfig(self,kwargs):
+        Toplevel.addclearinit_addconfig(self,kwargs)
+        
+    def executeclear_addconfig(self,kwargs):
+        Toplevel.executeclear_addconfig(self,kwargs)
+
+    def addinit_addconfig(self,kwargs):
+        Toplevel.addinit_addconfig(self,kwargs)
+
+    def addconfig(self,kwargs):
+        Toplevel.addconfig(self,kwargs)
+            
+# =====================================================================
+
 
     def mainloop(self,load_file = None):
 
@@ -1170,24 +1193,60 @@ class _CreateTopLevelRoot(GuiElement,Dummy):
 class Toplevel(GuiContainer,StatTkInter.Toplevel):
 
     def __init__(self,myname=None,**kwargs):
+
         master = _initGuiContainer(kwargs,StatTkInter.Toplevel,self,myname,"toplevel",True,True,None,_TopLevelRoot._container)
+        self.Layout = LAYOUTNEVER
         goIn()
         self.master = master
 
-    def title(self,text=None):
-        if text:
-            self.title_changed = True
-        if text:
-            return StatTkInter.Toplevel.title(self,text)
-        else:
-            return StatTkInter.Toplevel.title(self)
-
-    def geometry(self,geometry=None):
-        if geometry:
+    def geometry(self,*args):
+        if args:
             self.geometry_changed = True
-            return StatTkInter.Toplevel.geometry(self,geometry)
-        else:
-            return StatTkInter.Toplevel.geometry(self)
+        return self.tkClass.geometry(self,geometry)
+
+    def title(self,*args):
+        if args:
+            self.title_changed = True
+        return self.tkClass.title(self,*args)
+
+# =====================================================================
+
+    def addclearinit_addconfig(self,kwargs):
+        self.title_changed = False
+        self.geometry_changed = False
+        GuiContainer.addclearinit_addconfig(self,kwargs)
+        self.title_par = kwargs.pop('title',None)
+        self.geometry_par = kwargs.pop('geometry',None)
+        
+    def executeclear_addconfig(self,kwargs):
+        GuiContainer.executeclear_addconfig(self,kwargs)
+        if 'title' in kwargs:
+            self.title_changed = kwargs['title'] != 'tk'
+            self.title(kwargs.pop('title'))
+        if 'geometry' in kwargs: 
+            self.geometry_changed = kwargs['geometry'] != ''
+            self.geometry(kwargs.pop('geometry'))
+
+    def addinit_addconfig(self,kwargs):
+
+        GuiContainer.addinit_addconfig(self,kwargs)
+
+        if self.title_par:
+            kwargs['title'] = self.title_par
+            self.title_par = None
+
+        if self.geometry_par:
+            kwargs['geometry'] = self.geometry_par
+            self.geometry_par = None
+
+    def addconfig(self,kwargs):
+        GuiContainer.addconfig(self,kwargs)
+        kwargs['title'] = self.title()
+        kwargs['geometry'] = self.geometry()
+
+# =====================================================================
+
+
 
     def destroy(self):
         send_immediate('THIS_TOPLEVEL_CLOSED',self)
@@ -1213,19 +1272,12 @@ class Menu(GuiContainer,StatTkInter.Menu):
 
         self.title_changed = False
         master,altname,select = _getMasterAndNameAndSelect(myname,"menu",kwargs)
-        # changed
-        # tk_master = master.myRoot() if isinstance(master,MenuItem) else master
         tk_master = master.master if isinstance(master,MenuItem) else master
         _initGuiContainer(kwargs,StatTkInter.Menu,self,myname,altname,tk_master = tk_master)
 
-        # get default configuration for menu if it was the first call
-        if _Application.config_menuitems['menu'] == None:
-            tk_menu = StatTkInter.Menu(_Application)
-            _Application.config_menuitems['menu'] = tk_menu.config()
-            tk_menu.destroy()
 
     def add(self,itemtype,**kwargs):
-        MenuItem(self,itemtype,**kwargs)
+        return MenuItem(self,itemtype,**kwargs)
 
     def add_command(self,**kwargs):
         self.add('command',**kwargs)
@@ -1514,22 +1566,31 @@ class PanedWindow(GuiElement,StatTkInter.PanedWindow):
 class Listbox(GuiElement,StatTkInter.Listbox):
 
     def __init__(self,myname=None,**kwargs):
-        hastext = kwargs.pop('text',None)
         _initGuiElement(kwargs,StatTkInter.Listbox,self,myname,"listbox")
-        if hastext != None: self.fillString(hastext)
 
-    def config(self,**kwargs):
-        if len(kwargs) == 0:
-            dictionary = self.tkClass.config(self)
-            dictionary['text'] = (self.getString(),)
-            dictionary['myclass'] = (self.myclass,)
-            return dictionary
-        else:
-            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
-            if 'text' in kwargs: 
-                self.fillString(kwargs['text'])
-                kwargs.pop('text',None)
-            self.tkClass.config(self,**kwargs)
+# =======================================================================================
+
+    def addclearinit_addconfig(self,kwargs):
+        GuiElement.addclearinit_addconfig(self,kwargs)
+        self.text_par = kwargs.pop('text',None)
+
+    def addinit_addconfig(self,kwargs):
+        GuiElement.addinit_addconfig(self,kwargs)
+        if self.text_par:
+            kwargs['text'] = self.text_par
+            self.text_par = False
+
+    def executeclear_addconfig(self,kwargs):
+        GuiElement.executeclear_addconfig(self,kwargs)
+        if 'text' in kwargs:
+            self.fillString(kwargs.pop('text'))
+
+    def addconfig(self,kwargs):
+        GuiElement.addconfig(self,kwargs)
+        kwargs['text'] = self.getString()
+
+# =======================================================================================
+
 
     def fillString(self,string):
         self.delete(0,END)		
@@ -1554,28 +1615,6 @@ def link_command(me):
         mymaster.setconfig('link',mylink)
         if not widget_exists(this()): cdApp() # this is a secure place
 
-class LinkLabel(Label):
-
-    def __init__(self,myname="linklabel",**kwargs):
-        self.link=""		
-        if 'link' in kwargs:
-            self.link = kwargs['link']
-            kwargs.pop('link',None)
-        if not 'font' in kwargs: kwargs['font'] = 'TkFixedFont 9 normal underline'
-        if not 'fg' in kwargs: kwargs['fg'] = 'blue'
-        Label.__init__(self,myname,**kwargs)
-        self.do_event('<Button-1>',link_command,wishWidget = True)
-
-    def config(self,**kwargs):
-        if len(kwargs) == 0:
-            dictionary = Label.config(self,**kwargs)
-            dictionary['link'] = (self.link,)
-            return dictionary
-        else:
-            if 'link' in kwargs: 
-                self.link = kwargs['link']
-                kwargs.pop('link',None)
-            Label.config(self,**kwargs)
 
 class LinkButton(Button):
 
@@ -1589,15 +1628,43 @@ class LinkButton(Button):
         self.do_event('<ButtonRelease-1>',link_command,wishWidget = True)
 
     def config(self,**kwargs):
-        if len(kwargs) == 0:
-            dictionary = Button.config(self)
-            dictionary['link'] = (self.link,)
-            return dictionary
+        if not kwargs:
+            return Button.config(self)
         else:
             if 'link' in kwargs: 
                 self.link = kwargs['link']
                 kwargs.pop('link',None)
             Button.config(self,**kwargs)
+
+    def addconfig(self,kwargs):
+        Button.addconfig(self,kwargs)
+        kwargs['link'] = self.link
+
+class LinkLabel(Label):
+
+    def __init__(self,myname="linklabel",**kwargs):
+        self.link=""		
+        if 'link' in kwargs:
+            self.link = kwargs['link']
+            kwargs.pop('link',None)
+        if not 'font' in kwargs: kwargs['font'] = 'TkFixedFont 9 normal underline'
+        if not 'fg' in kwargs: kwargs['fg'] = 'blue'
+        Label.__init__(self,myname,**kwargs)
+        self.do_event('<Button-1>',link_command,wishWidget = True)
+
+    def config(self,**kwargs):
+        if not kwargs:
+            return Label.config(self)
+        else:
+            if 'link' in kwargs: 
+                self.link = kwargs['link']
+                kwargs.pop('link',None)
+            Label.config(self,**kwargs)
+
+
+    def addconfig(self,kwargs):
+        Label.addconfig(self,kwargs)
+        kwargs['link'] = self.link
 
 class CanvasItemWidget(GuiElement):
 
@@ -1625,15 +1692,6 @@ class CanvasItemWidget(GuiElement):
         
     def dummy_destroy(self):
         self.master.canvas_widget = None
-        '''
-        if self.master.type(self.item_id) == 'image':
-            self.master.canvas_images[self.item_id] = self
-            setWidgetSelection(self)
-            name_index = getNameAndIndex()
-            if name_index[0] != None: eraseEntry(name_index[0],name_index[1])
-            cdApp()
-        else: GuiElement.destroy(self)
-        '''
         GuiElement.destroy(self)
 
 
@@ -1659,50 +1717,45 @@ class CanvasItemWidget(GuiElement):
 
             return self.master.get_itemconfig(self.item_id)
         else:
-            if 'photoimage' in kwargs:
-                self.photoimage = kwargs['photoimage']
-            if 'activephotoimage' in kwargs:
-                self.activephotoimage = kwargs['activephotoimage']
-            if 'disabledphotoimage' in kwargs:
-                self.disabledphotoimage = kwargs['disabledphotoimage']
-
+            self.executeclear_addconfig(kwargs)
             return self.master.itemconfig(self.item_id,**kwargs)
 
 
+    def executeclear_addconfig(self,kwargs):
+        if 'photoimage' in kwargs:
+            self.photoimage = kwargs['photoimage']
+        if 'activephotoimage' in kwargs:
+            self.activephotoimage = kwargs['activephotoimage']
+        if 'disabledphotoimage' in kwargs:
+            self.disabledphotoimage = kwargs['disabledphotoimage']
+       
+
 def CanvasItem(master,item_id,do_append = True):
     return CanvasItemWidget(master,item_id,do_append)
-    '''
-    if do_append or master.type(item_id) != 'image': return CanvasItemWidget(master,item_id,do_append)
-    if master.canvas_widget != None: master.canvas_widget.dummy_destroy()
-    this_widget = master.canvas_images.pop(item_id)
-    master.canvas_widget = this_widget
-    master.Dictionary.setElement('image',this_widget)
-    _Selection._container = master
-    _Selection._widget = this_widget
-    '''
 
 class MenuDelimiter(GuiElement):
     def __init__(self,myname="tearoff",**kwargs):
-        self.photoimage = kwargs.pop('photoimage','')
-        self.myclass = kwargs.pop('myclass','')
         master,myname,select = _getMasterAndNameAndSelect(myname,"MenuItem",kwargs)
         self.master = master
         kwargs.pop('name',None)
-        StatTkInter.Menu.entryconfig(self.master,0,**kwargs)
-        # neccessary during menu creation at start up time
-        if self.master['tearoff']:
-            self.master.after(1,lambda kwargs=kwargs,master=self.master: StatTkInter.Menu.entryconfig(master,0,**kwargs))
         
         self.tkClass = Dummy
         self.isContainer = False
         GuiElement.__init__(self,myname,select)
         self.Layout = LAYOUTNEVER
+        # initialisation of empty attributes for avoiding exceptions
+        self.addclearinit_addconfig(kwargs)
+        self.addinit_addconfig(kwargs)
+        # neccessary during menu creation at start up time
+        if self.master['tearoff']:
+            self.master.after(1,lambda kwargs=dict(kwargs),funct = self.config: funct(**kwargs))
+        self.config(**kwargs)
 
 
     def config(self,**kwargs):
         index = 0
 
-        if len(kwargs) == 0:
+        if not kwargs:
             dictionary = {}
             for entry in (
 'activebackground',
@@ -1748,25 +1801,27 @@ class MenuDelimiter(GuiElement):
                 self.master.after(1,lambda kwargs=kwargs,master=self.master: StatTkInter.Menu.entryconfig(master,0,**kwargs))
 
 
+
+
 class MenuItem(GuiElement):
     def __init__(self,myname="menuitem",mytype='command',**kwargs):
-        self.myclass = kwargs.pop('myclass','')
-        self.photoimage=kwargs.pop('photoimage','')
-        
 
+        self.addclearinit_addconfig(kwargs)
+
+        kwargs.pop('name',None)
         self.mytype = mytype
         master,myname,select = _getMasterAndNameAndSelect(myname,"menuitem",kwargs)
         self.master = master
         self._addToPackList()
-        kwargs.pop('name',None)
+        
         StatTkInter.Menu.add(master,mytype,**kwargs)
         self.tkClass = Dummy
 
         self.isContainer = mytype == 'cascade'
         GuiElement.__init__(self,myname,select)
         self.Layout = MENUITEMLAYOUT
-        if self.photoimage:
-            kwargs['photoimage'] = self.photoimage
+
+        self.addinit_addconfig(kwargs)
         self.config(**kwargs)
 
     # required for dynTkImage
@@ -1794,7 +1849,7 @@ class MenuItem(GuiElement):
     def config(self,**kwargs):
         offset = self.master['tearoff']
         index = self.getPackListIndex() + offset
-        if len(kwargs) == 0:
+        if not kwargs:
             dictionary = {}
 
             for entry in (
@@ -1828,19 +1883,13 @@ class MenuItem(GuiElement):
             dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
-            if 'myclass' in kwargs:
-                self.myclass = kwargs.pop('myclass')
-
-            if 'photoimage' in kwargs:
-                dynTkImage(self,kwargs.pop('photoimage',''))
-            else:
-                set_photoimage_from_image(self,kwargs)
-               
-            if 'menu' in kwargs and isinstance(kwargs['menu'],Menu):
-                # activate_menu(menu,menu_entry_widget)
-                activate_menu(kwargs['menu'],self)
-
+            GuiElement.executeclear_addconfig(self,kwargs)
             StatTkInter.Menu.entryconfig(self.master,index,**kwargs)
+
+    def addconfig(self,kwargs):
+        GuiElement.addconfig(self,kwargs)
+        kwargs.pop('myclass',None)
+        kwargs.pop('call Code(self)',None)
                 
     def set_menu(self,menu):
         offset = self.master['tearoff']
@@ -2064,6 +2113,8 @@ def del_config_before_compare(dictionaryWidget):
         if dictionaryWidget['link'] == '': del dictionaryWidget['link']
     if 'cursor' in dictionaryWidget:
         if dictionaryWidget['cursor'] == '': del dictionaryWidget['cursor']
+    if 'call Code(self)' in dictionaryWidget:
+        if dictionaryWidget['call Code(self)'] == '': del dictionaryWidget['call Code(self)']
     if 'myclass' in dictionaryWidget:
         if dictionaryWidget['myclass'] == '': del dictionaryWidget['myclass']
     if 'photoimage' in dictionaryWidget:
@@ -2281,8 +2332,6 @@ def get_save_config():
             s = " "
             dictionaryConfig[n] = s.join([str(i) for i in e])
             
-
-
     if not this().grid_conf_rows:
         this().grid_conf_rows,this().grid_multi_conf_rows = get_gridconfig(this().grid_rows,this().grid_rows_how_many)
 
@@ -2315,6 +2364,7 @@ def get_save_config():
     if 'from' in dictionaryConfig:
         dictionaryConfig['from_'] = dictionaryConfig.pop('from')
         
+
     return dictionaryConfig
 
 def save_widget(filehandle,name):
@@ -2340,7 +2390,8 @@ def save_widget(filehandle,name):
             conf_dict['link'] = mylink
     
     if len(conf_dict) != 0:
-        filehandle.write(","+generate_keyvalues(conf_dict)+")")
+        #filehandle.write(","+generate_keyvalues(conf_dict)+")")
+        filehandle.write(",**"+str(conf_dict)+")")
     else:
          filehandle.write(")")
 
@@ -2489,8 +2540,8 @@ def saveWidgets(filehandle,withConfig=False,saveAll=False):
             if withConfig:
                 conf_dict = get_save_config()
                 conf_dict.pop('link',None)
-                #if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
-                if len(conf_dict) != 0: filehandle.write('config('+generate_keyvalues(conf_dict)+")\n\n")
+                if len(conf_dict) != 0: filehandle.write('config(**'+str(conf_dict)+")\n\n")
+                #if len(conf_dict) != 0: filehandle.write('config('+generate_keyvalues(conf_dict)+")\n\n")
             saveContainer(filehandle)
 
     else: 
@@ -2692,7 +2743,7 @@ def saveExport(readhandle,writehandle,flag=False):
     def makeCamelCase(word):
         return ''.join(x.capitalize() or '_' for x in word.split('_'))
 
-    # name_expr used by exportWidget for EXPORT_NAMES
+    # name_expr used by exportWidget for EXPORT_NAME
     # the name of a widget shall not be captalisized in tkinter
     def name_expr(name):
         return "name='{}'".format(name)
@@ -2713,6 +2764,7 @@ def saveExport(readhandle,writehandle,flag=False):
         # delete what can't be generated by export
         conf_dict.pop('link',None)
         conf_dict.pop('myclass',None)
+        conf_dict.pop('call Code(self)',None)
 
         # save what has to be treated after regular parameters
         photoimage = conf_dict.pop('photoimage',None)
@@ -3229,6 +3281,9 @@ def saveExport(readhandle,writehandle,flag=False):
                     filehandle.write('        self.{}_index = {}\n'.format(name,index+offset))
                 del container().named_indexes
 
+        if container().getconfig('call Code(self)'):
+                filehandle.write('        # call Code ===================================\n')
+                filehandle.write("        {}(self)\n".format(container().call_code))
 
         # now we save sub containers ==============================================
 
@@ -3246,7 +3301,8 @@ def saveExport(readhandle,writehandle,flag=False):
                 setWidgetSelection(x)
                 # shall not be called for MenuItem type 'cascade', which has widgets
                 if not isinstance(this(),CanvasItemWidget):
-                    if this().myclass or this().hasWidgets() and not isinstance(this(),MenuItem): exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
+                    if this().myclass or this().hasWidgets():
+                        exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
 
         AccessDictionary.clear()
 
@@ -3266,31 +3322,41 @@ def saveExport(readhandle,writehandle,flag=False):
         if isinstance(this(),Tk): thisMaster = ''
         else: thisMaster = ',master'
 
-        if isinstance(this(),Tk):
-            filehandle.write("# Application definition ============================\n\n")
-        elif isinstance(this(),Toplevel):
-            filehandle.write("# Toplevel definition ===============================\n\n")
+        if EXPORT_NAME:
+            if isinstance(this(),Tk):
+                filehandle.write("# Application definition ============================\n\n")
+            elif isinstance(this(),Toplevel):
+                filehandle.write("# Toplevel definition ===============================\n\n")
+        else:
+            if isinstance(this(),Tk):
+                filehandle.write("\n")
+            elif isinstance(this(),Toplevel):
+                filehandle.write("\n")
 
         filehandle.write('class {}({}):\n\n'.format(class_name,thisClass))
 
             
         filehandle.write('    def __init__(self{},**kwargs):\n'.format(thisMaster))
         filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
-        if this().myclass:
-            filehandle.write("        self.myclass = '{}'\n".format(this().myclass))
+
+        if EXPORT_NAME:
+            if this().myclass:
+                filehandle.write("        self.myclass = '{}'\n".format(this().myclass))
+            if this().call_code:
+                filehandle.write("        self.call_code = '{}'\n".format(this().call_code))
             
      
         # only for Application or Toplevel 
         if isinstance(this(),Tk) or isinstance(this(),Toplevel):
-            conf_dict = get_save_config()
-            conf_dict.pop('link',None)
-            conf_dict.pop('myclass',None)
 
+            conf_dict = get_save_config()
             tit = conf_dict.pop('title',None)
             if tit: filehandle.write('        self.title('+repr(tit)+")\n")
             geo = conf_dict.pop('geometry',None)
             if geo: filehandle.write('        self.geometry('+repr(geo)+")\n")
             
+            this().clear_addconfig(conf_dict)
+
             grid_dict = get_grid_dict(conf_dict)
             if len(conf_dict) != 0:
                 filehandle.write('        # self configuration ===================================\n')
@@ -3324,13 +3390,16 @@ def saveExport(readhandle,writehandle,flag=False):
                         if this().grid_conf_cols[1:] == (0,0,0) and this().grid_multi_conf_cols[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
                             filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
                             
-
-        filehandle.write('        # widget definitions ===================================\n')
-
-        # after class definition export the content     
-        goIn()
-        exportContainer(filehandle)
-        goOut()
+        # after class definition export the content
+        if this().hasWidgets():
+            filehandle.write('        # widget definitions ===================================\n')
+            goIn()
+            exportContainer(filehandle)
+            goOut()
+        elif this().getconfig('call Code(self)'):
+            filehandle.write('        # call Code ===================================\n')
+            filehandle.write("        {}(self)\n".format(this().call_code))
+        
         
     def saveExport_intern(readhandle,writehandle):
 
@@ -3396,14 +3465,15 @@ except ImportError:
     import ttk
 ''')
 
-                            
-        writehandle.write('#import DynTkInter as tk # for GuiDesigner\n\n')
-        if export_info['need_ttk']:
-            writehandle.write('#import DynTtk as ttk    # for GuiDesigner\n\n')
+        if EXPORT_NAME:                            
+            writehandle.write('#import DynTkInter as tk # for GuiDesigner\n\n')
+            if export_info['need_ttk']:
+                writehandle.write('#import DynTtk as ttk    # for GuiDesigner\n\n')
 
         if export_info['need_pil']:
             writehandle.write('from PIL import Image,ImageTk\n')
-            writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n\n')
+            if EXPORT_NAME:
+                writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n\n')
 
         if export_info['need_grid_cols'] or export_info['need_grid_rows']:
             writehandle.write('''# for development ==================================
@@ -3436,7 +3506,8 @@ def show_grid_table(container,rows,columns):
             for entry in class_list:
                 writehandle.write(entry[1]+"\n")
             if this() == _Application:
-                writehandle.write("#"+name+"().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                if EXPORT_NAME:
+                    writehandle.write("#"+name+"().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
                 writehandle.write(name+"().mainloop()\n")
 
         # if readhandle then merge the generated GUI with file

@@ -76,7 +76,6 @@ widget("Help").do_command(export_help)
 
 goOut()
 select_menu()
-
 goOut()
 
 MenuItem('Load & Edit','command',label='Load & Edit')

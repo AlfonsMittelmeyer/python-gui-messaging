@@ -59,11 +59,7 @@ class Separator(tk.GuiElement,StatTtk.Separator):
 class Combobox(tk.GuiElement,StatTtk.Combobox):
 
     def __init__(self,myname=None,**kwargs):
-        hastext = kwargs.pop('text',None)
         tk._initGuiElement(kwargs,StatTtk.Combobox,self,myname,"combobox")
-        if hastext != None:
-            self.fillString(hastext)
-            self.current(newindex=0)
 
     def fillString(self,string):
         values = [e for e in string.split("\n")]
@@ -71,20 +67,26 @@ class Combobox(tk.GuiElement,StatTtk.Combobox):
 
     def getString(self): return "\n".join(self['values'])
 
-    def config(self,**kwargs):
-        if len(kwargs) == 0:
-            dictionary = self.tkClass.config(self)
-            dictionary['text'] = (self.getString(),)
-            dictionary['myclass'] = (self.myclass,)
-            dictionary.pop('values',None)
-            return dictionary
-        else:
-            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
-            if 'text' in kwargs: 
-                self.fillString(kwargs['text'])
-                self.current(newindex=0) 
-                kwargs.pop('text',None)
-            self.tkClass.config(self,**kwargs)
+# =======================================================================================
+
+    def addclearinit_addconfig(self,kwargs):
+        tk.Listbox.addclearinit_addconfig(self,kwargs)
+
+    def addinit_addconfig(self,kwargs):
+        tk.Listbox.addinit_addconfig(self,kwargs)
+
+    def executeclear_addconfig(self,kwargs):
+        tk.GuiElement.executeclear_addconfig(self,kwargs)
+        if 'text' in kwargs:
+            self.fillString(kwargs.pop('text'))
+            self.current(newindex=0) 
+
+    def addconfig(self,kwargs):
+        tk.Listbox.addconfig(self,kwargs)
+        kwargs['text'] = self.getString()
+        kwargs.pop('values',None)
+
+# =======================================================================================
 
 
 class LabelFrame(tk.GuiContainer,StatTtk.LabelFrame):

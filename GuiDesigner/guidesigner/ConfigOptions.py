@@ -218,6 +218,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "label",
 "text",
 "myclass",
+"call Code(self)",
 "link",
 "photoimage",
 "activephotoimage",
@@ -319,7 +320,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                 Label(text=entry[0],width=maxlen,anchor=E).rcgrid(0,0)
                 if entry[0] == "text":
                     Button(text="+").rcgrid(0,2)
-                    do_command(lambda: DynAccess('guidesigner/text_edit.py',this()))
+                    do_command(lambda: DynAccess('guidesigner//text_edit.py',this()))
                     Text("Entry", height=3, width=20, font="TkDefaultFont").insert(END,entry[1])
 
                 elif entry[0] in (
@@ -387,6 +388,10 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                     elif entry[0] =="myclass":
                         Button(text="?").rcgrid(0,2)
                         do_command(lambda par = this(): messagebox.showinfo("Widget Class","If you enter a class name, this name for the class will be exported instead a generated one",parent=par))
+
+                    elif entry[0] =="call Code(self)":
+                        Button(text="?").rcgrid(0,2)
+                        do_command(lambda par = this(): messagebox.showinfo("call Function or Class","If you fill in a function or class name, the following call will be exported\n\nClassName(self)\n\nSo you may call the code for the gui containen,\n The code must be in another file, so that it will not be overwritten during export.",parent=par))
 
                     elif entry[0] =="link":
                         Button(text="?").rcgrid(0,2)
