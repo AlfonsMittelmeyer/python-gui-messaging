@@ -391,7 +391,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 
                     elif entry[0] =="call Code(self)":
                         Button(text="?").rcgrid(0,2)
-                        do_command(lambda par = this(): messagebox.showinfo("call Function or Class","If you fill in a function or class name, the following call will be exported\n\nClassName(self)\n\nSo you may call the code for the gui containen,\n The code must be in another file, so that it will not be overwritten during export.",parent=par))
+                        do_command(lambda par = this(): messagebox.showinfo("call Function or Class","If you fill in a function or class name, the following call will be exported\n\nCode(self)\n\nSo you may generate calling code for your gui container.\n\n The Code shall be in another file, so that it will not be overwritten by export.",parent=par))
 
                     elif entry[0] =="link":
                         Button(text="?").rcgrid(0,2)

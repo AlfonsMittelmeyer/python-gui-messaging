@@ -4,6 +4,8 @@ and individual table settings per row and column
 
 very new:
 
+- bug fixing because of restructuring and testing
+
 - a new option 'call Code(self)' allows to generate a function or a class call in the exported source.
   So now it's possible to separate gui and code so that a new export may be taken as it is, because
   it already contains calls of code, which shall be in other modules
