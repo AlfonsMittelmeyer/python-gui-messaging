@@ -282,8 +282,21 @@ class GuiElement:
             activate_menu(item,self)
         elif key == 'image':
             set_photoimage_from_image(self,{'image' :item})
-        self.tkClass. __setitem__(self, key, item)
 
+        confdict={}
+        confdict[key] = item
+        self.config(**confdict)
+
+    def __getitem__(self, key):
+        try:
+            item = self.tkClass.__getitem__(self, key)
+        except TclError:
+            dictionary = self.getconfdict()
+            if key in dictionary:
+                item = dictionary[key]
+            else:
+                raise
+        return item
 
     def reset_grid(self):
         self.grid_conf_rows = None
@@ -360,11 +373,14 @@ class GuiElement:
 
     def addclearinit_addconfig(self,kwargs):
         self.myclass = ''
+        self.baseclass = ''
         self.photoimage = ''
         self.myclass = ''
         self.menu = ''
         self.call_code = ''
+
         self.myclass_par = kwargs.pop('myclass','')
+        self.baseclass_par = kwargs.pop('baseclass','')
         self.call_code_par = kwargs.pop('call Code(self)','')
         self.photoimage_par = kwargs.pop('photoimage','')
         self.menu_par = kwargs.pop('menu','')
@@ -372,11 +388,12 @@ class GuiElement:
 
     def addinit_addconfig(self,kwargs):
 
-        for element in (('myclass',self.myclass_par),('photoimage',self.photoimage_par),('call Code(self)',self.call_code_par),('menu',self.menu_par)):
+        for element in (('myclass',self.myclass_par),('baseclass',self.baseclass_par),('photoimage',self.photoimage_par),('call Code(self)',self.call_code_par),('menu',self.menu_par)):
             if element[1]:
                 kwargs[element[0]] = element[1]
 
             self.myclass_par = None
+            self.baseclass_par = None
             self.photoimage_par = None
             self.call_code_par = None
             self.menu_par = None
@@ -385,6 +402,9 @@ class GuiElement:
 
         if 'myclass' in kwargs:
             self.myclass = kwargs.pop('myclass')
+
+        if 'baseclass' in kwargs:
+            self.baseclass = kwargs.pop('baseclass')
 
         if 'call Code(self)' in kwargs:
             self.call_code = kwargs.pop('call Code(self)')
@@ -405,12 +425,12 @@ class GuiElement:
                 del kwargs[entry[0]]
                 kwargs[entry[1]] = entry[2]
             
-        for entry in (('myclass',self.myclass),('call Code(self)',self.call_code)):
+        for entry in (('myclass',self.myclass),('baseclass',self.baseclass),('call Code(self)',self.call_code)):
             kwargs[entry[0]] = entry[1]
             
 
     def clear_addconfig(self,kwargs):
-        for element in ('myclass','photoimage','call Code(self)','link'):
+        for element in ('myclass','baseclass','photoimage','call Code(self)','link'):
             kwargs.pop(element,None)
 
         
@@ -851,6 +871,11 @@ class GuiContainer(GuiElement):
     def addconfig(self,kwargs):
         GuiElement.addconfig(self,kwargs)
         kwargs['link'] = self.link
+
+    def clear_addconfig(self,kwargs):
+        GuiElement.clear_addconfig(self,kwargs)
+        for element in ('link','grid_rows','grid_cols','grid_multi_rows','grid_multi_cols'):
+            kwargs.pop(element,None)
         
 
 # ==============================================================================
@@ -1158,6 +1183,9 @@ class Tk(GuiContainer,StatTkInter.Tk):
 
     def addconfig(self,kwargs):
         Toplevel.addconfig(self,kwargs)
+
+    def clear_addconfig(self,kwargs):
+        Toplevel.clear_addconfig(self,kwargs)
             
 # =====================================================================
 
@@ -1243,6 +1271,11 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         GuiContainer.addconfig(self,kwargs)
         kwargs['title'] = self.title()
         kwargs['geometry'] = self.geometry()
+
+    def clear_addconfig(self,kwargs):
+        GuiContainer.clear_addconfig(self,kwargs)
+        kwargs.pop('title',None)
+        kwargs.pop('geometry',None)
 
 # =====================================================================
 
@@ -1589,6 +1622,10 @@ class Listbox(GuiElement,StatTkInter.Listbox):
         GuiElement.addconfig(self,kwargs)
         kwargs['text'] = self.getString()
 
+    def cear_addconfig(self,kwargs):
+        GuiElement.clear_addconfig(self,kwargs)
+        kwargs.pop('text',None)
+
 # =======================================================================================
 
 
@@ -1637,8 +1674,22 @@ class LinkButton(Button):
             Button.config(self,**kwargs)
 
     def addconfig(self,kwargs):
-        Button.addconfig(self,kwargs)
-        kwargs['link'] = self.link
+        LinkLabel.addconfig(self,kwargs)
+
+    def addclearinit_addconfig(self,kwargs):
+        LinkLabel.addclearinit_addconfig(self,kwargs)
+
+    def addinit_addconfig(self,kwargs):
+        LinkLabel.addinit_addconfig(self,kwargs)
+
+    def executeclear_addconfig(self,kwargs):
+        LinkLabel.executeclear_addconfig(self,kwargs)
+
+    def addconfig(self,kwargs):
+        LinkLabel.addconfig(self,kwargs)
+
+    def clear_addconfig(self,kwargs):
+        LinkLabel.clear_addconfig(self,kwargs)
 
 class LinkLabel(Label):
 
@@ -1665,6 +1716,28 @@ class LinkLabel(Label):
     def addconfig(self,kwargs):
         Label.addconfig(self,kwargs)
         kwargs['link'] = self.link
+
+    def addclearinit_addconfig(self,kwargs):
+        GuiContainer.addclearinit_addconfig(self,kwargs)
+
+    def addinit_addconfig(self,kwargs):
+        GuiElement.addinit_addconfig(self,kwargs)
+        if self.link_par:
+            kwargs['link'] = self.link_par
+            self.link_par = None
+
+    def executeclear_addconfig(self,kwargs):
+        GuiElement.executeclear_addconfig(self,kwargs)
+        if 'link' in kwargs:
+            self.link = kwargs.pop('link')
+
+    def addconfig(self,kwargs):
+        GuiElement.addconfig(self,kwargs)
+        kwargs['link'] = self.link
+
+    def clear_addconfig(self,kwargs):
+        GuiElement.clear_addconfig(self,kwargs)
+        kwargs.pop('link',None)
 
 class CanvasItemWidget(GuiElement):
 
@@ -1788,18 +1861,16 @@ class MenuDelimiter(GuiElement):
                 base_dict = dict(dictionary)
                 _Application.config_menuitems['delimiter'] = base_dict
 
-            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
-            if 'myclass' in kwargs: self.myclass = kwargs.pop('myclass')
-            if 'photoimage' in kwargs: dynTkImage(self,kwargs.pop('photoimage'))
+            GuiElement.executeclear_addconfig(self,kwargs)
             StatTkInter.Menu.entryconfig(self.master,0,**kwargs)
             # neccessary during menu creation at start up time
             if self.master['tearoff']:
                 self.master.after(1,lambda kwargs=kwargs,master=self.master: StatTkInter.Menu.entryconfig(master,0,**kwargs))
 
-
-
+    def addconfig(self,kwargs):
+        MenuItem.addconfig(self,kwargs)
 
 class MenuItem(GuiElement):
     def __init__(self,myname="menuitem",mytype='command',**kwargs):
@@ -1877,7 +1948,6 @@ class MenuItem(GuiElement):
                 try:
                     dictionary[entry] = (self.master.entrycget(index,entry),)
                 except TclError: pass
-            dictionary['myclass'] = (self.myclass,)
             return dictionary
         else:
             GuiElement.executeclear_addconfig(self,kwargs)
@@ -1886,6 +1956,7 @@ class MenuItem(GuiElement):
     def addconfig(self,kwargs):
         GuiElement.addconfig(self,kwargs)
         kwargs.pop('myclass',None)
+        kwargs.pop('baseclass',None)
         kwargs.pop('call Code(self)',None)
                 
     def set_menu(self,menu):
@@ -2102,22 +2173,18 @@ def del_config_before_compare(dictionaryWidget):
     for entry in ("command","variable","image","menu"): dictionaryWidget.pop(entry,None)
 
     # delete empty or unchanged special cases
-    if 'title' in dictionaryWidget and not isinstance(this(),Menu):
-        if not this().title_changed: del dictionaryWidget['title']
-    if 'geometry' in dictionaryWidget:
-        if not this().geometry_changed: del dictionaryWidget['geometry']
-    if 'link' in dictionaryWidget:
-        if dictionaryWidget['link'] == '': del dictionaryWidget['link']
-    if 'cursor' in dictionaryWidget:
-        if dictionaryWidget['cursor'] == '': del dictionaryWidget['cursor']
-    if 'call Code(self)' in dictionaryWidget:
-        if dictionaryWidget['call Code(self)'] == '': del dictionaryWidget['call Code(self)']
-    if 'myclass' in dictionaryWidget:
-        if dictionaryWidget['myclass'] == '': del dictionaryWidget['myclass']
-    if 'photoimage' in dictionaryWidget:
-        if dictionaryWidget['photoimage'] == '': del dictionaryWidget['photoimage']
-    #dictionaryWidget.pop('link',None) # links shouldn'd be saved. Otherwise we would have the widgets twice
-    if (isinstance(this(),Listbox) or isinstance(this(),ttk.Combobox)) and dictionaryWidget['text'] == '':
+    if 'title' in dictionaryWidget and not isinstance(this(),Menu) and not this().title_changed:
+        del dictionaryWidget['title']
+    if 'geometry' in dictionaryWidget and not this().geometry_changed:
+        del dictionaryWidget['geometry']
+
+    # delete empty entries
+    for element in ('link','cursor','call Code(self)','myclass','baseclass','photoimage','text'):
+        if element in dictionaryWidget and not dictionaryWidget[element]:
+            del dictionaryWidget[element]
+
+    # delete empty text for Listbox and Combobox
+    if (isinstance(this(),Listbox) or isinstance(this(),ttk.Combobox)) and not dictionaryWidget['text']:
         del dictionaryWidget['text']
     
 def get_config_compare():
@@ -2747,7 +2814,8 @@ def saveExport(readhandle,writehandle,flag=False):
 
     # get_grid_dict used by exportWidget
     # delivers a dictionary with grid_cols, grid_rows, grid_multi_cols,grid_multi_rows
-    def get_grid_dict(confdict):
+    def get_grid_dict():
+        confdict = this().getconfdict()
         grid_dict = {}
         for entry in ('grid_cols','grid_rows','grid_multi_cols','grid_multi_rows'):
             value = confdict.pop(entry,None)
@@ -2757,13 +2825,11 @@ def saveExport(readhandle,writehandle,flag=False):
     def write_config_parameters(filehandle,colon,var_name):
         # generate other config parameters
         conf_dict = get_save_config()
-        if isinstance(this(),Menu):
-            print(conf_dict)
-            print('================')
 
         # delete what can't be generated by export
         conf_dict.pop('link',None)
         conf_dict.pop('myclass',None)
+        conf_dict.pop('baseclass',None)
         conf_dict.pop('call Code(self)',None)
 
         # save what has to be treated after regular parameters
@@ -2778,8 +2844,6 @@ def saveExport(readhandle,writehandle,flag=False):
         combotext = None
         if isinstance(this(),StatTtk.Combobox):
             combotext = conf_dict.pop('text',None)
-
-        grid_dict = get_grid_dict(conf_dict)
 
         # generate regular parameters
         if len(conf_dict) != 0:
@@ -2836,14 +2900,17 @@ def saveExport(readhandle,writehandle,flag=False):
         else:
             return '        self.add_' + item_type + '('
 
-    def export_menu_entry(filehandle,var_name,class_name):
+    def export_menu_entry(filehandle,var_name,class_name,has_class):
         optional = ''
         if EXPORT_NAME:
             filehandle.write(get_write_expression(var_name,class_name,optional,getAccessAllName(var_name)))
         else:
             filehandle.write(get_write_expression(var_name,class_name))
             
-        write_config_parameters(filehandle,",",var_name)
+        if has_class :
+            filehandle.write(')\n')
+        else:
+            write_config_parameters(filehandle,",",var_name)
 
     def call_write_menu(filehandle,widget,widget_name):
 
@@ -2852,12 +2919,14 @@ def saveExport(readhandle,writehandle,flag=False):
 
         if widget.myclass:
             camelcase_name = widget.myclass
+            has_class = True
         else:
             camelcase_name = makeCamelCase(var_name)
             camelcase_name = getCamelCaseName(camelcase_name)
+            has_class = False
 
         ExportNames[this()] = (var_name,camelcase_name)
-        export_menu_entry(filehandle,var_name,camelcase_name)
+        export_menu_entry(filehandle,var_name,camelcase_name,has_class)
         return var_name if widget.Layout==MENULAYOUT else None , camelcase_name
 
     def generate_menu_entries(filehandle):
@@ -2906,21 +2975,28 @@ def saveExport(readhandle,writehandle,flag=False):
         thisClass = WidgetClass(this())
 
         # own class name, if has widgets
-        if this().myclass:
-            class_name = this().myclass
-        elif this().hasWidgets():
-            class_name = camelcase_name
-        elif thisClass[0:4] == "ttk.":
-            class_name = thisClass
-            export_info['need_ttk'] = True
-        else:
-            class_name = 'tk.'+thisClass
- 
-        if isinstance(this(),LinkLabel):
-            class_name = 'tk.Label'
-        elif isinstance(this(),LinkButton):
-            class_name = 'tk.Button'
 
+        has_class = False
+
+        if not (isinstance(this(),MenuItem) or isinstance(this(),MenuDelimiter)):
+
+            if this().myclass:
+                class_name = this().myclass
+                has_class = True
+            elif this().hasWidgets():
+                class_name = camelcase_name
+                has_class = True
+
+            elif thisClass[0:4] == "ttk.":
+                class_name = thisClass
+                export_info['need_ttk'] = True
+            else:
+                class_name = 'tk.'+thisClass
+     
+            if isinstance(this(),LinkLabel):
+                class_name = 'tk.Label'
+            elif isinstance(this(),LinkButton):
+                class_name = 'tk.Button'
 
         optional = ''
         colon = ','
@@ -2977,7 +3053,10 @@ def saveExport(readhandle,writehandle,flag=False):
 
 
         # ================== write config parameters ==========================================
-        write_config_parameters(filehandle,colon,var_name)
+        if has_class:
+            filehandle.write(')\n')
+        else:
+            write_config_parameters(filehandle,colon,var_name)
 
         # ================ write immediate layout ==================================================
         export_immediate_layout(filehandle,var_name)
@@ -3316,12 +3395,14 @@ def saveExport(readhandle,writehandle,flag=False):
 
         filehandle.open(class_name)
         
-        thisClass = WidgetClass(this())
-                                
-        if thisClass[0:4] != "ttk.":
-            thisClass = 'tk.' + thisClass
-        else:
-            export_info['need_ttk'] = True
+        thisClass = this().getconfig('baseclass')
+        if not thisClass:
+            thisClass = WidgetClass(this())
+                                    
+            if thisClass[0:4] != "ttk.":
+                thisClass = 'tk.' + thisClass
+            else:
+                export_info['need_ttk'] = True
         
         if isinstance(this(),Tk): thisMaster = ''
         else: thisMaster = ',master'
@@ -3337,62 +3418,66 @@ def saveExport(readhandle,writehandle,flag=False):
             elif isinstance(this(),Toplevel):
                 filehandle.write("\n")
 
+            
         filehandle.write('class {}({}):\n\n'.format(class_name,thisClass))
+            
+        
 
             
         filehandle.write('    def __init__(self{},**kwargs):\n'.format(thisMaster))
-        filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
-
         if EXPORT_NAME:
             if this().myclass:
                 filehandle.write("        self.myclass = '{}'\n".format(this().myclass))
             if this().call_code:
                 filehandle.write("        self.call_code = '{}'\n".format(this().call_code))
-            
+
+        conf_dict = get_save_config()
+        this().clear_addconfig(conf_dict)
+        if conf_dict:
+            filehandle.write('        kwargs.update({})\n'.format(str(conf_dict)))
+
+        filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
      
         # only for Application or Toplevel 
         if isinstance(this(),Tk) or isinstance(this(),Toplevel):
 
-            conf_dict = get_save_config()
-            tit = conf_dict.pop('title',None)
-            if tit: filehandle.write('        self.title('+repr(tit)+")\n")
-            geo = conf_dict.pop('geometry',None)
-            if geo: filehandle.write('        self.geometry('+repr(geo)+")\n")
+            tit = this()['title']
+            if tit and this().title_changed:
+                filehandle.write('        self.title('+repr(tit)+")\n")
+            geo = this()['geometry']
             
-            this().clear_addconfig(conf_dict)
+            if geo and this().geometry_changed:
+                filehandle.write('        self.geometry('+repr(geo)+")\n")
+            
 
-            grid_dict = get_grid_dict(conf_dict)
-            if len(conf_dict) != 0:
-                filehandle.write('        # self configuration ===================================\n')
-                filehandle.write('        self.config('+generate_keyvalues(conf_dict)+")\n")
-
-            if len(grid_dict) != 0:
+        grid_dict = get_grid_dict()
+        if grid_dict:
 
 
-                if 'grid_rows' in grid_dict and this().grid_conf_cols[1:] != (0,0,0) or 'grid_cols' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
-                    filehandle.write('        # general grid definition ==============================\n')
-                    if 'grid_rows' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
-                        filehandle.write('        grid_general_rows(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_rows))
-                        export_info['need_grid_rows'] = True
-                    if 'grid_cols' in grid_dict and this().grid_conf_cols[1:] != (0,0,0):
-                        filehandle.write('        grid_general_cols(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_cols))
-                        export_info['need_grid_cols'] = True
+            if 'grid_rows' in grid_dict and this().grid_conf_cols[1:] != (0,0,0) or 'grid_cols' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
+                filehandle.write('        # general grid definition ==============================\n')
+                if 'grid_rows' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
+                    filehandle.write('        grid_general_rows(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_rows))
+                    export_info['need_grid_rows'] = True
+                if 'grid_cols' in grid_dict and this().grid_conf_cols[1:] != (0,0,0):
+                    filehandle.write('        grid_general_cols(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_cols))
+                    export_info['need_grid_cols'] = True
 
-                if 'grid_multi_rows' in grid_dict or 'grid_multi_cols' in grid_dict:
-                    filehandle.write('        # individual grid definition ===========================\n')
-                    if 'grid_multi_rows' in grid_dict:
-                        for index,entry in enumerate(this().grid_multi_conf_rows):
-                            if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                                filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
-                        if this().grid_conf_rows[1:] == (0,0,0) and this().grid_multi_conf_rows[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                            filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
-                                
-                    if 'grid_multi_cols' in grid_dict:
-                        for index,entry in enumerate(this().grid_multi_conf_cols):
-                            if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                                filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
-                        if this().grid_conf_cols[1:] == (0,0,0) and this().grid_multi_conf_cols[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                            filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
+            if 'grid_multi_rows' in grid_dict or 'grid_multi_cols' in grid_dict:
+                filehandle.write('        # individual grid definition ===========================\n')
+                if 'grid_multi_rows' in grid_dict:
+                    for index,entry in enumerate(this().grid_multi_conf_rows):
+                        if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                            filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                    if this().grid_conf_rows[1:] == (0,0,0) and this().grid_multi_conf_rows[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                        filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
+                            
+                if 'grid_multi_cols' in grid_dict:
+                    for index,entry in enumerate(this().grid_multi_conf_cols):
+                        if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                            filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                    if this().grid_conf_cols[1:] == (0,0,0) and this().grid_multi_conf_cols[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                        filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
                             
         # after class definition export the content
         if this().hasWidgets():
@@ -3509,10 +3594,16 @@ def show_grid_table(container,rows,columns):
             writehandle.write(exphandle.get())
             for entry in class_list:
                 writehandle.write(entry[1]+"\n")
-            if this() == _Application:
-                if EXPORT_NAME:
-                    writehandle.write("#"+name+"().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
-                writehandle.write(name+"().mainloop()\n")
+            if this().isMainWindow:
+                writehandle.write("if __name__ == '__main__':\n")
+                if isinstance(this(),Toplevel):
+                    if EXPORT_NAME:
+                        writehandle.write("    #" + name + "(tk.Tk()).master.mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                    writehandle.write('    '+ name +"(tk.Tk()).mainloop()\n")
+                else:
+                    if EXPORT_NAME:
+                        writehandle.write("    #" + name + "().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                    writehandle.write('    '+ name +"().mainloop()\n")
 
         # if readhandle then merge the generated GUI with file
         else:

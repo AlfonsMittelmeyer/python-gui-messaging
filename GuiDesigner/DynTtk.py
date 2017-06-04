@@ -82,8 +82,13 @@ class Combobox(tk.GuiElement,StatTtk.Combobox):
             self.current(newindex=0) 
 
     def addconfig(self,kwargs):
-        tk.Listbox.addconfig(self,kwargs)
+        tk.GuiElement.addconfig(self,kwargs)
         kwargs['text'] = self.getString()
+        kwargs.pop('values',None)
+        
+
+    def clear_addconfig(self,kwargs):
+        tk.Listbox.clear_addconfig(self,kwargs)
         kwargs.pop('values',None)
 
 # =======================================================================================

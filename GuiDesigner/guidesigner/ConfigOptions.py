@@ -218,6 +218,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "label",
 "text",
 "myclass",
+"baseclass",
 "call Code(self)",
 "link",
 "photoimage",
@@ -388,6 +389,10 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                     elif entry[0] =="myclass":
                         Button(text="?").rcgrid(0,2)
                         do_command(lambda par = this(): messagebox.showinfo("Widget Class","If you enter a class name, this name for the class will be exported instead a generated one",parent=par))
+
+                    elif entry[0] =="baseclass":
+                        Button(text="?").rcgrid(0,2)
+                        do_command(lambda par = this(): messagebox.showinfo("Base Class","If you enter a base class name, the export generates inheritance from this base class instead of a tkinter or ttk widget class",parent=par))
 
                     elif entry[0] =="call Code(self)":
                         Button(text="?").rcgrid(0,2)
