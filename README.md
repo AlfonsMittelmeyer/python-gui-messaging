@@ -4,7 +4,10 @@ and individual table settings per row and column
 
 very new:
 
-- bug fixing because of restructuring and testing
+- bug fixing and a new module Export/tk_extend.py for fixing a tkinter problem with entryconfig
+
+- a new option 'baseclass' allows inheritance from your own base classes instead of tkinter ort ttk widget classes.
+  So it's simple now to implement complex guis in tkinter
 
 - a new option 'call Code(self)' allows to generate a function or a class call in the exported source.
   So now it's possible to separate gui and code so that a new export may be taken as it is, because
