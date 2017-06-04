@@ -732,7 +732,7 @@ class GuiElement:
 
     # layout settings with the options as a string - is used by the GUI Creator
     def setlayout(self,name,value):
-        dictionary = {}
+        dictionary = self.layout_info() # for PanedWindow also the index has to be set, so take all
         dictionary[name]=value
         try: self.layout(**dictionary)
         except TclError: pass
@@ -1828,6 +1828,7 @@ class MenuDelimiter(GuiElement):
 
         if not kwargs:
             dictionary = {}
+            
             for entry in (
 'activebackground',
 'activeforeground',
@@ -3438,13 +3439,6 @@ def saveExport(readhandle,writehandle,flag=False):
                 filehandle.write("        self.myclass = '{}'\n".format(this().myclass))
             if this().call_code:
                 filehandle.write("        self.call_code = '{}'\n".format(this().call_code))
-
-
-        if not this().isMainWindow:
-            conf_dict = get_save_config()
-            this().clear_addconfig(conf_dict)
-            if conf_dict:
-                filehandle.write('        kwargs.update({})\n'.format(str(conf_dict)))
 
         filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
      

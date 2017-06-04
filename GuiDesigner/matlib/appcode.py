@@ -1,6 +1,7 @@
 from appimports import *
 import testgui
 
+
 def MenuGUI(self):
 
     def test():
@@ -16,56 +17,58 @@ def MenuGUI(self):
 
     subscribe('MENU_LANGUAGE',receive_language)
 
-def LanguageSubmenu(self):
-           
+class LanguageSubmenu:
 
-    def do_action(language):
+    def __init__(self,container):
+        self.container = container
+        self.deutsch_index = container.deutsch_index
+
+        self.entry_count = self.deutsch_index + 1
+        subscribe('SUBMENU_LANGUAGES',self.create_menu)
+                  
+    
+    def do_action(self,language):
         publish("SELECT_LANGUAGE",language)
 
-    def create_menu(languages):
 
-        self.add_checkbutton()
+    def create_menu(self,languages):
+
 
         # now we delete the menu entries after deutsch
         after_deutsch = self.deutsch_index + 1
-        while True:
-            itemtype = self.type(after_deutsch)
-            self.delete(after_deutsch)
-            if itemtype == 'checkbutton':
-                break
- 
+        for entries in range(after_deutsch,self.entry_count):
+            self.container.delete(after_deutsch)
+            
         # now we make a dynamic creation
         # first we get the style of the first command
         # this style should also be used for the other commands
 
-        command_config = get_entryconfig(self,self.deutsch_index)
+        command_config = get_entryconfig(self.container,self.deutsch_index)
         
         # now we create dynamic commands
 
         # Example
         # languages = (('Deutsch','german'),None,('English','english'),('Spanisch','spanish'),('Franzoesisch','french'))
 
-        is_not_end = True
-        for index,language in enumerate(languages):
+        entry_index = self.deutsch_index - 1 
+
+        for language in languages:
+            entry_index += 1
 
             if not language:
-                self.add_separator()
+                self.container.add_separator()
                 continue
 
             command_config['label'] = language[0]
-            command_config['command'] = partial(do_action,language[1])
+            command_config['command'] = partial(self.do_action,language[1])
                
-            if is_not_end:
-                try:
-                    self.entryconfig(index+self.deutsch_index,**command_config)
-                except (IndexError,tk.TclError):
-                    is_not_end = False
-                    self.add_command(**command_config)
+            if entry_index == self.deutsch_index :
+                self.container.entryconfig(entry_index,**command_config)
             else:
-                self.add_command(**command_config)
-                 
-                 
-    subscribe('SUBMENU_LANGUAGES',create_menu)
+                self.container.add_command(**command_config)
+
+        self.entry_count = entry_index + 1
+        
 
 def PlotFrame(self):
 
