@@ -1,6 +1,6 @@
 config(**{'grid_cols': '(2, 75, 0, 0)', 'grid_rows': '(1, 25, 0, 0)'})
 
-Button('Select',**{'text': 'Create', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'green', 'anchor': 'nw'}).grid(**{'column': '1', 'row': '0', 'sticky': 'nsw',})
+Button('Select',**{'text': 'Create', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'lightgreen', 'anchor': 'nw'}).grid(**{'column': '1', 'row': '0', 'sticky': 'nsw',})
 Label('Title',**{'text': 'window', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'fg': 'blue', 'relief': 'ridge', 'anchor': 'n'}).grid(**{'sticky': 'ew', 'row': '0'})
 
 ### CODE ===================================================

@@ -1,11 +1,12 @@
-Frame('WholeFrame')
-goIn()
+Frame('GuiFrame',**{'link': 'guidesigner/GuiFrame.py'})
 LabelFrame('WidgetPath',**{'text': 'Path'})
 goIn()
-#Label('message_path',**{'width': '70', 'anchor': 'w','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x'})
-Message('message_path',**{'width': '600', 'anchor': 'nw','bg':'#ffffa0'}).pack(**{'anchor': 'w', 'fill': 'x','expand':'1'})
-Frame('Frame',**{'width': '600'}).pack(anchor = 'nw')
 
+Frame('Frame',**{'width': 600})
+Message('message_path',**{'bg': '#ffffa0', 'width': 600, 'anchor': 'nw'})
+
+widget('message_path').pack(anchor='w', fill='x', expand=1)
+widget('Frame').pack(anchor='nw')
 
 ### CODE ===================================================
 
@@ -47,39 +48,7 @@ do_receive('SELECTION_CHANGED',show_path)
 ### ========================================================
 
 goOut()
-pack(**{'anchor': 'w', 'fill': 'x'})
-Frame('GuiFrame')
-goIn()
 
-Frame('CreateFrame',link="guidesigner/CreateFrame.py")
-grid(sticky='nw',row='0')
 
-LabelFrame('BaseLayout',text="""Layout""",link="guidesigner/BaseLayout.py")
-grid(column='1',sticky='nw',row='0')
-
-LabelFrame("ConfigOptions",text="Config",link="guidesigner/ConfigOptions.py")
-rcgrid(0,2,sticky='nw')
-
-LabelFrame("DetailedLayout",text="Layout Options",link="guidesigner/DetailedLayout.py")
-rcgrid(0,3,sticky='nw')
-
-LabelFrame("Selection",text="Selection",link="guidesigner/Selection.py")
-rcgrid(0,4,sticky='nw')
-
-### CODE ===================================================
-
-def hide_gui(message,cont = container()):
-    if message: cont.unlayout()
-    else: cont.pack(anchor='nw') # GuiFrame
-
-do_receive('HIDE_GUI',hide_gui,wishMessage=True)
-
-widget("ConfigOptions").unlayout()
-widget("DetailedLayout").unlayout()
-
-### ========================================================
-
-goOut()
-pack(anchor='nw') # GuiFrame
-goOut()
-pack(anchor='nw') # WholeFrame
+widget('WidgetPath').pack(anchor='w', fill='x')
+widget('GuiFrame').pack(anchor='nw')

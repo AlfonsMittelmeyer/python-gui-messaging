@@ -1,4 +1,4 @@
-MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'green'}).layout(index=1)
+MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'lightgreen'}).layout(index=1)
 
 ### CODE ===================================================
 
@@ -9,7 +9,7 @@ def function_callback(me,message_to_send,thisText=None):
     if message_to_send == "MOUSE_SELECT_ON": container().is_mouse_select_on = me.mydata
     send(message_to_send,me.mydata)
     if me.mydata: me.config(label=thisText+" OFF",background="orange")
-    else: me.config(label=thisText+" ON",background="green")
+    else: me.config(label=thisText+" ON",background="lightgreen")
 
 def call(widget_name,message_to_send,callback=function_callback):
     widget(widget_name).do_command(callback,(message_to_send,widget_name),True)

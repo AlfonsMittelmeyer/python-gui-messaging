@@ -2,7 +2,7 @@ config(**{'grid_cols': '(5, 51, 0, 0)', 'grid_multi_cols': '[5, (1, 26, 0, 0)]',
 
 Button('Adjust',**{'text': 'adjust', 'state': 'disabled', 'bd': '3'}).grid(**{'row': '1'})
 Label('Label',**{'text': 'x', 'padx': '3'}).grid(**{'column': '1', 'row': '1'})
-Button('Place',**{'text': 'PLACE', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'green'}).grid(**{'sticky': 'nesw', 'row': '2'})
+Button('Place',**{'text': 'PLACE', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'lightgreen'}).grid(**{'sticky': 'nesw', 'row': '2'})
 Label('PlaceTitle',**{'text': 'place', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
 Spinbox('X',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '1'})
 Spinbox('Y',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '0'})

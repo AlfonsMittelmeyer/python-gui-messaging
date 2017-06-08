@@ -51,6 +51,40 @@ from DynTkImports import *
 #from dyntkinter.callback import *
 import os
 
+def class_type(myclass):
+    classString = str(myclass)
+
+    # python 2
+    if classString[:4] == 'ttk.':
+        return classString
+
+    begin = classString.find(".")+1
+    end = classString.find("'",begin)
+
+    #python 2
+    if end < 0:
+        return classString[begin:]
+    #python 3
+    else:
+        return classString[begin:end]
+
+def WidgetClass(widget):
+    if isinstance(widget,MenuItem): return 'MenuItem'
+    elif isinstance(widget,MenuDelimiter): return 'MenuDelimiter'
+    elif isinstance(widget,LinkButton): return 'LinkButton'
+    elif isinstance(widget,LinkLabel): return 'LinkLabel'
+    else:
+        thisClass = class_type(widget.tkClass)
+        corrections = {
+        # corrections for ttk with python3
+            'ttk.Labelframe': 'ttk.LabelFrame',
+            'ttk.Panedwindow' : 'ttk.PanedWindow',
+            }
+        thisClass = corrections.pop(thisClass,thisClass)
+            
+
+        return thisClass
+
 def PhotoImage(**kwargs):
     image = StatTkInter.PhotoImage(**kwargs)
     if 'file' in kwargs:
@@ -421,7 +455,7 @@ class GuiElement:
     def addconfig(self,kwargs):
 
         for entry in ( ('image','photoimage',self.photoimage), ):
-            if entry in kwargs:
+            if entry[0] in kwargs:
                 del kwargs[entry[0]]
                 kwargs[entry[1]] = entry[2]
             
@@ -499,9 +533,7 @@ class GuiElement:
         name_index = getNameAndIndex()
         if name_index[0] != None: eraseEntry(name_index[0],name_index[1])
 
-        if self.Layout in (PACKLAYOUT,PANELAYOUT,TTKPANELAYOUT):
-            if self.Layout == TTKPANELAYOUT:
-                self.master.forget_layout(self)
+        if self.Layout == PACKLAYOUT:
             self._removeFromPackList()
         if self.tkClass != Dummy:
             if self.tkClass == Tk: self.quit()
@@ -574,8 +606,32 @@ class GuiElement:
         self.Layout = PACKLAYOUT
         self.tkClass.pack(self,**kwargs)
         
+    def ttk_pane(self,*args,**kwargs):
+        self.master.add(self,*args,**kwargs)
+
     def pane(self,*args,**kwargs):
         self.master.add(self,*args,**kwargs)
+
+    def page_photoimage_execute(self,kwargs):
+
+        photoimage = kwargs.pop('photoimage',None)
+
+        if photoimage != self.dyntk_photoimage_page:
+            
+            if photoimage:
+                dynTkLoadImage(self,photoimage)
+                self.dyntk_image_page = self.loadimage
+                self.dyntk_photoimage_page = photoimage
+                kwargs['image'] = self.loadimage
+                self.loadimage = None
+            else:
+                self.dyntk_photoimage_page == ''
+                kwargs['image'] = ''
+
+    def page(self,**kwargs):
+        self.dyntk_photoimage_page = ''
+        self.page_photoimage_execute(kwargs)
+        self.master.add(self,**kwargs)
 
     def pack_forget(self):
         self._removeFromPackList()
@@ -583,8 +639,6 @@ class GuiElement:
         self.Layout = NOLAYOUT
 
     def grid(self,**kwargs):
-        global PACKLAYOUT
-        global GRIDLAYOUT
         if self.Layout == PACKLAYOUT: self._removeFromPackList()
         self.Layout = GRIDLAYOUT
         self.tkClass.grid(self,**kwargs)
@@ -595,7 +649,6 @@ class GuiElement:
         self.grid(**kwargs)
 
     def grid_forget(self):
-        global NOLAYOUT
         self.tkClass.grid_forget(self)
         self.Layout = NOLAYOUT
     
@@ -614,22 +667,7 @@ class GuiElement:
         kwargs["x"]=x
         self.place(**kwargs)
 
-    def place_forget(self):
-        self.tkClass.place_forget(self)
-        self.Layout = NOLAYOUT
 
-    def pane_forget(self):
-        self._removeFromPackList()
-        self.master.tkClass.remove(self.master,self)
-        self.Layout = NOLAYOUT
-
-    def ttkpane_forget(self):
-        if isinstance(self.master,StatTtk.PanedWindow):
-            self._removeFromPackList()
-            self.master.tkClass.remove(self.master,self)
-            self.Layout = NOLAYOUT
-            self.master.forget_layout(self)
-       
     def selectmenu_forget(self):
         
         if not isinstance(self.master,Menu):
@@ -645,9 +683,9 @@ class GuiElement:
         if layout == PACKLAYOUT: self.pack_forget()
         elif layout == GRIDLAYOUT: self.grid_remove()
         elif layout == PLACELAYOUT: self.place_forget()
-        elif layout == TTKPANELAYOUT: self.ttkpane_forget()
-        elif layout == PANELAYOUT: self.pane_forget()
+        elif layout in (PANELAYOUT,TTKPANELAYOUT): self.master.forget(self)
         elif layout == MENULAYOUT: self.selectmenu_forget()
+        elif layout == PAGELAYOUT: pass
 
 
     def item_change_index(self,index):
@@ -668,67 +706,64 @@ class GuiElement:
                 del self.master.PackList[old_index]
                 self.master.PackList.insert(new_index,self)
 
+    def pack_layout(self,**kwargs):
+        index = self.getPackListIndex()
+        layouts = []
+        for element in self.master.PackList:
+            layouts.append(self.layout_info())
+        layouts[index] = kwargs
+        for element in self.master.PackList:
+            element.tkClass.pack_forget(element)
+        for index,element in enumerate(self.master.PackList):
+            element.tkClass.pack(element,**layouts[index])
+
+    def pane_layout(self,**kwargs):
+
+        index = kwargs.pop('pane',None)
+
+        if not index:
+            index = [ self.nametowidget(element) for element in self.master.panes() ].index(self)
+            new_index = index
+        else:
+            try:
+                new_index = int(index)
+            except ValueError: return
+
+        if self.Layout == PANELAYOUT:
+            self.master.paneconfig(self,**kwargs)
+        else:
+            self.master.pane(self,**kwargs)
+
+        packlist = [ self.nametowidget(element) for element in self.master.panes() ]
+        old_index = packlist.index(self)
+        
+        self.master.is_setsashes = False
+        send("RESET_SASHES")
+
+        for widget in packlist:
+            widget.temp_layout = widget.layout_info()
+            widget.temp_layout.pop('pane',None)
+            self.master.forget(widget)
+
+        del packlist[old_index]
+        packlist.insert(new_index,self)
+
+        for widget in packlist:
+            self.master.add(widget,**widget.temp_layout)
+            widget.temp_layout = None
+
+
+
 
     def layout(self,**kwargs):
         layout = self.Layout
         if layout == PACKLAYOUT: self.pack(**kwargs)
         elif layout == GRIDLAYOUT: self.grid(**kwargs)
         elif layout == PLACELAYOUT: self.place(**kwargs)
-
-        if layout == TTKPANELAYOUT:
-            index = kwargs.pop('index',None)
-            try:
-                new_index = int(index)
-            except ValueError: return
-
-            if 'weight' in kwargs:
-                try:
-                    int(kwargs['weight'])
-                except ValueError:
-                    kwargs['weight'] = '1'
-                self.master.child_layouts[self] = kwargs['weight']
-            self.master.is_setsashes = False
-            send("RESET_SASHES")
-
-            old_index = self.getPackListIndex()
-            packlist = self.master.PackList
-            for widget in packlist:
-                widget.master.forget(widget)
-               
-            del self.master.PackList[old_index]
-            self.master.PackList.insert(new_index,self)
-               
-            for widget in packlist:
-                StatTtk.PanedWindow.add(widget.master,widget,**widget.master.pane_layout(widget))
-           
-
-        elif layout == PANELAYOUT:
-            index = kwargs.pop('index',None)
-            try:
-                new_index = int(index)
-            except ValueError: return
-
-            self.master.paneconfig(self,**kwargs)
-            old_index = self.getPackListIndex()
-            packlist = self.master.PackList
-            self.master.is_setsashes = False
-            send("RESET_SASHES")
-
-            for widget in packlist:
-                widget.temp_layout = widget.layout_info()
-                widget.temp_layout.pop('index',None)
-                self.master.remove(widget)
-
-            del self.master.PackList[old_index]
-            self.master.PackList.insert(new_index,self)
-
-            for widget in packlist:
-                StatTkInter.PanedWindow.add(widget.master,widget,**widget.temp_layout)
-                widget.temp_layout = None
-
-                
+        elif layout in (PANELAYOUT,TTKPANELAYOUT): self.pane_layout(**kwargs)
         elif layout == MENUITEMLAYOUT: self.item_change_index(**kwargs)
         elif layout == MENULAYOUT: self.select_menu()
+        elif layout == PAGELAYOUT: self.page_layout(**kwargs)
 
     # layout settings with the options as a string - is used by the GUI Creator
     def setlayout(self,name,value):
@@ -739,25 +774,41 @@ class GuiElement:
 
     def getlayout(self,name):
         dictionary = self.layout_info()
-        if name in dictionary: return dictionary[name]
+        if name in dictionary:
+            return dictionary[name]
         else: return ""
 
     def pane_info(self):
         parent = self.master
         if self.Layout == PANELAYOUT:
-            dictionary = {}
-            dictionary['width'] = parent.panecget(self,'width')
-            dictionary['height'] = parent.panecget(self,'height')
-            dictionary['minsize'] = parent.panecget(self,'minsize')
-            dictionary['padx'] = parent.panecget(self,'padx')
-            dictionary['pady'] = parent.panecget(self,'pady')
-            dictionary['sticky'] = parent.panecget(self,'sticky')
+            dictionary = parent.paneconfig(self)
+            ConfDictionaryShort(dictionary)
+            dictionary.pop('after',None)
+            dictionary.pop('before',None)
         else:
-            dictionary = parent.pane_layout(self)
-
-        dictionary['index'] = self.getPackListIndex()
+            dictionary = parent.pane(self)
+       
+        dictionary['pane'] = [ self.nametowidget(element) for element in self.master.panes()].index(self)
         return dictionary
 
+    def page_info(self):
+        parent = self.master
+        index = parent.index(self)
+        dictionary = parent.tab(index)
+        dictionary['page'] = index
+        padding = dictionary['padding']
+        s = " "
+        dictionary['padding'] = s.join([str(i) for i in dictionary['padding']])
+        dictionary['photoimage'] = self.dyntk_photoimage_page
+        dictionary.pop('image',None)
+        return dictionary
+
+    def page_layout(self,**kwargs):
+        self.page_photoimage_execute(kwargs)
+        parent = self.master
+        index = parent.index(self)
+        kwargs.pop('page',None)
+        parent.tab(index,**kwargs)
 
     def menuitem_info(self):
         dictionary = {}
@@ -771,6 +822,7 @@ class GuiElement:
         elif layout == PLACELAYOUT: dictionary = self.place_info()
         elif layout in (PANELAYOUT,TTKPANELAYOUT): dictionary = self.pane_info()
         elif layout == MENUITEMLAYOUT: dictionary = self.menuitem_info()
+        elif layout == PAGELAYOUT: dictionary = self.page_info()
         else: dictionary = {}
         return dictionary
 
@@ -915,6 +967,8 @@ def pack(**kwargs): this().pack(**kwargs)
 def grid(**kwargs): this().grid(**kwargs)
 def place(**kwargs): this().place(**kwargs)
 def pane(*args,**kwargs): this().pane(*args,**kwargs)
+def ttk_pane(*args,**kwargs): this().ttk_pane(*args,**kwargs)
+def page(**kwargs): this().page(**kwargs)
 
 # for convenience
 def rcgrid(prow,pcolumn,**kwargs): this().rcgrid(prow,pcolumn,**kwargs)
@@ -1228,9 +1282,13 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         self.master = master
 
     def geometry(self,*args):
+
         if args:
             self.geometry_changed = True
-        return self.tkClass.geometry(self,geometry)
+        else:
+            self.geometry_changed = False
+            
+        return self.tkClass.geometry(self,*args)
 
     def title(self,*args):
         if args:
@@ -1290,13 +1348,6 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
     def pack(self,**kwargs): output("Sorry, no pack for a Toplevel!")
     def grid(self,**kwargs): output("Sorry, no grid for a Toplevel!")
     def place(self,**kwargs): output("Sorry, no place for a Toplevel!")
-
-    def geometry(self,geometry=None):
-        if geometry:
-            self.geometry_changed = True
-        return StatTkInter.Toplevel.geometry(self,geometry)
-
-
 
 
 class Menu(GuiContainer,StatTkInter.Menu):
@@ -1579,22 +1630,28 @@ class Spinbox(GuiElement,StatTkInter.Spinbox):
         _initGuiElement(kwargs,StatTkInter.Spinbox,self,myname,"spinbox")
 
 
-class Menubutton(GuiElement,StatTkInter.Menubutton):
+class Menubutton(GuiContainer,StatTkInter.Menubutton):
 
     def __init__(self,myname=None,**kwargs):
-        _initGuiElement(kwargs,StatTkInter.Menubutton,self,myname,"menubutton",True)
+        _initGuiContainer(kwargs,StatTkInter.Menubutton,self,myname,"menubutton")
 
-class PanedWindow(GuiElement,StatTkInter.PanedWindow):
+class PanedWindow(GuiContainer,StatTkInter.PanedWindow):
 
     def __init__(self,myname=None,**kwargs):
-        _initGuiElement(kwargs,StatTkInter.PanedWindow,self,myname,"panedwindow",True)
+        _initGuiContainer(kwargs,StatTkInter.PanedWindow,self,myname,"panedwindow")
         self.is_setsashes = False
 
     def add(self,child,*args,**kwargs):
-        if child.Layout != PANELAYOUT:
-            child._addToPackList()
-            child.Layout = PANELAYOUT
-            self.tkClass.add(self,child,*args,**kwargs)
+        child.Layout = PANELAYOUT
+        self.tkClass.add(self,child,*args,**kwargs)
+
+    def remove(self,child):
+        self.forget(child)
+        
+    def forget(self,child):
+        child.Layout = NOLAYOUT
+        StatTkInter.PanedWindow.forget(self,child)
+        
 
 class Listbox(GuiElement,StatTkInter.Listbox):
 
@@ -1622,7 +1679,7 @@ class Listbox(GuiElement,StatTkInter.Listbox):
         GuiElement.addconfig(self,kwargs)
         kwargs['text'] = self.getString()
 
-    def cear_addconfig(self,kwargs):
+    def clear_addconfig(self,kwargs):
         GuiElement.clear_addconfig(self,kwargs)
         kwargs.pop('text',None)
 
@@ -1656,10 +1713,6 @@ def link_command(me):
 class LinkButton(Button):
 
     def __init__(self,myname="linkbutton",**kwargs):
-        self.link=""		
-        if 'link' in kwargs:
-            self.link = kwargs['link']
-            kwargs.pop('link',None)
         Button.__init__(self,myname,**kwargs)
         # not a command, because this would be a problem in the GUI Designer
         self.do_event('<ButtonRelease-1>',link_command,wishWidget = True)
@@ -1694,10 +1747,6 @@ class LinkButton(Button):
 class LinkLabel(Label):
 
     def __init__(self,myname="linklabel",**kwargs):
-        self.link=""		
-        if 'link' in kwargs:
-            self.link = kwargs['link']
-            kwargs.pop('link',None)
         if not 'font' in kwargs: kwargs['font'] = 'TkFixedFont 9 normal underline'
         if not 'fg' in kwargs: kwargs['fg'] = 'blue'
         Label.__init__(self,myname,**kwargs)
@@ -1718,7 +1767,9 @@ class LinkLabel(Label):
         kwargs['link'] = self.link
 
     def addclearinit_addconfig(self,kwargs):
-        GuiContainer.addclearinit_addconfig(self,kwargs)
+        GuiElement.addclearinit_addconfig(self,kwargs)
+        self.link = ''
+        self.link_par = kwargs.pop('link','')
 
     def addinit_addconfig(self,kwargs):
         GuiElement.addinit_addconfig(self,kwargs)
@@ -1752,10 +1803,10 @@ class CanvasItemWidget(GuiElement):
         _Selection._container = master
         self.Layout = LAYOUTNEVER
         master.canvas_widget = self
+
+        self.addclearinit_addconfig({})
         if do_append and name == 'image':
             self.config(photoimage = 'guidesigner/images/butterfly.gif')
-            self.activephotoimage = ''
-            self.disabledphotoimage = ''
  
     def destroy(self):
         self.master.canvas_widget = None
@@ -1769,7 +1820,7 @@ class CanvasItemWidget(GuiElement):
 
 
     def config(self,**kwargs):
-        if len(kwargs) == 0:
+        if not kwargs:
     
             if self.master.type(self.item_id) == 'image':
                 self.photoimage = '' 
@@ -1801,7 +1852,32 @@ class CanvasItemWidget(GuiElement):
             self.activephotoimage = kwargs['activephotoimage']
         if 'disabledphotoimage' in kwargs:
             self.disabledphotoimage = kwargs['disabledphotoimage']
-       
+
+    def addconfig(self,kwargs):
+        if self.master.type(self.item_id) == 'image':
+            for entry in (
+                ('image','photoimage',self.photoimage),
+                ('activeimage','activephotoimage',self.activephotoimage),
+                ('disabledimage','disabledphotoimage',self.disabledphotoimage),
+                ):
+                if entry[0] in kwargs:
+                    del kwargs[entry[0]]
+                    kwargs[entry[1]] = entry[2]
+
+
+    def clear_addconfig(self,kwargs):
+        kwargs.pop('photoimage',None)
+        kwargs.pop('activephotoimage',None)
+        kwargs.pop('disabledphotoimage',None)
+        kwargs.pop('image',None)
+        kwargs.pop('activeimage',None)
+        kwargs.pop('disabledimage',None)
+
+    def addclearinit_addconfig(self,kwargs):
+        self.photoimage = ''
+        self.activephotoimage = ''
+        self.disabledphotoimage = ''
+
 
 def CanvasItem(master,item_id,do_append = True):
     return CanvasItemWidget(master,item_id,do_append)
@@ -2133,40 +2209,6 @@ indent = ""
 
 SAVE_ALL = False
 
-def class_type(myclass):
-    classString = str(myclass)
-
-    # python 2
-    if classString[:4] == 'ttk.':
-        return classString
-
-    begin = classString.find(".")+1
-    end = classString.find("'",begin)
-
-    #python 2
-    if end < 0:
-        return classString[begin:]
-    #python 3
-    else:
-        return classString[begin:end]
-
-
-def WidgetClass(widget):
-    if isinstance(widget,MenuItem): return 'MenuItem'
-    elif isinstance(widget,MenuDelimiter): return 'MenuDelimiter'
-    elif isinstance(widget,LinkButton): return 'LinkButton'
-    elif isinstance(widget,LinkLabel): return 'LinkLabel'
-    else:
-        thisClass = class_type(widget.tkClass)
-        corrections = {
-        # corrections for ttk with python3
-            'ttk.Labelframe': 'ttk.LabelFrame',
-            'ttk.Panedwindow' : 'ttk.PanedWindow',
-            }
-        thisClass = corrections.pop(thisClass,thisClass)
-            
-
-        return thisClass
 
 def del_config_before_compare(dictionaryWidget):
 
@@ -2184,10 +2226,6 @@ def del_config_before_compare(dictionaryWidget):
         if element in dictionaryWidget and not dictionaryWidget[element]:
             del dictionaryWidget[element]
 
-    # delete empty text for Listbox and Combobox
-    if (isinstance(this(),Listbox) or isinstance(this(),ttk.Combobox)) and not dictionaryWidget['text']:
-        del dictionaryWidget['text']
-    
 def get_config_compare():
 
     if this().isMainWindow:
@@ -2210,32 +2248,76 @@ def get_config_compare():
 
     return dictionaryCompare
 
-
-def get_layout_dictionary():
+def get_layout_compare():
 
     CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
-    if this().Layout == GRIDLAYOUT:
+
+    if this().Layout == PACKLAYOUT:
+        CompareWidget.pack()
+        layoutCompare = dict(CompareWidget.pack_info())
+
+    elif this().Layout == PANELAYOUT:
+        CompareWidget.master.tkClass.add(CompareWidget.master,CompareWidget)
+        layoutCompare = CompareWidget.master.tkClass.paneconfig(CompareWidget.master,CompareWidget)
+        CompareWidget.master.tkClass.forget(CompareWidget.master,CompareWidget) # need this ?
+        ConfDictionaryShort(layoutCompare)
+
+    elif this().Layout == TTKPANELAYOUT:
+
+        CompareWidget.master.tkClass.add(CompareWidget.master,CompareWidget)
+        layoutCompare = CompareWidget.master.tkClass.pane(CompareWidget.master,CompareWidget)
+        CompareWidget.master.tkClass.forget(CompareWidget.master,CompareWidget) # need this ?
+
+    elif this().Layout == PAGELAYOUT:
+
+        CompareWidget.master.tkClass.add(CompareWidget.master,CompareWidget)
+        index = CompareWidget.master.index(CompareWidget)
+        layoutCompare = CompareWidget.master.tkClass.tab(CompareWidget.master,index)
+        CompareWidget.master.tkClass.forget(CompareWidget.master,index) # need this ?
+        s = " "
+        layoutCompare['padding'] = s.join([str(i) for i in layoutCompare['padding']])
+
+    elif this().Layout == GRIDLAYOUT:
         CompareWidget.grid()
         layoutCompare = dict(CompareWidget.grid_info())
     else: 
         CompareWidget.place(x=-53287,y=-43217)
         layoutCompare = dict(CompareWidget.place_info())
+
     CompareWidget.destroy()
 
-    layoutDict = layout_info()
-    if this().Layout != TTKPANELAYOUT:
-        layoutDict.pop(".in",None)
-        for n,e in dict(layoutDict).items():
-            if e == layoutCompare[n]: layoutDict.pop(n,None)
+    return layoutCompare
 
-        # Causes bug for tuple - padx, do we have some pixel object?
-        #for n,e in layoutDict.items(): layoutDict[n] = str(e)
+def get_save_layout():
 
-        for n,e in layoutDict.items():
+    save_layout = layout_info()
+    photoimage = save_layout.pop('photoimage',None)
+    save_layout.pop('image',None)
+    
+
+    save_layout.pop(".in",None)
+    if this().Layout in (PANELAYOUT,TTKPANELAYOUT):
+        save_layout.pop('pane',None)
+
+    if this().Layout == PAGELAYOUT:
+        save_layout.pop('page',None)
+
+    # for nor saving default values
+    layoutCompare = get_layout_compare()
+    for n,e in dict(save_layout).items():
+        if e == layoutCompare[n]:
+            save_layout.pop(n,None)
+
+    # for avoiding exceptions
+    if save_layout:
+        for n,e in save_layout.items():
             if class_type(type(e)) == "Tcl_Obj":
-                layoutDict[n] = str(e)
+                save_layout[n] = str(e)
 
-    return layoutDict
+    if photoimage:
+        save_layout['photoimage'] = photoimage
+
+    return save_layout
 
 def is_immediate_layout(): return this().Layout & (GRIDLAYOUT | PLACELAYOUT | MENULAYOUT)
 
@@ -2253,10 +2335,10 @@ def save_immediate_layout(filehandle):
 
     if this().Layout == GRIDLAYOUT:
         filehandle.write(indent+"grid(")
-        layout = get_layout_dictionary()
+        layout = get_save_layout()
     elif this().Layout == PLACELAYOUT:
         filehandle.write(indent+"place(")
-        layout = get_layout_dictionary()
+        layout = get_save_layout()
     elif this().Layout == MENULAYOUT:
         filehandle.write(indent+"select_menu(")
         layout = {}
@@ -2266,8 +2348,15 @@ def save_immediate_layout(filehandle):
 
 def save_pack_entries(filehandle):
 
-    packlist = container().PackList
-    if len(packlist) == 0: return
+    if isinstance(container(),PanedWindow) or isinstance(container(),ttk.PanedWindow):
+        packlist = [ container().nametowidget(element) for element in container().panes() ]
+    elif isinstance(container(),ttk.Notebook):
+        packlist = [ container().nametowidget(element) for element in container().tabs() ]
+    else:
+        packlist = container().PackList
+
+    if not packlist:
+        return
 
     filehandle.write("\n")
     item_index = 1
@@ -2278,84 +2367,41 @@ def save_pack_entries(filehandle):
             nameAndIndex = getNameAndIndex()
             if nameAndIndex[1] == -1:
                 filehandle.write(nameAndIndex[0]+"')")
-            else: filehandle.write(nameAndIndex[0]+"',"+str(nameAndIndex[1])+")")
+            else:
+                filehandle.write(nameAndIndex[0]+"',"+str(nameAndIndex[1])+")")
 
             if this().Layout == MENUITEMLAYOUT:
                 filehandle.write(".layout(index="+str(item_index)+")\n")
             else:
-           
-                layoutWidget = layout_info()
-                layoutWidget.pop(".in",None)
 
                 if this().Layout == PACKLAYOUT:
-                    CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
                     filehandle.write(".pack(")
-                    CompareWidget.pack()
-                    layoutCompare = dict(CompareWidget.pack_info())
-                    CompareWidget.destroy()
                 elif this().Layout == PANELAYOUT:
                     filehandle.write(".pane(")
-                    layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
-                    layoutWidget.pop('index',None)
-
                 elif this().Layout == TTKPANELAYOUT:
-                    filehandle.write(".pane(")
-                    layoutCompare = {'weight' : '0' }
-                    layoutWidget.pop('index',None)
+                    filehandle.write(".ttk_pane(")
+                elif this().Layout == PAGELAYOUT:
+                    filehandle.write(".page(")
 
-                for n,e in dict(layoutWidget).items():
-                    if e == layoutCompare[n]: layoutWidget.pop(n,None)
-            
-                if len(layoutWidget) != 0:
-                    for n,e in layoutWidget.items():
-                        if class_type(type(e)) == "Tcl_Obj":
-                            layoutWidget[n] = str(e)
-                    filehandle.write(generate_keyvalues(layoutWidget))
+                save_layout = get_save_layout()
+                if save_layout:
+                    filehandle.write(generate_keyvalues(save_layout))
                
                 filehandle.write(")\n")
         item_index += 1
 
 
-    if container().tkClass == StatTkInter.PanedWindow and container().is_setsashes:
-    
-        index = 0
-        sash_list = []
-        while True:
-            try:
-                sash_list.append(container().sash_coord(index))
-                index += 1
-            except: break
-        for i in range(len(sash_list)):
-            filehandle.write('{}container().sash_place({},{},{})\n'.format(indent,i,sash_list[i][0],sash_list[i][1]))
-        filehandle.write('# === may be neccessary: depends on your system ===============================\n')
-        for i in range(len(sash_list)):
-            filehandle.write('container().after(100,lambda funct=container().sash_place: funct({},{},{}))\n'.format(i,sash_list[i][0],sash_list[i][1]))
-
-    elif container().tkClass == StatTtk.PanedWindow and container().is_setsashes:
-
-        index = 0
-        sash_list = []
-        while True:
-            try:
-                sash_list.append(container().sashpos(index))
-                index += 1
-            except: break
-        for i in range(len(sash_list)):
-            filehandle.write('{}container().sashpos({},{})\n'.format(indent,i,sash_list[i]))
-        filehandle.write('# === may be neccessary: depends on your system ===============================\n')
-        for i in range(len(sash_list)):
-            filehandle.write('container().after(100,lambda funct=container().sashpos: funct({},{}))\n'.format(i,sash_list[i]))
-
-
 
 def save_sub_container(filehandle):
-    if not this().isContainer: return False
-    if not this().hasWidgets() and len(this().CODE) == 0: return False
+    if not this().isContainer:
+        return False
+    if not this().hasWidgets() and not this().CODE:
+        return False
 
     filehandle.write("\n"+indent+"goIn()\n\n")
 
     # entweder nur der Code des Untercontainers
-    if (not this().hasWidgets() or this().onlysavecode) and len(this().CODE) != 0:
+    if (not this().hasWidgets() or this().onlysavecode) and this().CODE:
         filehandle.write("### CODE ===================================================\n")
         filehandle.write(this().CODE)
         filehandle.write("### ========================================================\n")
@@ -2366,6 +2412,36 @@ def save_sub_container(filehandle):
         goIn()
         saveContainer(filehandle)
         goOut()
+
+    if this().tkClass == StatTkInter.PanedWindow and this().is_setsashes:
+    
+        index = 0
+        sash_list = []
+        while True:
+            try:
+                sash_list.append(this().sash_coord(index))
+                index += 1
+            except: break
+        for i in range(len(sash_list)):
+            filehandle.write('{}container().sash_place({},{},{})\n'.format(indent,i,sash_list[i][0],sash_list[i][1]))
+        filehandle.write('# === may be neccessary: depends on your system ===============================\n')
+        for i in range(len(sash_list)):
+            filehandle.write('container().after(100,lambda funct=container().sash_place: funct({},{},{}))\n'.format(i,sash_list[i][0],sash_list[i][1]))
+
+    elif this().tkClass == StatTtk.PanedWindow and this().is_setsashes:
+
+        index = 0
+        sash_list = []
+        while True:
+            try:
+                sash_list.append(this().sashpos(index))
+                index += 1
+            except: break
+        for i in range(len(sash_list)):
+            filehandle.write('{}container().sashpos({},{})\n'.format(indent,i,sash_list[i]))
+        filehandle.write('# === may be neccessary: depends on your system ===============================\n')
+        for i in range(len(sash_list)):
+            filehandle.write('container().after(100,lambda funct=container().sashpos: funct({},{}))\n'.format(i,sash_list[i]))
 
     filehandle.write("\n"+indent+"goOut()\n")
     return True
@@ -2816,7 +2892,8 @@ def saveExport(readhandle,writehandle,flag=False):
     # get_grid_dict used by exportWidget
     # delivers a dictionary with grid_cols, grid_rows, grid_multi_cols,grid_multi_rows
     def get_grid_dict():
-        confdict = this().getconfdict()
+        #confdict = this().getconfdict()
+        confdict = get_save_config()
         grid_dict = {}
         for entry in ('grid_cols','grid_rows','grid_multi_cols','grid_multi_rows'):
             value = confdict.pop(entry,None)
@@ -2826,14 +2903,11 @@ def saveExport(readhandle,writehandle,flag=False):
     def write_config_parameters(filehandle,colon,var_name):
         # generate other config parameters
         conf_dict = get_save_config()
+
         this().clear_addconfig(conf_dict)
 
         if this().getconfig('photoimage'):
             conf_dict['image'] = 'self.' + var_name + '_img'
-
-        combotext = None
-        if isinstance(this(),StatTtk.Combobox):
-            combotext = conf_dict.pop('text',None)
 
         # generate regular parameters
         if conf_dict:
@@ -2853,10 +2927,16 @@ def saveExport(readhandle,writehandle,flag=False):
             filehandle.write("        self.{}.current(newindex = 0)\n".format(var_name))
 
 
-    def write_self_config_parameters(filehandle):
+
+    def get_self_export_config():
         # generate other config parameters
         conf_dict = get_save_config()
         this().clear_addconfig(conf_dict)
+        if isinstance(this(),ttk.PanedWindow):
+            conf_dict.pop('orient',None)
+        return conf_dict
+
+    def write_self_config_parameters(filehandle,conf_dict):
 
 
         # generate regular parameters
@@ -2884,10 +2964,10 @@ def saveExport(readhandle,writehandle,flag=False):
 
         if this().Layout == GRIDLAYOUT:
             filehandle.write('.'+name+".grid(")
-            layout = get_layout_dictionary()
+            layout = get_save_layout()
         elif this().Layout == PLACELAYOUT:
             filehandle.write('.'+name+".place(")
-            layout = get_layout_dictionary()
+            layout = get_save_layout()
         elif this().Layout == MENULAYOUT:
             filehandle.write("['menu'] = self."+name+"\n")
             return
@@ -3063,6 +3143,14 @@ def saveExport(readhandle,writehandle,flag=False):
             # a photo image has to be exported here, because we need var_name
             if this().getconfig('photoimage'):
                 filehandle.write(colon + 'image = self.' + var_name + '_img')
+                colon = ','
+
+            if isinstance(this(),ttk.PanedWindow):
+                conf_dict = get_save_config()
+                orient = conf_dict.pop('orient',None)
+                if orient:
+                    filehandle.write(colon + "orient = '{}'".format(orient))
+
             filehandle.write(')\n')
         else:
             write_config_parameters(filehandle,colon,var_name)
@@ -3071,104 +3159,6 @@ def saveExport(readhandle,writehandle,flag=False):
         export_immediate_layout(filehandle,var_name)
 
         return create_menu_list
-
-    # export_pack_entries called by exportContainer
-    # at the end of the container generation pach und menuitem laqyout has to be done
-    def export_pack_entries(filehandle):
-
-        # not neccessary, because now MenuItems in correct order
-        if isinstance(container(),Menu):
-            return
-
-        # packlist, return if empty
-        packlist = container().PackList
-        if len(packlist) == 0: return
-
-        item_index = 1
-
-        for e in packlist:
-
-            setWidgetSelection(e)
-            name = ExportNames[this()][0]
-
-
-            filehandle.write(indent+"        self.")
-
-            # no name for PANELAYOUT, because there has to be self.add
-            if this().Layout not in (PANELAYOUT,TTKPANELAYOUT):
-                filehandle.write(name)
-
-            if this().Layout == MENUITEMLAYOUT:
-                filehandle.write(".layout(index="+str(item_index)+")\n")
-                item_index += 1
-            else: # Packlayout and Panelayout
-           
-                layoutWidget = layout_info()
-
-                if this().Layout == PACKLAYOUT:
-                    CompareWidget=StatTkInter.Frame(container(),width=0,height=0)
-                    layoutWidget.pop(".in",None)
-                    filehandle.write(".pack(")
-                    CompareWidget.pack()
-                    layoutCompare = dict(CompareWidget.pack_info())
-                    CompareWidget.destroy()
-                elif this().Layout == PANELAYOUT:
-                    filehandle.write("add(self."+name) # point already written 'self.'
-                    layoutCompare = {'sticky': 'nesw', 'minsize': 0, 'width': '', 'pady': 0, 'padx': 0, 'height': ''}
-                    layoutWidget.pop('index',None)
-
-                elif this().Layout == TTKPANELAYOUT:
-                    filehandle.write("add(self."+name) # point already written 'self.'
-                    layoutWidget.pop('index',None)
-                    layoutCompare = {'weight' : '0'}
-
-                for n,e in dict(layoutWidget).items():
-                    if e == layoutCompare[n]: layoutWidget.pop(n,None)
-     
-                if len(layoutWidget) != 0:
-                    if this().Layout in (PANELAYOUT,TTKPANELAYOUT): filehandle.write(",")
-                    
-                    for n,e in layoutWidget.items():
-                        if class_type(type(e)) == "Tcl_Obj":
-                            layoutWidget[n] = str(e)
-     
-                    filehandle.write(generate_keyvalues(layoutWidget))
-
-                filehandle.write(")\n")
-
-            
-        # if the container is a PanedWindow, we add the sashes and trigger, that they update correct after 500 ms
-        if isinstance(container(),ttk.PanedWindow) and container().is_setsashes:
-            index = 0
-            sash_list = []
-            while True:
-                try:
-                    sash_list.append(container().sashpos(index))
-                    index += 1
-                except: break
-
-            for i in range(len(sash_list)):
-                filehandle.write('{}self.sashpos({},{})\n'.format('        ',i,sash_list[i]))
-            filehandle.write('# === may be neccessary: depends on your system ===============================\n')
-            for i in range(len(sash_list)):
-                filehandle.write('{}self.after(100,lambda funct=self.sashpos: funct({},{}))\n'.format('        ',i,sash_list[i]))
-
-        # if the container is a PanedWindow, we add the sashes and trigger, that they update correct after 500 ms
-        elif isinstance(container(),PanedWindow) and container().is_setsashes:
-
-            index = 0
-            sash_list = []
-            while True:
-                try:
-                    sash_list.append(container().sash_coord(index))
-                    index += 1
-                except: break
-
-            for i in range(len(sash_list)):
-                filehandle.write('{}self.sash_place({},{},{})\n'.format('        ',i,sash_list[i][0],sash_list[i][1]))
-            filehandle.write('# === may be neccessary: depends on your system ===============================\n')
-            for i in range(len(sash_list)):
-                filehandle.write('{}self.after(100,lambda funct=self.sash_place: funct({},{},{}))\n'.format('        ',i,sash_list[i][0],sash_list[i][1]))
 
 
     def export_photo(image_ref,fotofile,filehandle):
@@ -3181,6 +3171,72 @@ def saveExport(readhandle,writehandle,flag=False):
         else:
             export_info['need_pil'] = True
             filehandle.write("        {} = ImageTk.PhotoImage(Image.open('{}'))\n".format(image_ref,fotofile))
+
+
+    # export_pack_entries called by exportContainer
+    # at the end of the container generation pach und menuitem laqyout has to be done
+    def export_pack_entries(filehandle):
+        # not neccessary, because now MenuItems in correct order
+        if isinstance(container(),Menu):
+            return
+
+        if isinstance(container(),PanedWindow) or isinstance(container(),ttk.PanedWindow):
+            packlist = [ container().nametowidget(element) for element in container().panes() ]
+        elif isinstance(container(),ttk.Notebook):
+            packlist = [ container().nametowidget(element) for element in container().tabs() ]
+        else:
+            packlist = container().PackList
+
+        if not packlist:
+            return
+
+        item_index = 1
+        page_nr = 0
+
+        for e in packlist:
+
+            setWidgetSelection(e)
+            name = ExportNames[this()][0]
+
+
+            save_layout = get_save_layout()
+
+            if save_layout and this().Layout == PAGELAYOUT:
+
+                photoimage = save_layout.pop('photoimage',None)
+                if photoimage:
+                    image_ref = 'self.page{}_img'.format(page_nr)
+                    export_photo(image_ref,photoimage,filehandle)
+                    save_layout['image'] = image_ref
+
+                page_nr += 1
+
+
+            filehandle.write(indent+"        self.")
+
+            # no name for PANELAYOUT, because there has to be self.add
+            if this().Layout not in (PANELAYOUT,TTKPANELAYOUT,PAGELAYOUT):
+                filehandle.write(name)
+
+            if this().Layout == MENUITEMLAYOUT:
+                filehandle.write(".layout(index="+str(item_index)+")\n")
+                item_index += 1
+            else: # Packlayout and Panelayout
+           
+                colon = ','
+                if this().Layout == PACKLAYOUT:
+                    filehandle.write(".pack(")
+                    colon = ''
+                elif this().Layout in (PANELAYOUT,TTKPANELAYOUT,PAGELAYOUT):
+                    filehandle.write("add(self."+name) # point already written 'self.'
+
+
+                if save_layout:
+                    filehandle.write(colon + generate_keyvalues(save_layout))
+
+                filehandle.write(")\n")
+            
+
 
 
     def export_canvas(filehandle):
@@ -3373,11 +3429,46 @@ def saveExport(readhandle,writehandle,flag=False):
                     filehandle.write('        self.{}_index = {}\n'.format(name,index+offset))
                 del container().named_indexes
 
+
+        # if the container is a PanedWindow, we add the sashes and trigger, that they update correct after 500 ms
+        if container().tkClass == StatTkInter.PanedWindow and container().is_setsashes:
+
+            index = 0
+            sash_list = []
+            while True:
+                try:
+                    sash_list.append(container().sash_coord(index))
+                    index += 1
+                except: break
+
+            for i in range(len(sash_list)):
+                filehandle.write('{}self.sash_place({},{},{})\n'.format('        ',i,sash_list[i][0],sash_list[i][1]))
+            filehandle.write('# === may be neccessary: depends on your system ===============================\n')
+            for i in range(len(sash_list)):
+                filehandle.write('{}self.after(100,lambda funct=self.sash_place: funct({},{},{}))\n'.format('        ',i,sash_list[i][0],sash_list[i][1]))
+
+        # if the container is a PanedWindow, we add the sashes and trigger, that they update correct after 500 ms
+        elif container().tkClass == StatTtk.PanedWindow and container().is_setsashes:
+            index = 0
+            sash_list = []
+            while True:
+                try:
+                    sash_list.append(container().sashpos(index))
+                    index += 1
+                except: break
+
+            for i in range(len(sash_list)):
+                filehandle.write('{}self.sashpos({},{})\n'.format('        ',i,sash_list[i]))
+            filehandle.write('# === may be neccessary: depends on your system ===============================\n')
+            for i in range(len(sash_list)):
+                filehandle.write('{}self.after(100,lambda funct=self.sashpos: funct({},{}))\n'.format('        ',i,sash_list[i]))
+
+
         if container().getconfig('call Code(self)'):
                 filehandle.write('        # call Code ===================================\n')
                 filehandle.write("        {}(self)\n".format(container().call_code))
 
-        # now we save sub containers ==============================================
+        # now we export sub containers ==============================================
 
     
         # first export menus
@@ -3430,8 +3521,6 @@ def saveExport(readhandle,writehandle,flag=False):
             
         filehandle.write('class {}({}):\n\n'.format(class_name,thisClass))
             
-        
-
             
         filehandle.write('    def __init__(self{},**kwargs):\n'.format(thisMaster))
         if EXPORT_NAME:
@@ -3442,11 +3531,10 @@ def saveExport(readhandle,writehandle,flag=False):
 
         filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
      
-        conf_dict = get_save_config()
-        this().clear_addconfig(conf_dict)
+        conf_dict = get_self_export_config()
         if conf_dict or this().getconfig('text'): # Listbox or Combobox
             filehandle.write('        self.config(')
-            write_self_config_parameters(filehandle)
+            write_self_config_parameters(filehandle,conf_dict)
 
         # only for Application or Toplevel 
         if isinstance(this(),Tk) or isinstance(this(),Toplevel):
@@ -3463,13 +3551,16 @@ def saveExport(readhandle,writehandle,flag=False):
         grid_dict = get_grid_dict()
         if grid_dict:
 
-
+            has_general_grid_rows = False
+            has_general_grid_cols = False
             if 'grid_rows' in grid_dict and this().grid_conf_cols[1:] != (0,0,0) or 'grid_cols' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
                 filehandle.write('        # general grid definition ==============================\n')
                 if 'grid_rows' in grid_dict and this().grid_conf_rows[1:] != (0,0,0):
+                    has_general_grid_rows = True
                     filehandle.write('        grid_general_rows(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_rows))
                     export_info['need_grid_rows'] = True
                 if 'grid_cols' in grid_dict and this().grid_conf_cols[1:] != (0,0,0):
+                    has_general_grid_cols = True
                     filehandle.write('        grid_general_cols(self,{}, minsize = {}, pad = {}, weight = {})\n'.format(*this().grid_conf_cols))
                     export_info['need_grid_cols'] = True
 
@@ -3477,15 +3568,19 @@ def saveExport(readhandle,writehandle,flag=False):
                 filehandle.write('        # individual grid definition ===========================\n')
                 if 'grid_multi_rows' in grid_dict:
                     for index,entry in enumerate(this().grid_multi_conf_rows):
-                        if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                            filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                        if entry[0]:
+                            if entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 } or has_general_grid_rows:
+                                filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                    # write for ending (0,0,0)
                     if this().grid_conf_rows[1:] == (0,0,0) and this().grid_multi_conf_rows[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
                         filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
                             
                 if 'grid_multi_cols' in grid_dict:
                     for index,entry in enumerate(this().grid_multi_conf_cols):
-                        if entry[0] and entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                            filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                        if entry[0]:
+                            if entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 } or has_general_grid_cols:
+                                filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                    # write for ending (0,0,0)
                     if this().grid_conf_cols[1:] == (0,0,0) and this().grid_multi_conf_cols[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
                         filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
                             
@@ -3495,6 +3590,7 @@ def saveExport(readhandle,writehandle,flag=False):
             goIn()
             exportContainer(filehandle)
             goOut()
+
         elif this().getconfig('call Code(self)'):
             filehandle.write('        # call Code ===================================\n')
             filehandle.write("        {}(self)\n".format(this().call_code))
@@ -3565,14 +3661,17 @@ except ImportError:
 ''')
 
         if EXPORT_NAME:                            
-            writehandle.write('#import DynTkInter as tk # for GuiDesigner\n\n')
+            writehandle.write('\n#import DynTkInter as tk # for GuiDesigner\n')
             if export_info['need_ttk']:
-                writehandle.write('#import DynTtk as ttk    # for GuiDesigner\n\n')
+                writehandle.write('#import DynTtk as ttk    # for GuiDesigner\n')
+            writehandle.write('\n')
 
         if export_info['need_pil']:
             writehandle.write('from PIL import Image,ImageTk\n')
             if EXPORT_NAME:
                 writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n\n')
+        
+        writehandle.write('\n')
 
         if export_info['need_grid_cols'] or export_info['need_grid_rows']:
             writehandle.write('''# for development ==================================

@@ -10,7 +10,7 @@ goIn()
 LabelFrame('CreateWidget',**{'text': 'Create Widget', 'grid_rows': '(2, 25, 0, 0)', 'grid_cols': '(4, 43, 0, 0)', 'grid_multi_cols': '[4, (1, 64, 0, 0), (2, 3, 0, 0), (3, 26, 0, 0)]'})
 goIn()
 
-Button('Create',**{'text': 'Create', 'padx': '1', 'bd': '3', 'pady': '1', 'bg': 'green'}).grid(**{'column': 3, 'row': 0, 'sticky': 'nes'})
+Button('Create',**{'text': 'Create', 'padx': '1', 'bd': '3', 'pady': '1', 'bg': 'lightgreeb'}).grid(**{'column': 3, 'row': 0, 'sticky': 'nes'})
 Label('Label',**{'text': 'Class'}).grid(**{'row': 0})
 Label('Label',**{'text': 'Name'}).grid(**{'row': 1})
 Entry('Name').grid(**{'column': 1, 'row': 1, 'sticky': 'nesw', 'columnspan': 3})

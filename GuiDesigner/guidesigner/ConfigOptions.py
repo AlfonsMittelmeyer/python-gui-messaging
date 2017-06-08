@@ -454,7 +454,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                         Listbox(width=7,height=9).fillList(("center","n","ne","e","se","s","sw","w","nw"))
                         lbox_select()
 
-                    elif entry[0] in "labelanchor":
+                    elif entry[0] == "labelanchor":
                         Listbox(width=7,height=8).fillList(("n","ne","e","se","s","sw","w","nw"))
                         lbox_select()
 

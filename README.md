@@ -2,9 +2,27 @@
 Tkinter GUI Designer, the only one with advanced Grid Design
 and individual table settings per row and column
 
+
+The GUI Designer includes Help pages and an introduction
+
+- The introduction you start with: python3 intro.py
+- The GuiDesigner you start with: python3 main.py
+
+
+brand-new:
+
+- ttk.Notebook now available and full functioning
+
 very new:
 
-- bug fixing and a new module Export/tk_extend.py for fixing a tkinter problem with entryconfig
+- all ttk Widgets are available
+  but Treeview and Sizegrip without further functionality
+
+- two new ttk widgets: ttk.Separator and ttk.Combobox
+
+relative new:
+
+- a new module Export/tk_extend.py for fixing a tkinter problem with entryconfig
 
 - a new option 'baseclass' allows inheritance from your own base classes instead of tkinter ort ttk widget classes.
   So it's simple now to implement complex guis in tkinter
@@ -13,17 +31,6 @@ very new:
   So now it's possible to separate gui and code so that a new export may be taken as it is, because
   it already contains calls of code, which shall be in other modules
   Only you have to insert your imports for your code modules
-
-
-- Improvements for Menu, and PanedWindow or ttk.PanedWindow panes
-
-- two new ttk widgets: ttk.Separator and ttk.Combobox
-
-- GuiDesigner and DynTkInter work now also with Python 2.7 instead only with Python 3
-    but this doen't work correct now. str() doesn't work as in python3. Before str is used
-    the data have to be encoded for not standard ascii characters
-
-relative new:
 
 - improvements for PanedWindow and ttk.PanedWindow
 - sashpos and sash_coord will only be saved and exported, if manually changed
@@ -48,8 +55,8 @@ relative new:
   via rowconfigure and columnconfigure
 - Export of Canvas Items
 
+to do:
 
-The GUI Designer includes Help pages and an introduction
-
-- The introduction you start with: python3 intro.py
-- The GuiDesigner you start with: python3 main.py
+- GuiDesigner and DynTkInter work now also with Python 2.7 instead only with Python 3
+    but this doen't work correct now. str() doesn't work as in python3. Before str is used
+    the data have to be encoded for not standard ascii characters

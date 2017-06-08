@@ -28,9 +28,6 @@ def values_refresh(widget = widget("LayoutOptions")):
     if mydata[4] != None:
         mydata[4].delete(0,END)	
         mydata[4].insert(0,getlayout("side"))
-    if mydata[5] != None:
-        mydata[5].delete(0,END)	
-        mydata[5].insert(0,getlayout("index"))
 
 do_receive('LAYOUT_VALUES_REFRESH',values_refresh)
 
@@ -38,6 +35,22 @@ do_receive('LAYOUT_VALUES_REFRESH',values_refresh)
 
 # another help function: for layout option sticky we show an info message box
 
+
+def choose_image(entry,title,root=widget('/'),os=os):
+
+    file_opt = {
+        'defaultextension' : '.gif',
+        'filetypes' : [('Graphics Interchange Format', '.gif'),('Portable Pixmap', '.ppm'),('Portable Graymap','.pgm'),('all files', '*')],
+        'parent' : root,
+        'title' : title,
+        'initialdir' : os.path.join(os.getcwd(),'Images') }
+
+    filename = tkFileDialog.askopenfilename(**file_opt)
+    if filename:
+        filename = os.path.relpath(filename)
+        setlayout(entry.mydata[0],filename)
+        entry.delete(0,END)	
+        entry.insert(0,getlayout(entry.mydata[0]))
 
 # for Return key or mouse klick: get active selection from the listbox, hide the listbox, set the layout and insert the text in the Entry for showing
 
@@ -92,13 +105,27 @@ def can_update(linfo, RefDict=RefDict,thisframe=widget("LayoutOptions")):
         elif entry == "row": thisframe.mydata[2]=RefDict[entry]
         elif entry == "column": thisframe.mydata[3]=RefDict[entry]
         elif entry == "side": thisframe.mydata[4]=RefDict[entry]
-        elif entry == "index": thisframe.mydata[5]=RefDict[entry]
     return True
 
+layout_before=[NOLAYOUT]
 
-def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("LayoutOptions"),e_event=entry_event,lbox_select=listbox_selection,entry_width=7,RefDict=RefDict,can_update=can_update):
+def show_layout(
+    msg,
+    onflag = enable_flag,
+    cont = container(),
+    thisframe=widget("LayoutOptions"),
+    e_event=entry_event,
+    lbox_select=listbox_selection,
+    RefDict=RefDict,
+    can_update=can_update,
+    layout_before = layout_before,
+    entry_width = 7,
+    choose_image = choose_image,
+    ):
+
 
     if isinstance(msg,bool):
+        layout_before[0] = NOLAYOUT
         if msg:
             if not onflag[0]:
                 onflag[0] = True
@@ -107,9 +134,10 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
         elif onflag[0]: #if shall switch off and SHOW_LAYOUT is on
             onflag[0]=False # switch flag to off
             cont.unlayout() # and unlayout the DetailedLayout frame
-            thisframe.mydata=[None,None,None,None,None,None] # set references for value refresh  to not active
+            thisframe.mydata=[None,None,None,None,None] # set references for value refresh  to not active
 
     elif type(msg) is tuple:
+        layout_before[0] = NOLAYOUT
 
         if msg[1]:
             thisframe.grid()
@@ -123,26 +151,47 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
         
     elif onflag[0]: # a correct message arrived and show layout is on
         # reset references for value refresh  to not active
-        thisframe.mydata = [None,None,None,None,None,None]
+        thisframe.mydata = [None,None,None,None,None]
         # if the widget has a layout, then show it
-        if msg.Layout & LAYOUTALL and msg.Layout != MENULAYOUT and msg.Layout != MENUITEMLAYOUT:
+
+        if msg.Layout & LAYOUTALL and msg.Layout not in (MENULAYOUT,MENUITEMLAYOUT):
 
             cont.grid()			
-            linfo = layout_info()
-            if can_update(linfo): return
 
-            if this().Layout in ('PANELAYOUT','TTKPANELAYOUT'):
-                linfo.pop('index',None)
+            # get layout_info
+            linfo = layout_info()
+
+            # remove, what we don't want
+            if this().Layout in (PANELAYOUT,TTKPANELAYOUT):
+                linfo.pop('pane',None)
+
+            if this().Layout == PAGELAYOUT:
+                linfo.pop('page',None)
+
+            if layout_before[0] == this().Layout:
+                # if possible set the values instead of new entry creation
+                if can_update(linfo): return
+            else:
+                layout_before[0] = this().Layout
+
 
             RefDict.clear()
             current_selection = Selection() # save current selection
             setWidgetSelection(msg) # set selection for current user widget
+            this_widget = this()
+
             maxlen = 0
             for entry in linfo: maxlen = max(maxlen,len(entry))
 
             # make a list of tuples of the layout dictionary and sort important options at the beginning
             layoutlist = []
             for entry in (
+"text",
+'underline',
+"image",
+"photoimage",
+'compound',
+'state',
 "y",
 "x",
 "row",
@@ -151,8 +200,12 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 "columnspan",
 "side",
 "sticky",
+'padding',
+"stretch",
+"hide",
 "width",
 "height",
+'minsize',
 "anchor",
 "fill",
 "expand",
@@ -192,7 +245,8 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 "pady", # Pack Layout und Grid Layout (Integer default 0)
 "ipadx", # Pack Layout und Grid Layout (Integer default 0)
 "ipady",
-"weight"): # Pack Layout und Grid Layout (Integer default 0)
+"weight",
+'minsize'): # Pack Layout und Grid Layout (Integer default 0)
                     Spinbox("Entry",from_=0,to=3000,increment=1,width=entry_width)
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
                 elif entry[0] in (
@@ -202,7 +256,17 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 "relheight"):  # Place Layout (Default leer "" oder Integer): 
                     Spinbox("Entry",from_=0,to=1,increment=0.01,width=entry_width)
                     do_command(e_event,wishWidget=True) # via return key the option value can be changed
-                else: Entry("Entry",width=entry_width)
+                elif entry[0] == "underline":
+                    Spinbox("Entry",from_=-1,to=300,increment=1,width=entry_width)
+                    do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
+                elif entry[0] == "text":
+                    Entry("Entry",width=20)
+                elif entry[0] == "photoimage":
+                    Entry("Entry",width=16)
+                elif entry[0] == "padding":
+                    Entry("Entry",width=11)
+                else:
+                    Entry("Entry",width=entry_width)
                 do_action('color',lambda me = this(): me.config(bg='white'))
                 
                 var = StringVar()
@@ -220,10 +284,25 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
                 elif entry[0] == "row": thisframe.mydata[2]=this()
                 elif entry[0] == "column": thisframe.mydata[3]=this()
                 elif entry[0] == "side": thisframe.mydata[4]=this()
-                elif entry[0] == "index": thisframe.mydata[5]=this()
 
                 # listboxes and readonly state for some options
-                if entry[0] =="side":
+                if entry[0] =="stretch":
+                    Listbox(width=6,height=5).fillList(("always","first","last","middle",'never'))
+                    lbox_select()
+
+                elif entry[0] =="state":
+                    Listbox(width=8,height=3).fillList(("normal","disabled","hidden"))
+                    lbox_select()
+
+                elif "photoimage" in entry[0]:
+                    Button(text="?").rcgrid(0,2)
+                    do_command(choose_image,(widget("Entry"),entry[0]))
+
+                elif entry[0] =="compound":
+                    Listbox(width=6,height=7).fillList(("text","image","none",'top','bottom','left','right'))
+                    lbox_select()
+
+                elif entry[0] =="side":
                     Listbox(width=7,height=4).fillList(("top","bottom","left","right"))
                     lbox_select()
 
@@ -256,7 +335,7 @@ def show_layout(msg,onflag = enable_flag, cont = container(),thisframe=widget("L
 
         else:   # if the widget doesn't have a layout, then disable value refresh and hide the layout options
             cont.unlayout()
-            thisframe.mydata=[None,None,None,None,None,None]
+            thisframe.mydata=[None,None,None,None,None]
 
 
 do_receive('SHOW_LAYOUT',show_layout,wishMessage = True)

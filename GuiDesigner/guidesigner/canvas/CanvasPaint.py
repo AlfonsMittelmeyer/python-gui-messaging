@@ -597,21 +597,66 @@ class Access:
         self.set_tag.delete(0,END)
 
 
+        '''
+            print(item)
+            mytags = self.canvas.gettags(item)
+            print(mytags)
+            self.find_tag['state'] = 'normal'
+            self.find_tag.delete(0,END)
+            if len(mytags) < 3:
+                tags = list(mytags)
+                if 'current' in tags:
+                    index = tags.index('current')
+                    tags.pop(index)
+                if len(tags) == 1:
+                    item = tags[0]
+                    self.find_tag.insert(0,item)
+            self.find_tag['state'] = 'disabled'
+            return item
+        '''
+
+
+        def set_find_tag(item):
+            mytags = self.canvas.gettags(item)
+            self.find_tag['state'] = 'normal'
+            self.find_tag.delete(0,END)
+            if len(mytags) < 3:
+                tags = list(mytags)
+                if 'current' in tags:
+                    index = tags.index('current')
+                    tags.pop(index)
+                if len(tags) == 1:
+                    item = tags[0]
+                    self.find_tag.insert(0,item)
+            self.find_tag['state'] = 'disabled'
+            return item
+
+
 
         def do_set_tag():
-            tag = self.find_tag.get()
-            if tag == '': 
-                tag = None
-                if container() == self.canvas and isinstance(this(),CanvasItemWidget): tag = this().item_id
+            item = self.find_tag.get()
+            tag = item
+            if not item: 
+                item = None
+                if container() == self.canvas and isinstance(this(),CanvasItemWidget):
+                    item = this().item_id
             else:
-                tags = self.canvas.find_withtag(tag)
-                if len(tags) == 0:
-                    tag = None
-            self.selected_item = tag
-            self.update_position()
+                item = self.canvas.find_withtag(item)
+                item 
+                if not item:
+                    item = None
+                else:
+                    canvas_item[0] = ( tag, )
+                    self.selected_item = ( tag, )
+                    self.update_position()
+                    paint_enabled[0] = True
+                    CanvasItem(self.canvas,item[0],False)
+                    send('SELECTION_CHANGED')
+
 
         self.find_tag.do_event('<Return>',do_set_tag)
         
+
 
         def set_increment(me,x_or_y): 
             try:
@@ -887,18 +932,7 @@ class Access:
             is_same_tag = self.same_tag.mydata.get() == 1
             if is_same_tag:
                 item = self.canvas.find_closest(xc,yc)
-                mytags = self.canvas.gettags(item)
-                self.find_tag['state'] = 'normal'
-                self.find_tag.delete(0,END)
-                if len(mytags) < 3:
-                    tags = list(mytags)
-                    if 'current' in tags:
-                        index = tags.index('current')
-                        tags.pop(index)
-                    if len(tags) == 1:
-                        item = tags[0]
-                        self.find_tag.insert(0,item)
-                self.find_tag['state'] = 'disabled'
+                item = set_find_tag(item)
             else:
                 item = self.find_tag.get()
                 if item == '': 
@@ -909,6 +943,7 @@ class Access:
             update_position()
             paint_enabled[0] = True
             mouse_move_move()
+
 
         def do_select():
             xc,yc = get_coord()
@@ -929,8 +964,32 @@ class Access:
                             item = tags[0]
                             self.find_tag.insert(0,item)
                     self.find_tag['state'] = 'disabled'
+                canvas_item[0] = item
+                set_selected_item(item)
+                update_position()
+                paint_enabled[0] = True
                 send('SELECTION_CHANGED')
-                
+
+
+
+        '''
+        def do_select():
+            xc,yc = get_coord()
+            is_same_tag = self.same_tag.mydata.get() == 1
+            if is_same_tag:
+                item = self.canvas.find_closest(xc,yc)
+                item = set_find_tag(item)
+            else:
+                item = self.find_tag.get()
+                if item == '': 
+                    item = self.canvas.find_closest(xc,yc)
+                    
+            canvas_item[0] = item
+            set_selected_item(item)
+            update_position()
+            paint_enabled[0] = True
+        '''
+
 
         def do_button_click(me):
             set_buttons_normal()
@@ -988,29 +1047,6 @@ class Access:
         for element in widgets:
             element.do_event('<Button-1>',do_button_click,wishWidget = True)
             
-        '''
-        def create_a_window():
-            if container() == self.canvas and this() != container() and not isinstance(this(),CanvasItemWidget):
-                #if not isinstance(this(),CanvasItemWidget):
-                this().unlayout()
-                this().Layout = WINDOWLAYOUT
-                set_buttons_normal()
-                self.canvas.do_event('<Button-1>',noop)
-                self.canvas.do_event('<ButtonRelease-1>',noop)
-                self.canvas.do_event('<Button-3>',noop)
-                item = self.canvas.create_window(0,0,anchor='nw',window = this())
-                #ref_string = self.canvas.itemcget(item,'window')
-                #print(repr(Widget.nametowidget(None,ref_string)))
-                this().window_item = item
-                tag = self.set_tag.get()
-                if tag != '': self.canvas.addtag_withtag(tag,item)
-                CanvasItem(self.canvas,item)
-                send('SELECTION_CHANGED')
-
-        self.window.do_command(create_a_window)
-        '''
-        
-
         def do_tag_lower():
             if self.selected_item == None: return
             self.canvas.tag_lower(self.selected_item)

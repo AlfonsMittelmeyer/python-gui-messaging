@@ -86,7 +86,7 @@ def create_toplevel(message,ok_command = do_OK,load_frame=create_LoadFrame,load_
 
     Frame('Frame')
     goIn()
-    Button('OK',text='OK',bg="green",width=6).pack(side=RIGHT)
+    Button('OK',text='OK',bg="lightgreen",width=6).pack(side=RIGHT)
     do_command(ok_command,(textwidget,current_selection),True)
     load_frame()
     pack(side=LEFT)

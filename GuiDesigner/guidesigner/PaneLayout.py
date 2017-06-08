@@ -7,11 +7,13 @@ LabelFrame('sashframe',link='guidesigner/PaneLayoutSashes.py')
 
 def refresh_layout(
     paneaddframe = widget('paneaddframe'),
-    paneindexframe = widget('paneindexframe')
+    paneindexframe = widget('paneindexframe'),
+    #sashframe = widget('sashframe')
     ):
     if this().Layout == NOLAYOUT:
         paneaddframe.grid()
         paneindexframe.unlayout()
+        #sashframe.unlayout()
     elif this().Layout in (PANELAYOUT,TTKPANELAYOUT):
         paneaddframe.unlayout()
         paneindexframe.grid()

@@ -1,9 +1,9 @@
-config(text='tkinter or ttk', grid_rows='(1, 0, 0, 0)', grid_cols='(4, 0, 0, 1)')
+config(**{'text': 'tkinter or ttk'})
 
-Button('button_ttk',text='ttk', width=8).grid(row=0, column=1)
-Label('label_selected',pady='2', text='tkinter', relief='sunken', padx='0', bg='yellow', width=8).grid(row=0)
-Button('loadstyles',text='load styles').grid(row=0, column=2)
-Label('styles',pady='2', text='styles.py', relief='sunken', padx='12', bg='gray97').grid(row=0, column=3)
+Button('button_ttk',**{'padx': '1', 'width': 11, 'text': 'ttk'}).grid(column=1, row=0, pady=2)
+Label('label_selected',**{'padx': '0', 'bg': 'yellow', 'width': 9, 'pady': '2', 'text': 'tkinter'}).grid(row=0, padx=10)
+Button('loadstyles',**{'padx': '1', 'width': 11, 'text': 'load styles'}).grid(column=1, row=1, pady=2)
+Label('styles',**{'bg': 'gray97', 'width': 9, 'pady': '2', 'text': 'styles.py'}).grid(row=1, padx=10)
 
 ### CODE ===================================================
 import os
@@ -35,14 +35,16 @@ switch_ttk()
 
 
 
-def load_styles():
+def load_styles(style = widget('styles')):
     selection = Selection()
 
     filename = 'TtkStyles/styles.py'
     try:
         exec(compile(open(filename, "r").read(), filename, 'exec'))
+        style['fg'] = 'blue'
     except (FileNotFoundError,SyntaxError) as e:
         traceback.print_exc()
+                
 
     setSelection(selection)
 

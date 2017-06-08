@@ -5,3 +5,4 @@ style.configure("BW.TLabel", foreground="black", background="white")
 
 
 
+style.configure("TNotebook", padding=6, relief="flat",background="#ccc")

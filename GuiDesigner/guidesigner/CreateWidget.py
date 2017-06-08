@@ -1,6 +1,6 @@
 config(grid_rows='(3, 25, 0, 0)', grid_cols='(4, 43, 0, 0)', text='Create Widget', grid_multi_cols='[4, (1, 64, 0, 0), (2, 3, 0, 0), (3, 26, 0, 1)]')
 
-Button('Create',bg='green', pady='1', padx='1', bd='3', text='Create').grid(column=3, row=0, sticky='nes')
+Button('Create',bg='lightgreen', pady='1', padx='1', bd='3', text='Create').grid(column=3, row=0, sticky='nes')
 Label('Label',text='Class', width=7).grid(row=0)
 Label('Label',text='Name', width=7).grid(row=1)
 Entry('Name').grid(column=1, row=1, sticky='nesw', columnspan=3)

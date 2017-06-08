@@ -107,7 +107,7 @@ def for_names(frame_Selection = Selection(),button_command = do_button_command,f
     config(font = "TkDefaultFont 8 normal roman") # use a smaller font
     rcgrid(0,0) # layout
 
-    Button(text=".") # create the button for selecting the container
+    Button(text='.',padx=11) # create the button for selecting the container
     RefDict[selection_before._container] = this()
     button_command(Create_Selection(selection_before._container,selection_before._container))
     config(font = "TkDefaultFont 8 normal roman") # use a smaller font

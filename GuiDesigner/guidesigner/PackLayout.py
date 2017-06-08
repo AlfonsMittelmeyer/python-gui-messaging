@@ -1,10 +1,10 @@
 config(**{'grid_cols': '(5, 42, 0, 0)', 'grid_multi_cols': '[5, (0, 74, 0, 0)]', 'grid_rows': '(1, 5, 0, 0)'})
 
-Button('BOTTOM',**{'text': 'BOTTOM', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'green'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '0'})
-Button('LEFT',**{'text': 'LEFT', 'pady': '2', 'padx': '1', 'bd': '4', 'bg': 'green'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '0'})
+Button('BOTTOM',**{'text': 'BOTTOM', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'lightgreen'}).grid(**{'column': '2', 'sticky': 'nesw', 'row': '0'})
+Button('LEFT',**{'text': 'LEFT', 'pady': '2', 'padx': '1', 'bd': '4', 'bg': 'lightgreen'}).grid(**{'column': '3', 'sticky': 'nesw', 'row': '0'})
 Label('PackTitle',**{'text': 'pack', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'ew', 'row': '0'})
-Button('RIGHT',**{'text': 'RIGHT', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'green'}).grid(**{'column': '4', 'sticky': 'nesw', 'row': '0'})
-Button('TOP',**{'text': 'TOP', 'padx': '1m', 'bd': '3', 'bg': 'green'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '0'})
+Button('RIGHT',**{'text': 'RIGHT', 'pady': '2', 'padx': '1', 'bd': '3', 'bg': 'lightgreen'}).grid(**{'column': '4', 'sticky': 'nesw', 'row': '0'})
+Button('TOP',**{'text': 'TOP', 'padx': '1m', 'bd': '3', 'bg': 'lightgreen'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '0'})
 
 
 ### CODE ===================================================

@@ -1,29 +1,19 @@
-config(text = 'Layout')
+config(**{'grid_cols': '(5, 75, 0, 0)', 'grid_rows': '(1, 25, 0, 0)'})
 
-LabelFrame('WindowLayout',link="guidesigner/WindowLayout.py")
-grid(sticky='ew',row='0')
+Frame('ClassAndBaseLayout',**{'height': 100, 'bd': 2, 'width': 300})
+goIn()
 
-LabelFrame('PackLayout',link="guidesigner/PackLayout.py")
-grid(sticky='ew',row='1')
+LabelFrame('baselayout',**{'text': 'Layout'})
+goIn()
 
-LabelFrame('GridLayout',link="guidesigner/GridLayout.py")
-grid(sticky='ew',row='2')
-
-LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
-grid(sticky='ew',row='3')
-
-LabelFrame('PaneLayout',link="guidesigner/PaneLayout.py")
-grid(sticky='ew',row='4')
-
-LabelFrame('ItemLayout',link="guidesigner/MenuItemLayout.py")
-grid(sticky='ew',row='5')
-
-LabelFrame('MenuLayout',link="guidesigner/MenuLayout.py")
-grid(sticky='ew',row='6')
-
-LabelFrame('PageLayout',link="guidesigner/PageLayout.py")
-grid(sticky='ew',row='7')
-
+LabelFrame('GridLayout',**{'link': 'guidesigner/GridLayout.py'}).grid(row=2, sticky='ew')
+LabelFrame('ItemLayout',**{'link': 'guidesigner/MenuItemLayout.py'}).grid(row=5, sticky='ew')
+LabelFrame('MenuLayout',**{'link': 'guidesigner/MenuLayout.py'}).grid(row=6, sticky='ew')
+LabelFrame('PackLayout',**{'link': 'guidesigner/PackLayout.py'}).grid(row=1, sticky='ew')
+LabelFrame('PageLayout',**{'link': 'guidesigner/PageLayout.py'}).grid(row=7, sticky='ew')
+LabelFrame('PaneLayout',**{'link': 'guidesigner/PaneLayout.py'}).grid(row=4, sticky='ew')
+LabelFrame('PlaceLayout',**{'link': 'guidesigner/PlaceLayout.py'}).grid(row=3, sticky='ew')
+LabelFrame('WindowLayout',**{'link': 'guidesigner/WindowLayout.py'}).grid(row=0, sticky='ew')
 
 ### CODE ===================================================
 
@@ -226,5 +216,39 @@ def mouse_select_on(select_on,select_hili_on = select_hili_on,hili_off=hili_off)
                 send('GRID_MOUSE_ON',wi)
 
 do_receive("MOUSE_SELECT_ON",mouse_select_on,wishMessage = True)
+
+### ========================================================
+
+goOut()
+grid(row=1, sticky='ew')
+LabelFrame('widgetclass',**{'text': 'Widget Class'})
+goIn()
+
+Label('class_label',**{'pady': '2', 'padx': '6', 'fg': 'blue', 'text': 'class_label', 'font': 'TkDefaultFont 9 bold', 'relief': 'sunken', 'bg': 'yellow'})
+Label('text',**{'padx': '4', 'text': 'Class'})
+
+widget('text').pack(side='left')
+widget('class_label').pack(pady=6, side='left', padx=4, fill='x')
+
+goOut()
+grid(row=0, sticky='ew')
+
+goOut()
+grid(row=0, column=1, sticky='new')
+LabelFrame('ConfigOptions',**{'link': 'guidesigner/ConfigOptions.py'}).grid(row=0, column=2, sticky='nw')
+Frame('CreateFrame',**{'link': 'guidesigner/CreateFrame.py'}).grid(row=0, sticky='nw')
+LabelFrame('DetailedLayout',**{'link': 'guidesigner/DetailedLayout.py'}).grid(row=0, column=3, sticky='nw')
+LabelFrame('Selection',**{'link': 'guidesigner/Selection.py'}).grid(row=0, column=4, sticky='nw')
+
+### CODE ===================================================
+
+def hide_gui(message,cont = container()):
+    if message: cont.unlayout()
+    else: cont.pack(anchor='nw') # GuiFrame
+
+do_receive('HIDE_GUI',hide_gui,wishMessage=True)
+
+widget("ConfigOptions").unlayout()
+widget("DetailedLayout").unlayout()
 
 ### ========================================================

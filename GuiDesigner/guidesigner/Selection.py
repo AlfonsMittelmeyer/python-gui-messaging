@@ -27,12 +27,23 @@ def create_widget(msg):
             print("Wrong handling: cannot create a menu item outside a menu")
     elif isinstance(container(),Menu):
         print("Wrong handling: cannot create a widget inside a menu")
+    elif isinstance(container(),ttk.PanedWindow):
+        eval("{}('{}',**{})".format(widget_type,name,kwargs))
+        text(name)
+        send('SELECTION_CHANGED')
+        
     elif isinstance(container(),PanedWindow):
         eval("{}('{}',**{})".format(widget_type,name,kwargs))
         text(name)
         pane()
         send('SELECTION_CHANGED')
         
+    elif isinstance(container(),ttk.Notebook):
+        eval("{}('{}',**{})".format(widget_type,name,kwargs))
+        text(name)
+        page(text=name)
+        send('SELECTION_CHANGED')
+
     else:
         if widget_type == "Toplevel": cdApp()
         #eval("{}('{}')".format(widget_type,name))

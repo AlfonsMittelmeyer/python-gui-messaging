@@ -1,19 +1,19 @@
-MenuItem('Config','command',background='green', label='Config ON')
-MenuItem('Create','command',background='green', columnbreak=1, label='Create ON')
-MenuItem('File','cascade',label='File')
+MenuItem('Config','command',**{'underline': 1, 'background': 'lightgreen', 'label': 'Config ON'})
+MenuItem('Create','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Create ON'})
+MenuItem('File','cascade',**{'underline': 0, 'label': 'File'})
 goIn()
 
-Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('Menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('Access','cascade',label='Save Access')
+MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('Menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('Container','command',label='Container Depth')
-MenuItem('Widget','command',label='Widget Depth')
+MenuItem('Container','command',**{'label': 'Container Depth'})
+MenuItem('Widget','command',**{'label': 'Widget Depth'})
 
 widget('Widget').layout(index=1)
 widget('Container').layout(index=2)
@@ -38,15 +38,15 @@ select_menu()
 
 goOut()
 
-MenuItem('Export','cascade',label='Export tkinter')
+MenuItem('Export','cascade',**{'underline': 0, 'label': 'Export tkinter'})
 goIn()
 
-Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('Menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('Help','command',label='Help')
-MenuItem('With Names','command',label='tkinter (names)')
-MenuItem('Without Names','command',label='tkinter')
+MenuItem('Help','command',**{'label': 'Help'})
+MenuItem('With Names','command',**{'underline': 9, 'label': 'tkinter (names)'})
+MenuItem('Without Names','command',**{'underline': 0, 'label': 'tkinter'})
 MenuItem('separator','separator')
 
 widget('Help').layout(index=1)
@@ -76,22 +76,23 @@ widget("Help").do_command(export_help)
 
 goOut()
 select_menu()
+
 goOut()
 
-MenuItem('Load & Edit','command',label='Load & Edit')
-MenuItem('Load & Run','command',label='Load & Run')
-MenuItem('Quit','command',label='Quit')
-MenuItem('Save','command',label='Save')
-MenuItem('Split & Join','cascade',label='Split & Join')
+MenuItem('Load & Edit','command',**{'underline': 0, 'label': 'Load & Edit'})
+MenuItem('Load & Run','command',**{'label': 'Load & Run'})
+MenuItem('Quit','command',**{'label': 'Quit'})
+MenuItem('Save','command',**{'underline': 0, 'label': 'Save'})
+MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('Menu',**{'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('Help','command',label='Help')
-MenuItem('Load & Edit','command',label='Load & Edit (part)')
-MenuItem('Load & Run','command',label='Load & Run (part)')
-MenuItem('Save','command',label='Save  (part)')
+MenuItem('Help','command',**{'label': 'Help'})
+MenuItem('Load & Edit','command',**{'label': 'Load & Edit (part)'})
+MenuItem('Load & Run','command',**{'label': 'Load & Run (part)'})
+MenuItem('Save','command',**{'label': 'Save  (part)'})
 MenuItem('separator','separator')
 
 widget('Help').layout(index=1)
@@ -145,7 +146,7 @@ select_menu()
 
 goOut()
 
-MenuItem('backup','command',label='Backup')
+MenuItem('backup','command',**{'underline': 0, 'label': 'Backup'})
 MenuItem('separator','separator')
 MenuItem('separator_quit','separator')
 
@@ -196,23 +197,23 @@ select_menu()
 
 goOut()
 
-MenuItem('Hide','command',label='Hide')
-MenuItem('Layout','command',background='green', label='Layout ON')
-MenuItem('Mouse','command',background='green', label='Mouse ON')
-MenuItem('Special','cascade',label='Special')
+MenuItem('Hide','command',**{'underline': 0, 'label': 'Hide'})
+MenuItem('Layout','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Layout ON'})
+MenuItem('Mouse','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Mouse ON'})
+MenuItem('Special','cascade',**{'underline': 0, 'label': 'Special'})
 goIn()
 
-Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('Menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('ExpertOptions','cascade',label='Expert Options')
+MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('Menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('Code','command',label='Code')
-MenuItem('Help','command',label='Help')
+MenuItem('Code','command',**{'label': 'Code'})
+MenuItem('Help','command',**{'label': 'Help'})
 MenuItem('separator','separator')
 
 widget('Help').layout(index=1)
@@ -241,8 +242,8 @@ select_menu()
 
 goOut()
 
-MenuItem('Refresh','command',label='Refresh')
-MenuItem('Toproot','command',label='Toproot')
+MenuItem('Refresh','command',**{'underline': 0, 'label': 'Refresh'})
+MenuItem('Toproot','command',**{'label': 'Toproot'})
 MenuItem('separator','separator')
 
 widget('Toproot').layout(index=1)
@@ -290,27 +291,27 @@ select_menu()
 
 goOut()
 
-MenuItem('help','cascade',label='Help')
+MenuItem('help','cascade',**{'label': 'Help'})
 goIn()
 
-Menu('menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('backup','command',label='Backup')
-MenuItem('code_in_scripts','cascade',label='Code in Scripts')
+MenuItem('backup','command',**{'label': 'Backup'})
+MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
 goIn()
 
-Menu('menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('dynaccess','command',label='DynAccess')
-MenuItem('dyntkimports','command',label='DynTkImports')
-MenuItem('functions','command',label='Functions')
-MenuItem('imports','command',label='Imports')
-MenuItem('namespace','command',label='Namespace')
-MenuItem('place_code','command',label='Place for Code')
-MenuItem('relative_access','command',label='Relative Access')
-MenuItem('root_access','command',label='Root Access')
+MenuItem('dynaccess','command',**{'label': 'DynAccess'})
+MenuItem('dyntkimports','command',**{'label': 'DynTkImports'})
+MenuItem('functions','command',**{'label': 'Functions'})
+MenuItem('imports','command',**{'label': 'Imports'})
+MenuItem('namespace','command',**{'label': 'Namespace'})
+MenuItem('place_code','command',**{'label': 'Place for Code'})
+MenuItem('relative_access','command',**{'label': 'Relative Access'})
+MenuItem('root_access','command',**{'label': 'Root Access'})
 
 widget('functions').layout(index=1)
 widget('namespace').layout(index=2)
@@ -340,20 +341,20 @@ select_menu()
 
 goOut()
 
-MenuItem('config','command',label='Config Options')
-MenuItem('examples','command',label='Examples')
-MenuItem('export','command',label='Export tkinter')
-MenuItem('introduction','command',label='Introduction')
-MenuItem('menu_entries','command',label='Menu Entries')
-MenuItem('programming','cascade',label='Programming')
+MenuItem('config','command',**{'label': 'Config Options'})
+MenuItem('examples','command',**{'label': 'Examples'})
+MenuItem('export','command',**{'label': 'Export tkinter'})
+MenuItem('introduction','command',**{'label': 'Introduction'})
+MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
+MenuItem('programming','cascade',**{'label': 'Programming'})
 goIn()
 
-Menu('menu',activebackground='#7bfeff', tearoff=0, relief='solid', bg='white')
+Menu('menu',**{'activeforeground': 'black', 'bg': 'white', 'fg': 'black', 'tearoff': 0, 'relief': 'solid', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('access_toplevel','command',label='Access Toplevel')
-MenuItem('access_widgets','command',label='Access Widgets')
-MenuItem('load_scripts','command',label='Load Scripts')
+MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})
+MenuItem('access_widgets','command',**{'label': 'Access Widgets'})
+MenuItem('load_scripts','command',**{'label': 'Load Scripts'})
 
 widget('load_scripts').layout(index=1)
 widget('access_widgets').layout(index=2)
@@ -373,10 +374,10 @@ select_menu()
 
 goOut()
 
-MenuItem('save_access','command',label='Save Access')
-MenuItem('save_load','command',label='Save & Load')
+MenuItem('save_access','command',**{'label': 'Save Access'})
+MenuItem('save_load','command',**{'label': 'Save & Load'})
 MenuItem('separator','separator')
-MenuItem('tuples','command',label='Tuple Entries')
+MenuItem('tuples','command',**{'label': 'Tuple Entries'})
 
 widget('introduction').layout(index=1)
 widget('config').layout(index=2)
@@ -429,9 +430,9 @@ select_menu()
 
 goOut()
 
-MenuItem('space','command',state='disabled')
-MenuItem('space','command',state='disabled')
-MenuItem('space','command',state='disabled')
+MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
+MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
+MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
 
 widget('File').layout(index=1)
 widget('Special').layout(index=2)
@@ -469,7 +470,7 @@ def function_callback(me,message_to_send,thisText=None):
     if message_to_send == "MOUSE_SELECT_ON": container().is_mouse_select_on = me.mydata
     send(message_to_send,me.mydata)
     if me.mydata: me.config(label=thisText+" OFF",background="orange")
-    else: me.config(label=thisText+" ON",background="green")
+    else: me.config(label=thisText+" ON",background="lightgreen")
 
 def call(widget_name,message_to_send,callback=function_callback):
     widget(widget_name).do_command(callback,(message_to_send,widget_name),True)
@@ -495,8 +496,14 @@ do_receive('SET_OPTION_BUTTONS',set_option_buttons,wishMessage=True)
 
 
 def hide_gui(me,buttons=((widget("Config"),"SHOW_CONFIG"),(widget("Layout"),"SHOW_LAYOUT"),(widget("Create"),"SHOW_CREATE"))):
+
     me.mydata = not me.mydata
-    me.config(label = 'Show' if me.mydata else 'Hide')
+
+    if me.mydata:
+        me.config(label = 'Show',underline = 1)
+    else:
+        me.config(label = 'Hide',underline = 0)
+        
     send("HIDE_GUI",me.mydata)
     enable_state = 'disabled' if me.mydata else 'normal'
     for entry in buttons:
