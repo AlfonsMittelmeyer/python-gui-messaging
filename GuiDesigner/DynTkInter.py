@@ -410,7 +410,6 @@ class GuiElement:
         self.myclass = ''
         self.baseclass = ''
         self.photoimage = ''
-        self.myclass = ''
         self.menu = ''
         self.call_code = ''
 
@@ -3603,13 +3602,16 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             
             
         filehandle.write('    def __init__(self{},**kwargs):\n'.format(thisMaster))
+        filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
+
         if EXPORT_NAME:
             if this().myclass:
                 filehandle.write("        self.myclass = '{}'\n".format(this().myclass))
+            if this().baseclass:
+                filehandle.write("        self.baseclass = '{}'\n".format(this().baseclass))
             if this().call_code:
                 filehandle.write("        self.call_code = '{}'\n".format(this().call_code))
 
-        filehandle.write('        {}.__init__(self{},**kwargs)\n'.format(thisClass,thisMaster))
      
         conf_dict = get_self_export_config()
         if conf_dict or this().getconfig('text'): # Listbox or Combobox
