@@ -30,13 +30,13 @@ def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax,os=os):
             setWidgetSelection(me)
             widget("Syntax").config(text="IOError: couldn't open file 'tempcode.py'",fg="red")
         if is_open:
-            fh.write(str(textwidget.get("1.0",'end-1c').encode('utf-8')))
+            #fh.write(str(textwidget.get("1.0",'end-1c').encode('utf-8')))
+            fh.write(textwidget.get("1.0",'end-1c'))
             fh.close()
             undo_receiveAll(current_selection._widget)
             setWidgetSelection(current_selection._widget)
             goIn()
             exec(compile(open('Testcode/tempcode.py', "r").read(), 'Testcode/tempcode.py', 'exec'))
-
             #eval(compile(textwidget.get("1.0",'end-1c'),'<string>', 'exec'))
             setWidgetSelection(me)
             widget("Syntax").config(text="Code Run OK",fg="#006000")

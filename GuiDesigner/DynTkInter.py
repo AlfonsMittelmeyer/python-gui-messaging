@@ -686,7 +686,17 @@ class GuiElement:
         elif layout == PLACELAYOUT: self.place_forget()
         elif layout in (PANELAYOUT,TTKPANELAYOUT): self.master.forget(self)
         elif layout == MENULAYOUT: self.selectmenu_forget()
-        elif layout == PAGELAYOUT: pass
+        elif layout == PAGELAYOUT: self.page_forget()
+
+    def forget(self):
+        if self.Layout == PACKLAYOUT:
+            self.unlayout()
+        else:
+            self.tkClass(forget(self))
+
+
+    def page_forget(self):
+        self.master.forget(self.master.index(self))
 
 
     def item_change_index(self,index):
@@ -1090,20 +1100,22 @@ NONAME = -1
 def _getMasterAndNameAndSelect(name_or_master,altname,kwargs):
 
     # if the name is a string or NONAME, the master is the current container
-    if type(name_or_master) == str or name_or_master == NONAME: return _Selection._container,name_or_master,True
+    if type(name_or_master) == str or name_or_master == NONAME:
+        return _Selection._container,name_or_master,True
     
     # if there isn't a name, the master is the current container
-    elif name_or_master == None: return _Selection._container,altname,True
+    elif name_or_master == None:
+        return _Selection._container,altname,True
 
     # if the name is a tuple, ther master is the first element
-    elif type(name_or_master) == tuple: return name_or_master[0],name_or_master[1],False
+    elif type(name_or_master) == tuple:
+        return name_or_master[0],name_or_master[1],False
     else:
         # otherwise the master is name_or_master
+
         if 'name' in kwargs:
             altname = kwargs.pop('name',None)
-            if altname and altname[0] == '#' and '_' in altname: 
-                altname = altname.split('_')[1]
-                
+            altname = re.split('[#]\d+[_]',altname)[-1] 
             
         return name_or_master,altname,False
 

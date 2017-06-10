@@ -11,9 +11,14 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
+- implementation of forget() for pack layout
+- bug fixing for names which contain '-'
+- bug fxing for Special->Expert options->Code
+
+
+- bug fixing for pack layout - the pack order had changed, when pack paremeters were changed. Now the pack order doesn't change
 - minsize, maxsize and resizable for Main Window and Toplevel
 - saving and export of Text widget text
-- bug fixing for pack layout - the pack order had changed, when pack paremeters were changed. Now the pack order doesn't change
 
 - ttk.Notebook now available and full functioning
 
