@@ -1,0 +1,46 @@
+### CODE ===================================================
+import os
+
+def show_save_dialog(msg,root = widget('/'),os=os):
+
+    file_opt = {
+        'defaultextension' : '.py',
+        'filetypes' : [('python files', '.py'), ('gui files', '.gui'), ('all files', '*')],
+        'initialfile' : 'expn.py',
+        'parent' : root,
+        'title' : 'Export tk Designer: ' + msg,
+        'initialdir' : os.path.join(os.getcwd(),'.') }
+
+    name = tkFileDialog.asksaveasfilename(**file_opt)
+    if name:
+        
+        import os
+        # we don't like to merge now
+        #if os.path.exists(name):
+        if False:
+
+            head,tail = os.path.split(name)
+            readfile = os.path.join(head,"~"+tail)
+            if os.path.exists(readfile):
+                os.remove(readfile)
+            os.rename(name,readfile)
+            readhandle = open(readfile,'r')
+
+        else: readhandle = None
+
+        fh = open(name,'w')
+        currentSelection = Selection()
+        gotoRoot()
+        _Selection._container = _TopLevelRoot._container
+        result = saveExport(readhandle,fh,names=True,designer=True)
+        setSelection(currentSelection)
+        fh.close()
+        if readhandle != None: readhandle.close()
+        if result !='OK':
+            messagebox.showerror("Export failed",result,parent=root)
+
+do_receive('EXPORT_ALL_DESIGNER',show_save_dialog,wishMessage=True)
+
+
+
+### ========================================================

@@ -206,6 +206,9 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "tags",
 "title",
 "geometry",
+'minsize',
+'maxsize',
+'resizable',
 "from", # Spinbox (decimal default 0.0)
 "to",   # Spinbox, Scale (decimal Spinbox default 0,0, Scale default 100.0)
 "increment", # Spinbox, (decimal default 1.0)
@@ -217,6 +220,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "orient",
 "label",
 "text",
+"underline",
 "myclass",
 "baseclass",
 "call Code(self)",
@@ -227,7 +231,6 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "type",
 "selectmode",
 "state",
-"underline",
 "default",
 "relief",
 "sliderrelief",

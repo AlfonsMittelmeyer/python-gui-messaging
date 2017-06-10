@@ -18,6 +18,7 @@
 
 from collections import Counter
 import sys
+import re
 
 try:
     import tkinter as StatTkInter
@@ -710,7 +711,7 @@ class GuiElement:
         index = self.getPackListIndex()
         layouts = []
         for element in self.master.PackList:
-            layouts.append(self.layout_info())
+            layouts.append(element.layout_info())
         layouts[index] = kwargs
         for element in self.master.PackList:
             element.tkClass.pack_forget(element)
@@ -757,7 +758,7 @@ class GuiElement:
 
     def layout(self,**kwargs):
         layout = self.Layout
-        if layout == PACKLAYOUT: self.pack(**kwargs)
+        if layout == PACKLAYOUT: self.pack_layout(**kwargs)
         elif layout == GRIDLAYOUT: self.grid(**kwargs)
         elif layout == PLACELAYOUT: self.place(**kwargs)
         elif layout in (PANELAYOUT,TTKPANELAYOUT): self.pane_layout(**kwargs)
@@ -1277,6 +1278,7 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
     def __init__(self,myname=None,**kwargs):
 
         master = _initGuiContainer(kwargs,StatTkInter.Toplevel,self,myname,"toplevel",True,True,None,_TopLevelRoot._container)
+        
         self.Layout = LAYOUTNEVER
         goIn()
         self.master = master
@@ -1290,50 +1292,78 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
             
         return self.tkClass.geometry(self,*args)
 
-    def title(self,*args):
-        if args:
-            self.title_changed = True
-        return self.tkClass.title(self,*args)
-
 # =====================================================================
 
     def addclearinit_addconfig(self,kwargs):
-        self.title_changed = False
         self.geometry_changed = False
         GuiContainer.addclearinit_addconfig(self,kwargs)
         self.title_par = kwargs.pop('title',None)
         self.geometry_par = kwargs.pop('geometry',None)
+
+        self.dyntk_minsize = kwargs.pop('minsize',None)
+        self.dyntk_maxsize = kwargs.pop('maxsize',None)
+        self.dyntk_resizable = kwargs.pop('resizable',None)
         
     def executeclear_addconfig(self,kwargs):
         GuiContainer.executeclear_addconfig(self,kwargs)
         if 'title' in kwargs:
-            self.title_changed = kwargs['title'] != 'tk'
             self.title(kwargs.pop('title'))
         if 'geometry' in kwargs: 
             self.geometry_changed = kwargs['geometry'] != ''
             self.geometry(kwargs.pop('geometry'))
+        if 'minsize' in kwargs:
+            minsize = kwargs.pop('minsize')
+            if isinstance(minsize,str):
+                minsize = minsize.split()
+            self.minsize(*minsize)
+        if 'maxsize' in kwargs:
+            maxsize = kwargs.pop('maxsize')
+            if isinstance(maxsize,str):
+                maxsize = maxsize.split()
+            self.maxsize(*maxsize)
+        if 'resizable' in kwargs: 
+            resizable = kwargs.pop('resizable')
+            if isinstance(resizable,str):
+                resizable = resizable.split()
+            self.resizable(*resizable)
 
     def addinit_addconfig(self,kwargs):
 
         GuiContainer.addinit_addconfig(self,kwargs)
 
+        self.dyntk_minsize_default = self.minsize()
+        self.dyntk_maxsize_default = self.maxsize()
+        self.dyntk_resizable_default = self.resizable()
+        self.dyntk_title_default = self.title()
+
         if self.title_par:
             kwargs['title'] = self.title_par
             self.title_par = None
-
         if self.geometry_par:
             kwargs['geometry'] = self.geometry_par
             self.geometry_par = None
+        if self.dyntk_minsize:
+            kwargs['minsize'] = self.dyntk_minsize
+        if self.dyntk_maxsize:
+            kwargs['maxsize'] = self.dyntk_maxsize
+        if self.dyntk_minsize:
+            kwargs['resizable'] = self.dyntk_resizable
 
     def addconfig(self,kwargs):
         GuiContainer.addconfig(self,kwargs)
         kwargs['title'] = self.title()
         kwargs['geometry'] = self.geometry()
+        kwargs['minsize'] = self.minsize()
+        kwargs['maxsize'] = self.maxsize()
+        kwargs['resizable'] = self.resizable()
 
     def clear_addconfig(self,kwargs):
         GuiContainer.clear_addconfig(self,kwargs)
         kwargs.pop('title',None)
         kwargs.pop('geometry',None)
+        kwargs.pop('minsize',None)
+        kwargs.pop('maxsize',None)
+        kwargs.pop('resizable',None)
 
 # =====================================================================
 
@@ -1353,15 +1383,20 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
 class Menu(GuiContainer,StatTkInter.Menu):
 
     def __init__(self,myname=None,**kwargs):
+        self.dyntk_name = ''
 
-        self.title_changed = False
         master,altname,select = _getMasterAndNameAndSelect(myname,"menu",kwargs)
         tk_master = master.master if isinstance(master,MenuItem) else master
         _initGuiContainer(kwargs,StatTkInter.Menu,self,myname,altname,tk_master = tk_master)
 
 
     def add(self,itemtype,**kwargs):
-        return MenuItem(self,itemtype,**kwargs)
+        if self.dyntk_name:
+            self_and_name = (self,self.dyntk_name)
+            self.dyntk_name = ''
+            return MenuItem(self_and_name,itemtype,**kwargs)
+        else:
+            return MenuItem(self,itemtype,**kwargs)
 
     def add_command(self,**kwargs):
         self.add('command',**kwargs)
@@ -1382,7 +1417,12 @@ class Menu(GuiContainer,StatTkInter.Menu):
         if not kwargs: return StatTkInter.Menu.entryconfig(self,index)
 
         if index == 0 and self['tearoff'] and not self._delimiter_exists():
-            return MenuDelimiter(self,**kwargs)
+            if self.dyntk_name:
+                self_and_name = (self,self.dyntk_name)
+                self.dyntk_name = ''
+                return MenuDelimiter(self_and_name,**kwargs)
+            else:
+                return MenuDelimiter(self,**kwargs)
         else:
             if 'image' in kwargs:
                 pack_offset = index - self['tearoff']
@@ -2215,11 +2255,26 @@ def del_config_before_compare(dictionaryWidget):
     # delete what we don't want
     for entry in ("command","variable","image","menu"): dictionaryWidget.pop(entry,None)
 
-    # delete empty or unchanged special cases
-    if 'title' in dictionaryWidget and not isinstance(this(),Menu) and not this().title_changed:
-        del dictionaryWidget['title']
-    if 'geometry' in dictionaryWidget and not this().geometry_changed:
-        del dictionaryWidget['geometry']
+    if isinstance(this(),Tk) or isinstance(this(),Toplevel):
+
+        # delete empty or unchanged special cases
+        if 'title' in dictionaryWidget and this().dyntk_title_default == this().title():
+            del dictionaryWidget['title']
+        if 'geometry' in dictionaryWidget and not this().geometry_changed:
+            del dictionaryWidget['geometry']
+
+        # delete empty or unchanged special cases
+        if 'minsize' in dictionaryWidget and this().minsize() == this().dyntk_minsize_default:
+            del dictionaryWidget['minsize']
+
+        # delete empty or unchanged special cases
+        if 'maxsize' in dictionaryWidget and this().maxsize() == this().dyntk_maxsize_default:
+            del dictionaryWidget['maxsize']
+
+        # delete empty or unchanged special cases
+        if 'resizable' in dictionaryWidget and this().resizable() == this().dyntk_resizable_default:
+            del dictionaryWidget['resizable']
+
 
     # delete empty entries
     for element in ('link','cursor','call Code(self)','myclass','baseclass','photoimage','text'):
@@ -2530,11 +2585,10 @@ def save_widget(filehandle,name):
             conf_dict.clear()
             conf_dict['link'] = mylink
     
-    if len(conf_dict) != 0:
-        #filehandle.write(","+generate_keyvalues(conf_dict)+")")
+    if conf_dict:
         filehandle.write(",**"+str(conf_dict)+")")
     else:
-         filehandle.write(")")
+        filehandle.write(")")
 
     if 'link' in conf_dict and not (isinstance(this(),LinkLabel) or isinstance(this(),LinkButton)):
         if is_immediate_layout(): filehandle.write('.')
@@ -2543,6 +2597,11 @@ def save_widget(filehandle,name):
     save_immediate_layout(filehandle)
     filehandle.write("\n")
 
+    if isinstance(this(),Text):
+        text = this().get("1.0",'end-1c')
+        if not text.isspace():
+            filehandle.write("this().delete(1.0, END)\n")
+            filehandle.write('this().insert(END,{})\n'.format(repr(this().get("1.0",'end-1c'))))
 
 def save_canvas(filehandle):
 
@@ -2814,13 +2873,13 @@ def saveAccess(filehandle,isWidgets=False):
 
 # ========== Save Export ===========================================================
 
-def saveExport(readhandle,writehandle,flag=False):
+def saveExport(readhandle,writehandle,names=False,designer=False):
 
-    EXPORT_NAME = flag # export with or without names
+    EXPORT_NAME = names # export with or without names
+    EXPORT_DESIGNER = designer
+    
     export_info = {
         'NameNr': 0 ,
-        'need_ext' : False ,
-        'need_ext_tearoff' : False,
         'need_pil' : False,
         'need_grid_cols' : False,
         'need_grid_cols' : False,
@@ -2900,7 +2959,7 @@ def saveExport(readhandle,writehandle,flag=False):
             if value != None: grid_dict[entry] = value
         return grid_dict
 
-    def write_config_parameters(filehandle,colon,var_name):
+    def write_config_parameters(filehandle,colon,var_name=None,linefeed='\n'):
         # generate other config parameters
         conf_dict = get_save_config()
 
@@ -2911,11 +2970,9 @@ def saveExport(readhandle,writehandle,flag=False):
 
         # generate regular parameters
         if conf_dict:
-            if isinstance(this(),MenuDelimiter):
-                export_info['need_ext_tearoff'] = True
-            filehandle.write(colon + generate_keyvalues(conf_dict)+")\n")
+            filehandle.write(colon + generate_keyvalues(conf_dict)+')' + linefeed)
         else:
-             filehandle.write(")\n")
+             filehandle.write(')' + linefeed)
 
         if isinstance(this(),Listbox) and this()['text']:
             filehandle.write("        self.{}.delete(0,'end')\n".format(var_name))
@@ -2982,11 +3039,8 @@ def saveExport(readhandle,writehandle,flag=False):
             return '        self.' + var_name + ' = ' + class_name + '(self' + optional
 
     def get_write_add_menuitem(item_type,widget_name):
-        if widget_name:
-            export_info['need_ext'] = True
-            return '        self.add_' + item_type + '(' + name_expr(widget_name)
-        else:
-            return '        self.add_' + item_type + '('
+        addcode = "        self.dyntk_name = '{}'\n".format(widget_name) if widget_name else ''
+        return addcode + '        self.add_' + item_type + '('
 
     def export_menu_entry(filehandle,var_name,class_name,has_class):
         optional = ''
@@ -3098,15 +3152,17 @@ def saveExport(readhandle,writehandle,flag=False):
                 export_info['need_pil'] = True
                 filehandle.write("        self.{}_img = ImageTk.PhotoImage(Image.open('{}'))\n".format(var_name,fotofile))
 
+
+
         if isinstance(this(),MenuDelimiter):
             filehandle.write('        # tear off element\n')
-            if EXPORT_NAME:
-                export_info['need_ext'] = True
-                filehandle.write('        self.entryconfig(0' + ',' + name_expr(uni_name))
-            else:
-                filehandle.write('        self.entryconfig(0')
+            addcode = "        self.dyntk_name = '{}'\n".format(var_name) if EXPORT_NAME else ''
+            filehandle.write(addcode + '        self.entryconfig(0')
 
         elif isinstance(this(),MenuItem):
+
+            colon = ''
+
             if this().mytype == 'cascade' :
                 # die Menus in der Cascade abarbeiten
                 # Schritt 1:
@@ -3123,18 +3179,17 @@ def saveExport(readhandle,writehandle,flag=False):
                 create_menu_list.extend(create_classes)
                 setWidgetSelection(this_widget)
                 this().master.named_indexes.append(var_name)
-                filehandle.write(get_write_add_menuitem(this().mytype,uni_name))
-                if not uni_name: colon = ''
+                filehandle.write(get_write_add_menuitem(this().mytype,var_name))
                 if active_menu:
                     filehandle.write(colon + 'menu=self.' +active_menu)
                     colon = ','
             else:
                 this().master.named_indexes.append(var_name)
-                filehandle.write(get_write_add_menuitem(this().mytype,uni_name))
-                if not uni_name: colon = ''
-
+                filehandle.write(get_write_add_menuitem(this().mytype,var_name))
         else:
             filehandle.write(get_write_expression(var_name,class_name,optional,uni_name))
+
+
 
 
         # ================== write config parameters ==========================================
@@ -3154,9 +3209,22 @@ def saveExport(readhandle,writehandle,flag=False):
             filehandle.write(')\n')
         else:
             write_config_parameters(filehandle,colon,var_name)
+            if isinstance(this(),MenuDelimiter):
+                filehandle.write('        self.after(1,lambda self = self: self.entryconfig(0')
+                write_config_parameters(filehandle,colon,linefeed=')\n')
+
+        if isinstance(this(),Text):
+            text = this().get("1.0",'end-1c')
+            if not text.isspace():
+
+                filehandle.write("        self.{}.delete(1.0, tk.END)\n".format(var_name))
+                filehandle.write('        self.{}.insert(tk.END,{})\n'.format(var_name,repr(this().get("1.0",'end-1c'))))
+
 
         # ================ write immediate layout ==================================================
         export_immediate_layout(filehandle,var_name)
+
+
 
         return create_menu_list
 
@@ -3191,7 +3259,7 @@ def saveExport(readhandle,writehandle,flag=False):
             return
 
         item_index = 1
-        page_nr = 0
+        page_nr = 1
 
         for e in packlist:
 
@@ -3540,13 +3608,22 @@ def saveExport(readhandle,writehandle,flag=False):
         if isinstance(this(),Tk) or isinstance(this(),Toplevel):
 
             tit = this()['title']
-            if tit and this().title_changed:
+            if tit and tit != this().dyntk_title_default:
                 filehandle.write('        self.title('+repr(tit)+")\n")
 
             geo = this()['geometry']
             if geo and this().geometry_changed:
                 filehandle.write('        self.geometry('+repr(geo)+")\n")
-            
+
+            if this().minsize() != this().dyntk_minsize_default:
+                filehandle.write("        self.minsize{0}\n".format(this().minsize()))
+                
+            if this().maxsize() != this().dyntk_maxsize_default:
+                filehandle.write("        self.maxsize{0}\n".format(this().maxsize()))
+
+            if this().resizable() != this().dyntk_resizable_default:
+                filehandle.write("        self.resizable{0}\n".format(this().resizable()))
+
 
         grid_dict = get_grid_dict()
         if grid_dict:
@@ -3599,8 +3676,6 @@ def saveExport(readhandle,writehandle,flag=False):
     def saveExport_intern(readhandle,writehandle):
 
         export_info['NameNr'] = 0
-        export_info['need_ext'] = False
-        export_info['need_ext_tearoff'] = False
         export_info['need_pil'] = False
         export_info['need_grid_cols'] = False
         export_info['need_grid_rows'] = False
@@ -3637,50 +3712,46 @@ def saveExport(readhandle,writehandle,flag=False):
                 ExportNames.clear()
                 return error
             class_dict[entry[0]] = entry[1]
-                            
-            
+
+        writehandle.write('# -*- coding: utf-8 -*-\n\n')
         # write imports
-
-
-        if export_info['need_ext']:
-            writehandle.write('import DynTkExtend as tk\n')
-        elif export_info['need_ext_tearoff']:
-            writehandle.write('import DynTkExtend as tk  # required because entryconfig(0, ...) needs some time for taking effect\n')
+        if EXPORT_DESIGNER:
+            writehandle.write('import DynTkInter as tk # for GuiDesigner\n')
+            if export_info['need_ttk']:
+                writehandle.write('import DynTtk as ttk    # for GuiDesigner\n')
+            if export_info['need_pil']:
+                writehandle.write('from DynTkInter import Image,ImageTk # for GuiDesigner\n')
         else:
+            # with and without names ================================
             writehandle.write('''try:
     import tkinter as tk
 except ImportError:
     import Tkinter as tk
 ''')
 
-        if export_info['need_ttk']:
-            writehandle.write('''try:
+            if export_info['need_ttk']:
+                writehandle.write('''try:
     from tkinter import ttk
 except ImportError:
     import ttk
 ''')
 
-        if EXPORT_NAME:                            
-            writehandle.write('\n#import DynTkInter as tk # for GuiDesigner\n')
-            if export_info['need_ttk']:
-                writehandle.write('#import DynTtk as ttk    # for GuiDesigner\n')
-            writehandle.write('\n')
+            if EXPORT_NAME:                            
+                writehandle.write('\n#import DynTkInter as tk # for GuiDesigner\n')
+                if export_info['need_ttk']:
+                    writehandle.write('#import DynTtk as ttk    # for GuiDesigner\n')
+                writehandle.write('\n')
 
-        if export_info['need_pil']:
-            writehandle.write('from PIL import Image,ImageTk\n')
-            if EXPORT_NAME:
-                writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n\n')
+            if export_info['need_pil']:
+                writehandle.write('from PIL import Image,ImageTk\n')
+                if EXPORT_NAME:
+                    writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n')
+            # END with and without names ==============================
         
         writehandle.write('\n')
 
         if export_info['need_grid_cols'] or export_info['need_grid_rows']:
-            writehandle.write('''# for development ==================================
-def show_grid_table(container,rows,columns):
-    for row in range(rows):
-        for column in range(columns):
-            tk.Frame(container,relief= 'solid',bd =1,bg ='#b3d9d9').grid(row=row, column=column, sticky='news')
-
-# === general grid table definition =================
+            writehandle.write('''# === general grid table definition =================
 ''')
 
         if export_info['need_grid_rows']:
@@ -3706,13 +3777,19 @@ def show_grid_table(container,rows,columns):
             if this().isMainWindow:
                 writehandle.write("if __name__ == '__main__':\n")
                 if isinstance(this(),Toplevel):
-                    if EXPORT_NAME:
-                        writehandle.write("    #" + name + "(tk.Tk()).master.mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
-                    writehandle.write('    '+ name +"(tk.Tk()).mainloop()\n")
+                    if EXPORT_DESIGNER:
+                        writehandle.write("    " + name + "(tk.Tk()).master.mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                    else:
+                        if EXPORT_NAME:
+                            writehandle.write("    #" + name + "(tk.Tk()).master.mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                        writehandle.write('    '+ name +"(tk.Tk()).mainloop()\n")
                 else:
-                    if EXPORT_NAME:
-                        writehandle.write("    #" + name + "().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
-                    writehandle.write('    '+ name +"().mainloop()\n")
+                    if EXPORT_DESIGNER:
+                        writehandle.write("    " + name + "().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                    else:
+                        if EXPORT_NAME:
+                            writehandle.write("    #" + name + "().mainloop('guidesigner/Guidesigner.py') # for GuiDesigner\n")
+                        writehandle.write('    '+ name +"().mainloop()\n")
 
         # if readhandle then merge the generated GUI with file
         else:
