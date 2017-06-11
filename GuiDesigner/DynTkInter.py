@@ -3490,10 +3490,17 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         else:
 
             # now we save the widgets in the container
+            # ACHTUNG hier sollte ein unterschiedlicher widget_name vergeben erden
             for widget_name in namelist:
                 e = dictionary[widget_name]
+                number = 0
                 for widget in e:
-                    call_exportWidget(filehandle,widget,widget_name)
+                    if not number:
+                        call_exportWidget(filehandle,widget,widget_name)
+                    else:
+                        name = '{}_{}'.format(widget_name,number+1)
+                        call_exportWidget(filehandle,widget,name)
+                    number += 1
 
             export_pack_entries(filehandle)
 

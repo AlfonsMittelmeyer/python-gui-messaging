@@ -11,6 +11,8 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
+- export of same names for local widgets self.name as self.names_nr
+
 - implementation of forget() for pack layout
 - bug fixing for names which contain '-'
 - bug fxing for Special->Expert options->Code
