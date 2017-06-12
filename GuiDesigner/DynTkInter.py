@@ -1297,9 +1297,7 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
     def geometry(self,*args):
 
         if args:
-            self.geometry_changed = True
-        else:
-            self.geometry_changed = False
+            self.geometry_changed = True if args[0] else False
             
         return self.tkClass.geometry(self,*args)
 
@@ -1319,7 +1317,7 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
         GuiContainer.executeclear_addconfig(self,kwargs)
         if 'title' in kwargs:
             self.title(kwargs.pop('title'))
-        if 'geometry' in kwargs: 
+        if 'geometry' in kwargs:
             self.geometry_changed = kwargs['geometry'] != ''
             self.geometry(kwargs.pop('geometry'))
         if 'minsize' in kwargs:

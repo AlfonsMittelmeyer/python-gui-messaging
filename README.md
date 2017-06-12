@@ -11,6 +11,8 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
+- bug fixing for geometry: was not saved and not exported
+
 - export of same names for local widgets self.name as self.names_nr
 
 - implementation of forget() for pack layout
