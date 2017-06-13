@@ -1,3 +1,4 @@
+config(**{'grid_rows': '(1, 0, 0, 1)', 'grid_cols': '(5, 0, 0, 1)'})
 Frame('ClassAndBaseLayout',**{'link': 'guidesigner/ClassAndBaseLayout.py'}).grid(sticky='new', column=1, row=0)
 LabelFrame('ConfigOptions',**{'link': 'guidesigner/ConfigOptions.py'}).grid(sticky='nw', column=2, row=0)
 Frame('CreateFrame',**{'link': 'guidesigner/CreateFrame.py'}).grid(sticky='nw', row=0)

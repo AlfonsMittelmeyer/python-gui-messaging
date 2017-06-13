@@ -686,6 +686,7 @@ class GuiElement:
         elif layout in (PANELAYOUT,TTKPANELAYOUT): self.master.forget(self)
         elif layout == MENULAYOUT: self.selectmenu_forget()
         elif layout == PAGELAYOUT: self.page_forget()
+        elif layout == LIFTLAYOUT: self.grid_forget()
 
     def forget(self):
         if self.Layout == PACKLAYOUT:
@@ -1408,19 +1409,19 @@ class Menu(GuiContainer,StatTkInter.Menu):
             return MenuItem(self,itemtype,**kwargs)
 
     def add_command(self,**kwargs):
-        self.add('command',**kwargs)
+        return self.add('command',**kwargs)
 
     def add_separator(self,**kwargs):
-        self.add('separator',**kwargs)
+        return self.add('separator',**kwargs)
 
     def add_checkbutton(self,**kwargs):
-        self.add('checkbutton',**kwargs)
+        return self.add('checkbutton',**kwargs)
 
     def add_radiobutton(self,**kwargs):
-        self.add('radiobutton',**kwargs)
+        return self.add('radiobutton',**kwargs)
 
     def add_cascade(self,**kwargs):
-        self.add('cascade',**kwargs)
+        return self.add('cascade',**kwargs)
 
     def entryconfig(self,index,**kwargs):
         if not kwargs: return StatTkInter.Menu.entryconfig(self,index)
@@ -1700,7 +1701,20 @@ class PanedWindow(GuiContainer,StatTkInter.PanedWindow):
     def forget(self,child):
         child.Layout = NOLAYOUT
         StatTkInter.PanedWindow.forget(self,child)
-        
+
+class LiftWindow(GuiContainer,StatTkInter.Frame):
+
+    def __init__(self,myname=None,**kwargs):
+        _initGuiContainer(kwargs,StatTkInter.Frame,self,myname,"liftwindow")
+        self.columnconfigure(0,pad = 0, weight = 1, minsize = 0)
+        self.rowconfigure(0,pad = 0, weight = 1, minsize = 0)
+
+    def add(self,child,*args,**kwargs):
+        child.grid(row = 0, column = 0, sticky = 'news')
+        child.Layout = LIFTLAYOUT
+
+    def forget(self,child):
+        child.grid_forget()
 
 class Listbox(GuiElement,StatTkInter.Listbox):
 
@@ -3869,7 +3883,7 @@ def DynImportCode(filename):
 
     fi = None
     try:
-        fi = open(filename,'r')
+        fi = open(filename,'r',encoding="utf-8")
     except: 
         output("Couldn't open file: " + filename)
         return
@@ -3923,7 +3937,7 @@ def DynLoad(filename):
     if LOADwithCODE: DynImportCode(filename)
     else:
         try:
-            fi = open(filename,'r')
+            fi = open(filename,'r',encoding="utf-8")
         except: 
             output("Couldn't open file: " + filename)
             return
@@ -3936,7 +3950,7 @@ _DynLoad = DynLoad
 def DynAccess(filename,par=None,parent=None):
     selection_before = Selection()
     if parent != None: setSelection(Create_Selection(parent,parent))
-    exec(compile(open(filename, "r").read(), filename, 'exec'))
+    exec(compile(open(filename, "r",encoding="utf-8").read(), filename, 'exec'))
     if par == None: retval = locals()['Access']()
     elif type(par) is tuple or type(par) is list: retval = locals()['Access'](*par)
     else: retval = locals()['Access'](par)
@@ -3948,7 +3962,7 @@ def load_script(filename,classlist = None, parent=None):
     myparent = classlist
     selection_before = Selection()
     if myparent != None: setSelection(Create_Selection(myparent,myparent))
-    exec(compile(open(filename, "r").read(), filename, 'exec'))
+    exec(compile(open(filename, "r",encoding="utf-8").read(), filename, 'exec'))
     setSelection(selection_before)
 
 def DynLink(filename):

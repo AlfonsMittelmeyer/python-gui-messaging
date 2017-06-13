@@ -23,7 +23,7 @@ def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax,os=os):
     selection = Selection()
     if test_Syntax(me,textwidget):
         try:
-            fh = open(os.path.join(os.getcwd(),'Testcode','tempcode.py'),"w")
+            fh = open(os.path.join(os.getcwd(),'Testcode','tempcode.py'),"w",encoding="utf-8")
             is_open = True
         except:
             is_open = False
@@ -36,7 +36,7 @@ def execute_code(me,textwidget,current_selection,test_Syntax=test_syntax,os=os):
             undo_receiveAll(current_selection._widget)
             setWidgetSelection(current_selection._widget)
             goIn()
-            exec(compile(open('Testcode/tempcode.py', "r").read(), 'Testcode/tempcode.py', 'exec'))
+            exec(compile(open('Testcode/tempcode.py', "r",encoding="utf-8").read(), 'Testcode/tempcode.py', 'exec'))
             #eval(compile(textwidget.get("1.0",'end-1c'),'<string>', 'exec'))
             setWidgetSelection(me)
             widget("Syntax").config(text="Code Run OK",fg="#006000")
@@ -66,7 +66,7 @@ def load_from_file(me,textwidget,os=os):
     setWidgetSelection(me)
     widget('IOError').unlayout()
     try:
-        fh = open(os.path.join(os.getcwd(),'Testcode',widget('Entry').get()),'r')
+        fh = open(os.path.join(os.getcwd(),'Testcode',widget('Entry').get()),'r',encoding="utf-8")
         textwidget.delete(1.0, END)	
         textwidget.insert(END,fh.read())
         fh.close()

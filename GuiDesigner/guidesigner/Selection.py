@@ -44,6 +44,13 @@ def create_widget(msg):
         page(text=name)
         send('SELECTION_CHANGED')
 
+    elif isinstance(container(),LiftWindow):
+        eval("{}('{}',**{})".format(widget_type,name,kwargs))
+        text(name)
+        container().add(this())
+        send('SELECTION_CHANGED')
+
+
     else:
         if widget_type == "Toplevel": cdApp()
         #eval("{}('{}')".format(widget_type,name))

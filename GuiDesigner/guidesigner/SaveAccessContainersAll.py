@@ -8,8 +8,9 @@ def show_save_dialog(msg,root = widget('/')):
     options['parent'] = root
     options['title'] = 'Save Access Containers: ' + msg
 
-    fh = tkFileDialog.asksaveasfile(mode='w', **file_opt)
-    if fh != None:
+    name = tkFileDialog.asksaveasfilename(**file_opt)
+    if name:
+        fh = open(name,'w',encoding="utf-8")
         currentSelection = Selection()
         gotoRoot()
         _Selection._container = _TopLevelRoot._container

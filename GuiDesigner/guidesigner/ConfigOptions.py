@@ -140,8 +140,6 @@ def do_text_color(me):
 def entry_event(me,button=None):
     if button != None: button.setconfig('bg',me.get())
     setconfig(me.mydata,me.get())
-    if me.mydata == "geometry": this().geometry_changed = True
-    if me.mydata == "title": this().title_changed = True
     me['bg']='gray'
     informLater(300,me,'color',True)
 

@@ -1,4 +1,5 @@
 config(text = 'Layout')
+config(**{'grid_rows': '(9, 0, 0, 1)', 'grid_cols': '(1, 0, 0, 1)'})
 
 LabelFrame('WindowLayout',link="guidesigner/WindowLayout.py")
 grid(sticky='ew',row='0')
@@ -24,6 +25,8 @@ grid(sticky='ew',row='6')
 LabelFrame('PageLayout',link="guidesigner/PageLayout.py")
 grid(sticky='ew',row='7')
 
+LabelFrame('LiftLayout',link="guidesigner/LiftLayout.py")
+grid(sticky='ew',row='8')
 
 ### CODE ===================================================
 
@@ -84,7 +87,8 @@ def hide_pack_or_grid(
     itemly=widget('ItemLayout'),
     menuly=widget('MenuLayout'),
     windowly=widget('WindowLayout'),
-    pagely=widget('PageLayout')
+    pagely=widget('PageLayout'),
+    liftly=widget('LiftLayout'),
     ):
 
     if this().Layout != LAYOUTNEVER:
@@ -93,6 +97,7 @@ def hide_pack_or_grid(
             packly.unlayout()
             gridly.unlayout()
             placely.unlayout()
+            liftly.unlayout()
             itemly.unlayout()
             panely.unlayout()
             pagely.unlayout()
@@ -106,6 +111,7 @@ def hide_pack_or_grid(
             placely.unlayout()
             itemly.unlayout()
             menuly.unlayout()
+            liftly.unlayout()
             windowly.unlayout()
             panely.unlayout()
             pagely.grid()
@@ -115,6 +121,7 @@ def hide_pack_or_grid(
             packly.unlayout()
             gridly.unlayout()
             placely.unlayout()
+            liftly.unlayout()
             itemly.unlayout()
             menuly.unlayout()
             windowly.unlayout()
@@ -128,6 +135,7 @@ def hide_pack_or_grid(
             placely.unlayout()
             panely.unlayout()
             menuly.unlayout()
+            liftly.unlayout()
             windowly.unlayout()
             pagely.unlayout()
             itemly.grid()
@@ -138,9 +146,21 @@ def hide_pack_or_grid(
             placely.unlayout()
             panely.unlayout()
             menuly.unlayout()
+            liftly.unlayout()
             pagely.unlayout()
             itemly.unlayout()
             windowly.grid()
+            send("ENABLE_SASH_LIST",False)
+        elif container() != this() and isinstance(container(),LiftWindow):
+            packly.unlayout()
+            gridly.unlayout()
+            placely.unlayout()
+            panely.unlayout()
+            menuly.unlayout()
+            liftly.grid()
+            pagely.unlayout()
+            itemly.unlayout()
+            windowly.unlayout()
             send("ENABLE_SASH_LIST",False)
         else:
             if isinstance(container(),Canvas) and this() != container():
@@ -152,6 +172,7 @@ def hide_pack_or_grid(
             packly.grid()
             gridly.grid()
             panely.unlayout()
+            liftly.unlayout()
             pagely.unlayout()
             menuly.unlayout()
             itemly.unlayout()

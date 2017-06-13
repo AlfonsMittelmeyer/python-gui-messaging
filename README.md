@@ -11,29 +11,23 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
-- bug fixing for geometry: was not saved and not exported
-
-- export of same names for local widgets self.name as self.names_nr
-
-- implementation of forget() for pack layout
-- bug fixing for names which contain '-'
-- bug fxing for Special->Expert options->Code
-
-
-- bug fixing for pack layout - the pack order had changed, when pack paremeters were changed. Now the pack order doesn't change
-- minsize, maxsize and resizable for Main Window and Toplevel
-- saving and export of Text widget text
-
-- ttk.Notebook now available and full functioning
+- file export, save and load utf-8 encoded for Windows
 
 very new:
 
+- bug fixing for geometry: was not saved and not exported
+- export of same names for local widgets self.name as self.names_nr
+- implementation of forget() for pack layout
+- minsize, maxsize and resizable for Main Window and Toplevel
+
+relative new:
+
+- saving and export of Text widget text
+- ttk.Notebook now available and full functioning
 - all ttk Widgets are available
   but Treeview and Sizegrip without further functionality
 
 - two new ttk widgets: ttk.Separator and ttk.Combobox
-
-relative new:
 
 - a new module Export/tk_extend.py for fixing a tkinter problem with entryconfig
 

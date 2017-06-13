@@ -24,11 +24,11 @@ def show_save_dialog(msg,root = widget('/'),os=os):
             if os.path.exists(readfile):
                 os.remove(readfile)
             os.rename(name,readfile)
-            readhandle = open(readfile,'r')
+            readhandle = open(readfile,'r',encoding="utf-8")
 
         else: readhandle = None
 
-        fh = open(name,'w')
+        fh = open(name,'w',encoding="utf-8")
         currentSelection = Selection()
         gotoRoot()
         _Selection._container = _TopLevelRoot._container

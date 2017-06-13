@@ -47,4 +47,4 @@ def Access(param,tk=tk):
             myclass = class_register[kwargs.pop('myclass')]
         return myclass(name,item_type,**kwargs)
 
-    exec(compile(open(filename, "r").read(), filename, 'exec'))
+    exec(compile(open(filename, "r",encoding="utf-8").read(), filename, 'exec'))

@@ -40,7 +40,7 @@ def load_styles(style = widget('styles')):
 
     filename = 'TtkStyles/styles.py'
     try:
-        exec(compile(open(filename, "r").read(), filename, 'exec'))
+        exec(compile(open(filename, "r",encoding="utf-8").read(), filename, 'exec'))
         style['fg'] = 'blue'
     except (FileNotFoundError,SyntaxError) as e:
         traceback.print_exc()
