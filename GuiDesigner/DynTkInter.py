@@ -2896,6 +2896,7 @@ def saveAccess(filehandle,isWidgets=False):
 
 # ========== Save Export ===========================================================
 
+# +++
 def saveExport(readhandle,writehandle,names=False,designer=False):
 
     EXPORT_NAME = names # export with or without names
@@ -2907,6 +2908,8 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         'need_grid_cols' : False,
         'need_grid_cols' : False,
         'need_ttk' : False}
+
+    imports = set()
 
     # ExportNames contains the widgwet names {widget : (name,nameCamelCase)}
     # entries are made by exportContainer
@@ -3062,7 +3065,9 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             return '        self.' + var_name + ' = ' + class_name + '(self' + optional
 
     def get_write_add_menuitem(item_type,widget_name):
-        addcode = "        self.dyntk_name = '{}'\n".format(widget_name) if widget_name else ''
+        addcode = ''
+        if EXPORT_NAME:
+            addcode = "        self.dyntk_name = '{}'\n".format(widget_name) if widget_name else ''
         return addcode + '        self.add_' + item_type + '('
 
     def export_menu_entry(filehandle,var_name,class_name,has_class):
@@ -3139,7 +3144,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         # own class name, if has widgets
 
         has_class = False
-
+        # +++ wie is es mit einer cascade ?
         if not (isinstance(this(),MenuItem) or isinstance(this(),MenuDelimiter)):
 
             if this().myclass:
@@ -3179,7 +3184,9 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
 
         if isinstance(this(),MenuDelimiter):
             filehandle.write('        # tear off element\n')
-            addcode = "        self.dyntk_name = '{}'\n".format(var_name) if EXPORT_NAME else ''
+            addcode = ''
+            if EXPORT_NAME:
+                addcode = "        self.dyntk_name = '{}'\n".format(var_name) if EXPORT_NAME else ''
             filehandle.write(addcode + '        self.entryconfig(0')
 
         elif isinstance(this(),MenuItem):
@@ -3566,6 +3573,10 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
                 filehandle.write('        # call Code ===================================\n')
                 filehandle.write("        {}(self)\n".format(container().call_code))
 
+                splits = container().call_code.split('.')
+                if len(splits) > 1:
+                    imports.add(splits[0])
+
         # now we export sub containers ==============================================
 
     
@@ -3594,6 +3605,10 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         filehandle.open(class_name)
         
         thisClass = this().getconfig('baseclass')
+        if thisClass:
+            splits = thisClass.split('.')
+            if len(splits) > 1:
+                imports.add(splits[0])
         if not thisClass:
             thisClass = WidgetClass(this())
                                     
@@ -3779,7 +3794,13 @@ except ImportError:
                 writehandle.write('from PIL import Image,ImageTk\n')
                 if EXPORT_NAME:
                     writehandle.write('#from DynTkInter import Image,ImageTk # for GuiDesigner\n')
+
             # END with and without names ==============================
+
+        if imports:
+            writehandle.write('\n')
+            for element in imports:
+                writehandle.write('import ' + element+'\n')
         
         writehandle.write('\n')
 

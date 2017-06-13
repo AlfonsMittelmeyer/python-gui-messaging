@@ -11,6 +11,8 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
+- automatic generation of imports for export
+
 - file export, save and load utf-8 encoded for Windows
 
 very new:
