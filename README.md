@@ -11,6 +11,8 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
+- distinguishing between imports by baseclass ond those of call Code
+
 - automatic generation of imports for export
 
 - file export, save and load utf-8 encoded for Windows

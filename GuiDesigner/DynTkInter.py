@@ -2909,7 +2909,8 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         'need_grid_cols' : False,
         'need_ttk' : False}
 
-    imports = set()
+    imports_baseclass = set()
+    imports_callcode = set()
 
     # ExportNames contains the widgwet names {widget : (name,nameCamelCase)}
     # entries are made by exportContainer
@@ -3575,7 +3576,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
 
                 splits = container().call_code.split('.')
                 if len(splits) > 1:
-                    imports.add(splits[0])
+                    imports_callcode.add(splits[0])
 
         # now we export sub containers ==============================================
 
@@ -3608,7 +3609,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         if thisClass:
             splits = thisClass.split('.')
             if len(splits) > 1:
-                imports.add(splits[0])
+                imports_baseclass.add(splits[0])
         if not thisClass:
             thisClass = WidgetClass(this())
                                     
@@ -3719,7 +3720,10 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         elif this().getconfig('call Code(self)'):
             filehandle.write('        # call Code ===================================\n')
             filehandle.write("        {}(self)\n".format(this().call_code))
-        
+            splits = this().call_code.split('.')
+            if len(splits) > 1:
+                imports_callcode.add(splits[0])
+
         
     def saveExport_intern(readhandle,writehandle):
 
@@ -3797,11 +3801,16 @@ except ImportError:
 
             # END with and without names ==============================
 
-        if imports:
-            writehandle.write('\n')
-            for element in imports:
+        if imports_baseclass:
+            writehandle.write('\n#============= imports baseclass ===================\n')
+            for element in imports_baseclass:
                 writehandle.write('import ' + element+'\n')
         
+        if imports_callcode:
+            writehandle.write('\n#============= imports call Code ===================\n')
+            for element in imports_callcode:
+                writehandle.write('import ' + element+'\n')
+
         writehandle.write('\n')
 
         if export_info['need_grid_cols'] or export_info['need_grid_rows']:
