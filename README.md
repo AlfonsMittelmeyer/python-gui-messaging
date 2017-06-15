@@ -1,13 +1,14 @@
-# python-gui-messaging
-Tkinter GUI Designer, the only one with advanced Grid Design
-and individual table settings per row and column
+# DynTkInter GuiDesigner
 
+DynTkinter GUI Designer, the only one with advanced Grid Design
+and individual table settings per row and column
 
 The GUI Designer includes Help pages and an introduction
 
 - The introduction you start with: python3 intro.py
 - The GuiDesigner you start with: python3 main.py
 
+![enter image description here](https://www2.pic-upload.de/img/33340088/guidesigner.gif)
 
 brand-new:
 
@@ -73,3 +74,7 @@ to do:
 - GuiDesigner and DynTkInter work now also with Python 2.7 instead only with Python 3
     but this doen't work correct now. str() doesn't work as in python3. Before str is used
     the data have to be encoded for not standard ascii characters
+
+
+
+> Written with [StackEdit](https://stackedit.io/).
