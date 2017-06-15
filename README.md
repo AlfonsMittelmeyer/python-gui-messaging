@@ -11,6 +11,8 @@ The GUI Designer includes Help pages and an introduction
 
 brand-new:
 
+- an easy to use eventbroker in directory Utilities
+
 - distinguishing between imports by baseclass ond those of call Code
 
 - automatic generation of imports for export
