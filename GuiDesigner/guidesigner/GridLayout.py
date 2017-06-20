@@ -113,12 +113,27 @@ def main():
         update_rows()
         set_row_height()
 
-    widget('EntryRowHeight').do_command(update_row_values)
-    widget('EntryRowHeight').do_event('<Return>',update_row_values)
-    widget('EntryRowWeight').do_command(update_row_values)
-    widget('EntryRowWeight').do_event('<Return>',update_row_values)
-    widget('EntryRowPad').do_command(update_row_values)
-    widget('EntryRowPad').do_event('<Return>',update_row_values)
+    def check_row_values(rows_widget=widget('EntryRows')):
+        try:
+            rows = int(rows_widget.get())
+        except ValueError: 
+            rows_widget.delete(0,'end')
+            rows_widget.insert(0,10)
+            rows = 10
+
+        if container().grid_conf_rows and container().grid_conf_rows[0] == rows:
+            update_row_values()
+        else:
+            show_grid()
+
+
+    widget('EntryRowHeight').do_command(check_row_values)
+    widget('EntryRowHeight').do_event('<Return>',check_row_values)
+    widget('EntryRowWeight').do_command(check_row_values)
+    widget('EntryRowWeight').do_event('<Return>',check_row_values)
+    widget('EntryRowPad').do_command(check_row_values)
+    widget('EntryRowPad').do_event('<Return>',check_row_values)
+
 
     def update_indiv_wish(wi = widget('Individual')):
         container().grid_conf_individual_wish = wi.mydata.get() == 1
@@ -138,10 +153,12 @@ def main():
             col_width = int(width_widget.get())
             padvalue = int(pad_widget.get())
             weightvalue = int(weight_widget.get())
+
             container().grid_conf_cols = (cols,col_width,padvalue,weightvalue)
        
         except ValueError: pass
 
+ 
 
     def set_col_width():
 
@@ -159,12 +176,25 @@ def main():
         set_col_width()
 
 
-    widget('EntryColWidth').do_command(update_col_values)
-    widget('EntryColWidth').do_event('<Return>',update_col_values)
-    widget('EntryColPad').do_command(update_col_values)
-    widget('EntryColPad').do_event('<Return>',update_col_values)
-    widget('EntryColWeight').do_command(update_col_values)
-    widget('EntryColWeight').do_event('<Return>',update_col_values)
+    def check_col_values(cols_widget=widget('EntryCols')):
+        try:
+            cols = int(cols_widget.get())
+        except ValueError: 
+            cols_widget.delete(0,'end')
+            cols_widget.insert(0,10)
+            cols = 10
+
+        if container().grid_conf_cols and container().grid_conf_cols[0] == cols:
+            update_col_values()
+        else:
+            show_grid()
+
+    widget('EntryColWidth').do_command(check_col_values)
+    widget('EntryColWidth').do_event('<Return>',check_col_values)
+    widget('EntryColPad').do_command(check_col_values)
+    widget('EntryColPad').do_event('<Return>',check_col_values)
+    widget('EntryColWeight').do_command(check_col_values)
+    widget('EntryColWeight').do_event('<Return>',check_col_values)
 
 
     def shop_grid_top(x,y,indivmark,bg,index,grid_conf,update_function,item_text):
