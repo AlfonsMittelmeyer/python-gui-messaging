@@ -70,6 +70,7 @@ def choose_bitmap(entry,title,root=widget('/'),os=os):
     filename = tkFileDialog.askopenfilename(**file_opt)
     if filename:
         filename = os.path.relpath(filename)
+        filename = filename.replace('\\','/')
         setconfig(entry.mydata,'@'+filename)
         entry.delete(0,END)	
         entry.insert(0,getconfig(entry.mydata))
@@ -158,6 +159,7 @@ def choose_image(entry,title,root=widget('/'),os=os):
     filename = tkFileDialog.askopenfilename(**file_opt)
     if filename:
         filename = os.path.relpath(filename)
+        filename = filename.replace('\\','/')
         setconfig(entry.mydata,filename)
         entry.delete(0,END)	
         entry.insert(0,getconfig(entry.mydata))

@@ -48,6 +48,7 @@ def choose_image(entry,title,root=widget('/'),os=os):
     filename = tkFileDialog.askopenfilename(**file_opt)
     if filename:
         filename = os.path.relpath(filename)
+        filename = filename.replace('\\','/')
         setlayout(entry.mydata[0],filename)
         entry.delete(0,END)	
         entry.insert(0,getlayout(entry.mydata[0]))
