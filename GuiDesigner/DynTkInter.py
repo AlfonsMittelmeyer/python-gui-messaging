@@ -3307,12 +3307,13 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             fotofile = this().photoimage
             path,ext = os.path.splitext(fotofile)
             ext = ext.lower()
+
+
             if ext in ('.gif','.pgm','.ppm'):
-                filehandle.write("        self.{}_img = tk.PhotoImage(file = '{}')\n".format(var_name,fotofile))
+                filehandle.write("        self.{}_img = tk.PhotoImage(file = {!r})\n".format(var_name,fotofile))
             else:
                 export_info['need_pil'] = True
-                filehandle.write("        self.{}_img = ImageTk.PhotoImage(Image.open('{}'))\n".format(var_name,fotofile))
-
+                filehandle.write("        self.{}_img = ImageTk.PhotoImage(Image.open({!r}))\n".format(var_name,fotofile))
 
 
         if isinstance(this(),MenuDelimiter):
@@ -3398,10 +3399,10 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         ext = ext.lower()
 
         if ext in ('.gif','.pgm','.ppm'):
-            filehandle.write("        {} = tk.PhotoImage(file = '{}')\n".format(image_ref,fotofile))
+            filehandle.write("        {} = tk.PhotoImage(file = {!r})\n".format(image_ref,fotofile))
         else:
             export_info['need_pil'] = True
-            filehandle.write("        {} = ImageTk.PhotoImage(Image.open('{}'))\n".format(image_ref,fotofile))
+            filehandle.write("        {} = ImageTk.PhotoImage(Image.open({!r}))\n".format(image_ref,fotofile))
 
 
     # export_pack_entries called by exportContainer

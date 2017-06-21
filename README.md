@@ -26,7 +26,7 @@ Then the view in the navigation looks like this
 
 ![enter image description here](https://www2.pic-upload.de/img/33374925/navi_zorder.gif)
 
-The number before the name means the floor. 0 means ground floor or first floor. The other numbers are negative an mean the basement floor
+The number before the name means the floor. 0 means ground floor or first floor. The other numbers are negative and mean the basement floor
 
 The floor can be changed via the  following z-order bar:
 
@@ -36,7 +36,8 @@ When the gui is saved or exported, now it's saved or exported always in z-order 
 
 very new:
 
- - an easy to use eventbroker in directory Utilitie distinguishing
+- correction for path of PhotoImage for Windows 
+- an easy to use eventbroker in directory Utilitie distinguishing
  - between imports by baseclass ond those of call Code automatic
  - generation of imports for export file export, save and load utf-8
  - encoded for Windows export of same names for local widgets self.name
