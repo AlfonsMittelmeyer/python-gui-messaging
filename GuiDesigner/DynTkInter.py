@@ -3277,7 +3277,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         # own class name, if has widgets
 
         has_class = False
-        # +++ wie is es mit einer cascade ?
+        # +++ what, when it's a cascade
         if not (isinstance(this(),MenuItem) or isinstance(this(),MenuDelimiter)):
 
             if this().myclass:
