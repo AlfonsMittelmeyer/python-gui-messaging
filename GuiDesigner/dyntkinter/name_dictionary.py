@@ -26,6 +26,13 @@ class GuiDictionary:
             for x in entry: element_list.append(x)
         return element_list
 
+    def getChildDictionary(self):
+        children = {}
+        for name,entry in self.elements.items():
+            for x in entry: children[x] = name
+        return children
+
+
     def getEntryByStringAddress(self,refstring):
         for name,entry in self.elements.items():
             for x in entry:

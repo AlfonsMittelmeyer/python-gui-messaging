@@ -25,8 +25,9 @@ grid(sticky='ew',row='6')
 LabelFrame('PageLayout',link="guidesigner/PageLayout.py")
 grid(sticky='ew',row='7')
 
-LabelFrame('LiftLayout',link="guidesigner/LiftLayout.py")
+LabelFrame('Basement',link="guidesigner/Basement.py")
 grid(sticky='ew',row='8')
+
 
 ### CODE ===================================================
 
@@ -88,7 +89,7 @@ def hide_pack_or_grid(
     menuly=widget('MenuLayout'),
     windowly=widget('WindowLayout'),
     pagely=widget('PageLayout'),
-    liftly=widget('LiftLayout'),
+    basement = widget('Basement'),
     ):
 
     if this().Layout != LAYOUTNEVER:
@@ -97,21 +98,22 @@ def hide_pack_or_grid(
             packly.unlayout()
             gridly.unlayout()
             placely.unlayout()
-            liftly.unlayout()
             itemly.unlayout()
             panely.unlayout()
             pagely.unlayout()
             windowly.unlayout()
             menuly.grid()
+            basement.unlayout()
+
             send("ENABLE_SASH_LIST",False)
 
         elif container() != this() and container().tkClass is StatTtk.Notebook:
             packly.unlayout()
             gridly.unlayout()
+            basement.unlayout()
             placely.unlayout()
             itemly.unlayout()
             menuly.unlayout()
-            liftly.unlayout()
             windowly.unlayout()
             panely.unlayout()
             pagely.grid()
@@ -121,8 +123,8 @@ def hide_pack_or_grid(
             packly.unlayout()
             gridly.unlayout()
             placely.unlayout()
-            liftly.unlayout()
             itemly.unlayout()
+            basement.unlayout()
             menuly.unlayout()
             windowly.unlayout()
             pagely.unlayout()
@@ -132,10 +134,10 @@ def hide_pack_or_grid(
         elif container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT:
             packly.unlayout()
             gridly.unlayout()
+            basement.unlayout()
             placely.unlayout()
             panely.unlayout()
             menuly.unlayout()
-            liftly.unlayout()
             windowly.unlayout()
             pagely.unlayout()
             itemly.grid()
@@ -145,22 +147,11 @@ def hide_pack_or_grid(
             gridly.unlayout()
             placely.unlayout()
             panely.unlayout()
+            basement.unlayout()
             menuly.unlayout()
-            liftly.unlayout()
             pagely.unlayout()
             itemly.unlayout()
             windowly.grid()
-            send("ENABLE_SASH_LIST",False)
-        elif container() != this() and isinstance(container(),LiftWindow):
-            packly.unlayout()
-            gridly.unlayout()
-            placely.unlayout()
-            panely.unlayout()
-            menuly.unlayout()
-            liftly.grid()
-            pagely.unlayout()
-            itemly.unlayout()
-            windowly.unlayout()
             send("ENABLE_SASH_LIST",False)
         else:
             if isinstance(container(),Canvas) and this() != container():
@@ -168,11 +159,18 @@ def hide_pack_or_grid(
             else:
                 windowly.unlayout()
 
+            if this() !=container()\
+            and isinstance(container(),(Tk,Toplevel,Frame,LabelFrame,ttk.Frame,ttk.LabelFrame))\
+            and not isinstance(this(),StatTkInter.Menu):
+                basement.grid()
+            else:
+                basement.unlayout()
+
+
             placely.grid()
             packly.grid()
             gridly.grid()
             panely.unlayout()
-            liftly.unlayout()
             pagely.unlayout()
             menuly.unlayout()
             itemly.unlayout()

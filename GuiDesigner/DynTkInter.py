@@ -52,6 +52,9 @@ from DynTkImports import *
 #from dyntkinter.callback import *
 import os
 
+
+from Communication.eventbroker import publish, subscribe
+
 def class_type(myclass):
     classString = str(myclass)
 
@@ -332,6 +335,122 @@ class GuiElement:
             else:
                 raise
         return item
+
+
+    def dyntk_up(self):
+        children = self.master.winfo_children()[::-1]
+        children_copy = list(children)
+        for child in children_copy:
+            if isinstance(child,(StatTkInter.Menu,StatTkInter.Toplevel)):
+                children.pop(children.index(child))
+        children_copy = list(children)
+        for child in children_copy:
+            if not isinstance(child,GuiElement):
+                children.pop(children.index(child))
+
+        def top_lower(child_list):
+            for child in child_list:
+                if not isinstance(child,GuiElement):
+                    child.lower()
+                    child_list.append(child_list.pop(0))
+                else:
+                    child.lower()
+                    child_list.append(child_list.pop(0))
+                    break
+
+        index = children.index(self)
+        if children.index(self):
+            while children.index(self) != 1:
+                top_lower(children_copy)
+                children.append(children.pop(0))
+            self.lift()
+            children.insert(0,children.pop(1))
+        else:
+            return
+
+        def bottom_lift(child_list):
+            for child in child_list:
+                if not isinstance(child,GuiElement):
+                    child.lift()
+                    child_list.append(child_list.pop(0))
+                else:
+                    child.lift()
+                    child_list.append(child_list.pop(0))
+                    break
+
+        children_copy = children_copy[::-1]
+        while children.index(self) != index -1:
+            bottom_lift(children_copy)
+            children.insert(0,children.pop())
+
+
+    def dyntk_down(self):
+
+        children = self.master.winfo_children()
+        children_copy = list(children)
+        for child in children_copy:
+            if isinstance(child,(StatTkInter.Menu,StatTkInter.Toplevel)):
+                children.pop(children.index(child))
+        children_copy = list(children)
+        for child in children_copy:
+            if not isinstance(child,GuiElement):
+                children.pop(children.index(child))
+        
+        def bottom_lift(child_list):
+            for child in child_list:
+                if not isinstance(child,GuiElement):
+                    child.lift()
+                    child_list.append(child_list.pop(0))
+                else:
+                    child.lift()
+                    child_list.append(child_list.pop(0))
+                    break
+
+
+        index = children.index(self)
+        if children.index(self):
+            while children.index(self) != 1:
+                bottom_lift(children_copy)
+                children.append(children.pop(0))
+            self.lower()
+            children.insert(0,children.pop(1))
+        else:
+            return
+
+        def top_lower(child_list):
+            for child in child_list:
+                if not isinstance(child,GuiElement):
+                    child.lower()
+                    child_list.append(child_list.pop(0))
+                else:
+                    child.lower()
+                    child_list.append(child_list.pop(0))
+                    break
+
+        children_copy = children_copy[::-1]
+        while children.index(self) != index -1:
+            top_lower(children_copy)
+            children.insert(0,children.pop())
+
+    def dyntk_basement(self,basement):
+        children = self.master.winfo_children()[::-1]
+        children_copy = list(children)
+        for child in children_copy:
+            if isinstance(child,(Menu,Toplevel)) or not isinstance(child,GuiElement):
+                children.pop(children.index(child))
+
+        index = children.index(self)
+        basement = -basement
+        if basement < index:
+            di = index - basement
+            for i in range(di):
+                self.dyntk_up()
+        else:
+            basement = min(len(children) -1,basement)
+            di = basement-index
+            for i in range(di):
+                self.dyntk_down()
+            
 
     def reset_grid(self):
         self.grid_conf_rows = None
@@ -686,7 +805,6 @@ class GuiElement:
         elif layout in (PANELAYOUT,TTKPANELAYOUT): self.master.forget(self)
         elif layout == MENULAYOUT: self.selectmenu_forget()
         elif layout == PAGELAYOUT: self.page_forget()
-        elif layout == LIFTLAYOUT: self.grid_forget()
 
     def forget(self):
         if self.Layout == PACKLAYOUT:
@@ -898,6 +1016,18 @@ class GuiContainer(GuiElement):
             GuiElement.__init__(self,dyn_name,select)
 
 
+
+    def dyntk_basement_list(self):
+        # [(name1,child1),(name2,child2),..]
+        # order bottom to top
+
+        name_child_list = []
+        child_dictionary = self.Dictionary.getChildDictionary()
+        children = self.winfo_children()
+        for child in children:
+            if child in child_dictionary:
+                name_child_list.append((child_dictionary[child],child))
+        return name_child_list
 
 # ====================================================================
 
@@ -1302,6 +1432,7 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
             
         return self.tkClass.geometry(self,*args)
 
+
 # =====================================================================
 
     def addclearinit_addconfig(self,kwargs):
@@ -1356,8 +1487,14 @@ class Toplevel(GuiContainer,StatTkInter.Toplevel):
             kwargs['minsize'] = self.dyntk_minsize
         if self.dyntk_maxsize:
             kwargs['maxsize'] = self.dyntk_maxsize
+        '''
         if self.dyntk_minsize:
             kwargs['resizable'] = self.dyntk_resizable
+        '''
+
+        if self.dyntk_resizable:
+            kwargs['resizable'] = self.dyntk_resizable
+
 
     def addconfig(self,kwargs):
         GuiContainer.addconfig(self,kwargs)
@@ -1701,20 +1838,6 @@ class PanedWindow(GuiContainer,StatTkInter.PanedWindow):
     def forget(self,child):
         child.Layout = NOLAYOUT
         StatTkInter.PanedWindow.forget(self,child)
-
-class LiftWindow(GuiContainer,StatTkInter.Frame):
-
-    def __init__(self,myname=None,**kwargs):
-        _initGuiContainer(kwargs,StatTkInter.Frame,self,myname,"liftwindow")
-        self.columnconfigure(0,pad = 0, weight = 1, minsize = 0)
-        self.rowconfigure(0,pad = 0, weight = 1, minsize = 0)
-
-    def add(self,child,*args,**kwargs):
-        child.grid(row = 0, column = 0, sticky = 'news')
-        child.Layout = LIFTLAYOUT
-
-    def forget(self,child):
-        child.grid_forget()
 
 class Listbox(GuiElement,StatTkInter.Listbox):
 
@@ -2214,7 +2337,8 @@ def eraseEntry(name,index):
 def destroyElement(name,index):
     OurSelection = Create_Selection(_Selection._container,_Selection._container)
     e = eraseEntry(name,index)
-    if e != None: e.destroy()
+    if e != None:
+        e.destroy()
     setSelection(OurSelection)
 
 def renameElement(oldname,index,newname):
@@ -2720,19 +2844,28 @@ def saveContainer(filehandle):
 
     dictionary = container().Dictionary.elements
  
-    # sorted name list
-    namelist = []
-    for name in dictionary:
-        if name != NONAME: namelist.append(name)
-    namelist.sort()
 
-    # now we save the widgets in the container
-    for name in namelist:
-        e = dictionary[name]
-        for x in e:
-            setWidgetSelection(x)
-            save_widget(filehandle,name)
+    if isinstance(container(),(Tk,Toplevel,Frame,LabelFrame,ttk.Frame,ttk.LabelFrame)):
 
+        name_child_list = container().dyntk_basement_list()
+        for entry in name_child_list:
+            setWidgetSelection(entry[1])
+            save_widget(filehandle,entry[0])
+
+    else:
+        # sorted name list
+        namelist = []
+        for name in dictionary:
+            if name != NONAME: namelist.append(name)
+        namelist.sort()
+
+        # now we save the widgets in the container
+
+        for name in namelist:
+            e = dictionary[name]
+            for x in e:
+                setWidgetSelection(x)
+                save_widget(filehandle,name)
     save_pack_entries(filehandle)
 
     if isinstance(container(),Canvas): save_canvas(filehandle)
@@ -2896,7 +3029,6 @@ def saveAccess(filehandle,isWidgets=False):
 
 # ========== Save Export ===========================================================
 
-# +++
 def saveExport(readhandle,writehandle,names=False,designer=False):
 
     EXPORT_NAME = names # export with or without names
@@ -3480,8 +3612,6 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         if isinstance(container(),Menu):
             accesslist = []
             container().named_indexes = []
-            
-            
 
             # first look for MenuDelimiter
             if container()['tearoff']:
@@ -3509,18 +3639,35 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
 
         else:
 
-            # now we save the widgets in the container
-            # ACHTUNG hier sollte ein unterschiedlicher widget_name vergeben erden
-            for widget_name in namelist:
-                e = dictionary[widget_name]
-                number = 0
-                for widget in e:
-                    if not number:
-                        call_exportWidget(filehandle,widget,widget_name)
+            if isinstance(container(),(Tk,Toplevel,Frame,LabelFrame,ttk.Frame,ttk.LabelFrame)):
+
+                name_child_list = container().dyntk_basement_list()
+                name_dict = {}
+
+                for entry in name_child_list:
+                    widget_name = entry[0]
+                    if widget_name not in name_dict:
+                        name_dict[widget_name] = 1
+                        call_exportWidget(filehandle,entry[1],widget_name)
                     else:
-                        name = '{}_{}'.format(widget_name,number+1)
-                        call_exportWidget(filehandle,widget,name)
-                    number += 1
+                        name_dict[widget_name] += 1
+                        name = '{}_{}'.format(widget_name,name_dict[widget_name])
+                        call_exportWidget(filehandle,entry[1],name)
+                       
+            else:
+
+                # now we save the widgets in the container
+                # ACHTUNG hier sollte ein unterschiedlicher widget_name vergeben erden
+                for widget_name in namelist:
+                    e = dictionary[widget_name]
+                    number = 0
+                    for widget in e:
+                        if not number:
+                            call_exportWidget(filehandle,widget,widget_name)
+                        else:
+                            name = '{}_{}'.format(widget_name,number+1)
+                            call_exportWidget(filehandle,widget,name)
+                        number += 1
 
             export_pack_entries(filehandle)
 

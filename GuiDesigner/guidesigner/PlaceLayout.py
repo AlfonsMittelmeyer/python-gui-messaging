@@ -99,6 +99,7 @@ def main():
             send('SHOW_LAYOUT',(None,False))
             send('SHOW_CONFIG',(None,False))
             send('SELECTION_CHANGED')
+        send('BASEMENTLEVEL_CHANGED')
 
     def on_mouse_up(me,event):
         me.mydata[6] = False # stop timer

@@ -502,6 +502,8 @@ def main():
             send('SHOW_LAYOUT',(None,False))
             send('SHOW_CONFIG',(None,False))
             send('SELECTION_CHANGED')
+        send('BASEMENTLEVEL_CHANGED')
+
 
     def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
         me.mydata=([0,0,'mouse',0,0,0,True,False])

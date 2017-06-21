@@ -10,24 +10,38 @@ The GUI Designer includes Help pages and an introduction
 
 ![enter image description here](https://www2.pic-upload.de/img/33340088/guidesigner.gif)
 
-brand-new:
+brand-new: GuiDesigner with z-dimension
+---------------------------------------
+The view in the GuiDesigner navigation was in alphabetical order:
 
-- correction for grid layout
+![enter image description here](https://www2.pic-upload.de/img/33374919/navi_normal.gif)
 
-- an easy to use eventbroker in directory Utilities
+Now a view in z-order exists too for the contents of Main Window (Tk), Toplevel, Frame, LabelFrame, ttk.Frame and ttk.LabelFrame
 
-- distinguishing between imports by baseclass ond those of call Code
+The z-order view may be selected via menu:
 
-- automatic generation of imports for export
+![enter image description here](https://www2.pic-upload.de/img/33374923/zmenu.gif)
 
-- file export, save and load utf-8 encoded for Windows
+Then the view in the navigation looks like this
+
+![enter image description here](https://www2.pic-upload.de/img/33374925/navi_zorder.gif)
+
+The number before the name means the floor. 0 means ground floor or first floor. The other numbers are negative an mean the basement floor
+
+The floor can be changed via the  following z-order bar:
+
+![enter image description here](https://www2.pic-upload.de/img/33374927/z-order.gif)
+
+When the gui is saved or exported, now it's saved or exported always in z-order for the container widgets, which were mentioned before
 
 very new:
 
-- bug fixing for geometry: was not saved and not exported
-- export of same names for local widgets self.name as self.names_nr
-- implementation of forget() for pack layout
-- minsize, maxsize and resizable for Main Window and Toplevel
+ - an easy to use eventbroker in directory Utilitie distinguishing
+ - between imports by baseclass ond those of call Code automatic
+ - generation of imports for export file export, save and load utf-8
+ - encoded for Windows export of same names for local widgets self.name
+ - as self.names_nr implementation of forget() for pack layout minsize,
+ - maxsize and resizable for Main Window and Toplevel
 
 relative new:
 

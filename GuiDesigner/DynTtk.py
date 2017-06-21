@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import DynTkInter as tk
 
 try:

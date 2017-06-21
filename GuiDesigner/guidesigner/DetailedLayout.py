@@ -154,7 +154,7 @@ def show_layout(
         thisframe.mydata = [None,None,None,None,None]
         # if the widget has a layout, then show it
 
-        if msg.Layout & LAYOUTALL and msg.Layout not in (MENULAYOUT,MENUITEMLAYOUT,LIFTLAYOUT):
+        if msg.Layout & LAYOUTALL and msg.Layout not in (MENULAYOUT,MENUITEMLAYOUT):
 
             cont.grid()			
 

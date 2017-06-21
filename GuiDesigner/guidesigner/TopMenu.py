@@ -1,15 +1,15 @@
-MenuItem('Config','command',**{'underline': 1, 'label': 'Config ON', 'background': 'lightgreen'})
-MenuItem('Create','command',**{'underline': 0, 'label': 'Create ON', 'background': 'lightgreen'})
+MenuItem('Config','command',**{'underline': 1, 'background': 'lightgreen', 'label': 'Config ON'})
+MenuItem('Create','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Create ON'})
 MenuItem('File','cascade',**{'underline': 0, 'label': 'File'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('Container','command',**{'label': 'Container Depth'})
@@ -41,7 +41,7 @@ goOut()
 MenuItem('Export','cascade',**{'underline': 0, 'label': 'Export tkinter'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -89,7 +89,7 @@ MenuItem('Save','command',**{'underline': 0, 'label': 'Save'})
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid'})
+Menu('Menu',**{'relief': 'solid', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -201,18 +201,18 @@ select_menu()
 goOut()
 
 MenuItem('Hide','command',**{'underline': 0, 'label': 'Hide'})
-MenuItem('Layout','command',**{'underline': 0, 'label': 'Layout ON', 'background': 'lightgreen'})
-MenuItem('Mouse','command',**{'underline': 0, 'label': 'Mouse ON', 'background': 'lightgreen'})
+MenuItem('Layout','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Layout ON'})
+MenuItem('Mouse','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Mouse ON'})
 MenuItem('Special','cascade',**{'underline': 0, 'label': 'Special'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'disabledforeground': 'black', 'fg': 'black'})
 goIn()
 
 MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -247,14 +247,41 @@ goOut()
 
 MenuItem('Refresh','command',**{'underline': 0, 'label': 'Refresh'})
 MenuItem('Toproot','command',**{'label': 'Toproot'})
+MenuItem('alphabetical','radiobutton',**{'underline': 0, 'label': 'alphabetical', 'value': 'alphabetical'})
+MenuItem('order','command',**{'activebackground': 'white', 'label': 'Navigation Order', 'state': 'disabled'})
 MenuItem('separator','separator')
+MenuItem('separator','separator')
+MenuItem('z-order','radiobutton',**{'underline': 0, 'label': 'z-order', 'value': 'basement'})
 
-widget('Toproot').layout(index=1)
-widget('Refresh').layout(index=2)
-widget('separator').layout(index=3)
-widget('ExpertOptions').layout(index=4)
+widget('Refresh').layout(index=1)
+widget('Toproot').layout(index=2)
+widget('separator',0).layout(index=3)
+widget('order').layout(index=4)
+widget('alphabetical').layout(index=5)
+widget('z-order').layout(index=6)
+widget('separator',1).layout(index=7)
+widget('ExpertOptions').layout(index=8)
 
 ### CODE ===================================================
+
+basement = StatTkInter.StringVar()
+basement.set('alphabetical')
+widget('alphabetical').mydata = basement
+widget('alphabetical')['variable'] = basement
+widget('z-order')['variable'] = basement
+
+
+def select_alphabetical():
+    send('SELECT_ALPHABETICAL')
+
+widget('alphabetical').do_command(select_alphabetical)
+
+
+def select_basement():
+    send('SELECT_BASEMENT')
+
+widget('z-order').do_command(select_basement)
+
 
 def go_TopRoot():
     gotoTop()
@@ -297,14 +324,14 @@ goOut()
 MenuItem('help','cascade',**{'label': 'Help'})
 goIn()
 
-Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('backup','command',**{'label': 'Backup'})
 MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
 goIn()
 
-Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('dynaccess','command',**{'label': 'DynAccess'})
@@ -352,7 +379,7 @@ MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
 MenuItem('programming','cascade',**{'label': 'Programming'})
 goIn()
 
-Menu('menu',**{'activebackground': '#7bfeff', 'bg': 'white', 'tearoff': 0, 'relief': 'solid', 'activeforeground': 'black', 'fg': 'black'})
+Menu('menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
 goIn()
 
 MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})

@@ -44,22 +44,16 @@ def create_widget(msg):
         page(text=name)
         send('SELECTION_CHANGED')
 
-    elif isinstance(container(),LiftWindow):
-        eval("{}('{}',**{})".format(widget_type,name,kwargs))
-        text(name)
-        container().add(this())
-        send('SELECTION_CHANGED')
-
-
     else:
         if widget_type == "Toplevel": cdApp()
-        #eval("{}('{}')".format(widget_type,name))
         eval("{}('{}',**{})".format(widget_type,name,kwargs))
         text(name)
         if widget_type == 'Menu':
             select_menu()
             goIn()
         send('SELECTION_CHANGED')
+        #if widget_type not in ('Toplevel','Menu'):
+        #    send
 
 
 do_receive('CREATE_WIDGET_REQUEST',create_widget,wishMessage=True)
