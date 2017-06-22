@@ -29,7 +29,8 @@ class GuiDictionary:
     def getChildDictionary(self):
         children = {}
         for name,entry in self.elements.items():
-            for x in entry: children[x] = name
+            if isinstance(name,str): # not NONAME
+                for x in entry: children[x] = name
         return children
 
 
