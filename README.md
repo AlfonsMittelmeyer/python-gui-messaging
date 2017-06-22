@@ -10,8 +10,12 @@ The GUI Designer includes Help pages and an introduction
 
 ![enter image description here](https://www2.pic-upload.de/img/33340088/guidesigner.gif)
 
+
+new-change: compound for images and bitmaps in menus added
+
 brand-new: GuiDesigner with z-dimension
 ---------------------------------------
+
 The view in the GuiDesigner navigation was in alphabetical order:
 
 ![enter image description here](https://www2.pic-upload.de/img/33374919/navi_normal.gif)
