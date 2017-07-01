@@ -1,3 +1,12 @@
+class NONAMES:
+    pass
+
+NONAME = NONAMES()
+NONAMECANVAS = NONAMES()
+NONAME2 = NONAMES()
+
+
+
 class GuiDictionary:
 
     def __init__(self): self.elements = {}
@@ -29,7 +38,14 @@ class GuiDictionary:
     def getChildDictionary(self):
         children = {}
         for name,entry in self.elements.items():
-            if isinstance(name,str): # not NONAME
+            if not isinstance(name,NONAMES): 
+                for x in entry: children[x] = name
+        return children
+
+    def getChildDictionaryWith(self,withname):
+        children = {}
+        for name,entry in self.elements.items():
+            if name == withname or not isinstance(name,NONAMES): 
                 for x in entry: children[x] = name
         return children
 

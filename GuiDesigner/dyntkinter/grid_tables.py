@@ -4,7 +4,10 @@ def grid_configure_multi(data):
     for i in range(count): multi.append([False,None])
     for i in range(len(data)):
         if i != 0:
-            multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3]}]
+            if len(data[i]) == 5:
+                multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3],'uniform':data[i][4]}]
+            else:
+                multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3]}]
     return multi
 
 def grid_configure_cols(cont):

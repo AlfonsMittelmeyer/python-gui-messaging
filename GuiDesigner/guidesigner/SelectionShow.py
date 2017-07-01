@@ -125,7 +125,7 @@ def for_names(frame_Selection = Selection(),button_command = do_button_command,f
     # sorted names
     namelist = []
     for name in selection_before._container.Dictionary.elements:
-        if name != NONAME: namelist.append(name)
+        if not isinstance(name,NONAMES): namelist.append(name)
     namelist.sort()
 
     row = 0
@@ -180,7 +180,7 @@ def for_basement(frame_Selection = Selection(),button_command = do_button_comman
     count = len(children)
     for child in children[::-1]:
         name,index = this_container.Dictionary.getNameAndIndex(child)
-        if name and name != NONAME:
+        if name and not isinstance(name,NONAMES):
             if index != -1:
                 name += '.' + str(index)
             namelist.append((name,child))

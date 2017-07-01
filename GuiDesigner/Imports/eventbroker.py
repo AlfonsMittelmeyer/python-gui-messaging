@@ -6,7 +6,10 @@ class EventBroker():
     def __init__(self):
         self._dictionary_ = {}
  
-    def subscribe(self,message_id,callback_or_alias):
+    def clear(self):
+        self._dictionary_.clear()
+
+    def subscribe(self,message_id,callback_or_alias,warning = True):
 
         is_string = True
 
@@ -27,31 +30,52 @@ class EventBroker():
                 if isinstance(callback ,set):
                     output("EventBroker: message '{}' is a broadcast message. It's not allowed to overwrite it by a callback.".format(message_id))
                 else:                
-                    output('EventBroker: callback already defined for message id: {}\nThe callback before will be overwritten'.format(message_id))
+                    if not callback_or_alias:
+                        del self._dictionary_[message_id]
+                    else:
+                        if warning:
+                            output('EventBroker: callback already defined for message id: {}\nThe callback before will be overwritten'.format(message_id))
+                        self._dictionary_[message_id] = callback_or_alias
+            elif callback_or_alias:
                     self._dictionary_[message_id] = callback_or_alias
-            else:
-                self._dictionary_[message_id] = callback_or_alias
  
 
     def publish(self,message_id,*args,**kwargs):
+
         if message_id not in self._dictionary_:
             output('EventBroker: no callback defined for message: {},*{},**{}'.format(message_id,args,kwargs))
-        else:
-            callback = self._dictionary_[message_id]
-            if not isinstance(callback ,set):
-                return callback(*args,**kwargs)
-            for element in callback:
-                if element in self._dictionary_:
-                    callback = self._dictionary_[element]
-                    if isinstance(callback,set):
-                        output("EventBroker: for message id '{}' is alias '{}' allowed, but no furter aliases for this alias".format(message_id,element))
-                    else:
-                        callback(*args,**kwargs)
+            return
+
+        if 'ALL' in self._dictionary_:
+            callback = self._dictionary_['ALL']
+            if isinstance(callback ,set):
+                for element in callback:
+                    if element in self._dictionary_:
+                        callback = self._dictionary_[element]
+                        if isinstance(callback,set):
+                            output("EventBroker: for message id '{}' is alias '{}' allowed, but no furter aliases for this alias".format(message_id,element))
+                        else:
+                            callback(message_id,*args,**kwargs)
+
+        callback = self._dictionary_[message_id]
+        if not isinstance(callback ,set):
+            return callback(*args,**kwargs)
+        for element in callback:
+            if element in self._dictionary_:
+                callback = self._dictionary_[element]
+                if isinstance(callback,set):
+                    output("EventBroker: for message id '{}' is alias '{}' allowed, but no furter aliases for this alias".format(message_id,element))
+                else:
+                    callback(*args,**kwargs)
+
 
 
 eventbroker = EventBroker()
 publish = eventbroker.publish
 subscribe = eventbroker.subscribe
+def subscribe_nowarning(message_id,callback_or_alias):
+    eventbroker.subscribe(message_id,callback_or_alias,False)
+    
 
 
 if __name__ == '__main__':
@@ -78,5 +102,22 @@ if __name__ == '__main__':
     receiver_A()
     receiver_B()
 
-    publish('BROADCAST','NEWS')
+    #publish('BROADCAST','NEWS')
+    
+
+    def call_back_delete():
+
+        def destroy():
+            print('is destroyed')
+            subscribe('DESTROY',None)
+            
+            
+        subscribe('DESTROY',destroy)
+
+    call_back_delete()
+    publish('DESTROY')
+    publish('DESTROY')
+
+    call_back_delete()
+    publish('DESTROY')
     

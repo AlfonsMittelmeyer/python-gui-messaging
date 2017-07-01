@@ -11,10 +11,16 @@ The GUI Designer includes Help pages and an introduction
 ![enter image description here](https://www2.pic-upload.de/img/33340088/guidesigner.gif)
 
 
-new-change: compound for images and bitmaps in menus added
 
-brand-new: GuiDesigner with z-dimension
----------------------------------------
+
+brand-new: The most advanced Grid Layout
+----------------------------------------
+
+Description will follow soon
+
+
+
+very new:
 
 The view in the GuiDesigner navigation was in alphabetical order:
 
@@ -38,7 +44,6 @@ The floor can be changed via the  following z-order bar:
 
 When the gui is saved or exported, now it's saved or exported always in z-order for the container widgets, which were mentioned before
 
-very new:
 
 - correction for path of PhotoImage for Windows 
 - an easy to use eventbroker in directory Utilitie distinguishing

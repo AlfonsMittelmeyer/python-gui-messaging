@@ -1,15 +1,15 @@
-MenuItem('Config','command',**{'underline': 1, 'background': 'lightgreen', 'label': 'Config ON'})
-MenuItem('Create','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Create ON'})
-MenuItem('File','cascade',**{'underline': 0, 'label': 'File'})
+MenuItem('Config','command',**{'label': 'Config ON', 'background': 'lightgreen', 'underline': 1})
+MenuItem('Create','command',**{'label': 'Create ON', 'background': 'lightgreen', 'underline': 0})
+MenuItem('File','cascade',**{'label': 'File', 'underline': 0})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Container','command',**{'label': 'Container Depth'})
@@ -38,16 +38,16 @@ select_menu()
 
 goOut()
 
-MenuItem('Export','cascade',**{'underline': 0, 'label': 'Export tkinter'})
+MenuItem('Export','cascade',**{'label': 'Export tkinter', 'photoimage': 'guidesigner/images/document-save-as.gif', 'compound': 'left', 'underline': 0})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
-MenuItem('With Names','command',**{'underline': 9, 'label': 'tkinter (names)'})
-MenuItem('Without Names','command',**{'underline': 0, 'label': 'tkinter'})
-MenuItem('designer','command',**{'underline': 9, 'label': 'tkinter (Designer)'})
+MenuItem('With Names','command',**{'label': 'tkinter (names)', 'underline': 9})
+MenuItem('Without Names','command',**{'label': 'tkinter', 'underline': 0})
+MenuItem('designer','command',**{'label': 'tkinter (Designer)', 'underline': 9})
 MenuItem('separator','separator')
 
 widget('Help').layout(index=1)
@@ -82,14 +82,14 @@ select_menu()
 
 goOut()
 
-MenuItem('Load & Edit','command',**{'underline': 0, 'label': 'Load & Edit'})
+MenuItem('Load & Edit','command',**{'label': 'Load & Edit', 'photoimage': 'guidesigner/images/gtk-open.gif', 'compound': 'left', 'underline': 0})
 MenuItem('Load & Run','command',**{'label': 'Load & Run'})
-MenuItem('Quit','command',**{'label': 'Quit'})
-MenuItem('Save','command',**{'underline': 0, 'label': 'Save'})
+MenuItem('Quit','command',**{'label': 'Quit', 'photoimage': 'guidesigner/images/application-exit.gif', 'compound': 'left'})
+MenuItem('Save','command',**{'label': 'Save', 'photoimage': 'guidesigner/images/geany-save-all.gif', 'compound': 'left', 'underline': 0})
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff'})
+Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -149,7 +149,7 @@ select_menu()
 
 goOut()
 
-MenuItem('backup','command',**{'underline': 0, 'label': 'Backup'})
+MenuItem('backup','command',**{'label': 'Backup', 'photoimage': 'guidesigner/images/filesave.gif', 'compound': 'left', 'underline': 0})
 MenuItem('separator','separator')
 MenuItem('separator_quit','separator')
 
@@ -200,19 +200,19 @@ select_menu()
 
 goOut()
 
-MenuItem('Hide','command',**{'underline': 0, 'label': 'Hide'})
-MenuItem('Layout','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Layout ON'})
-MenuItem('Mouse','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Mouse ON'})
-MenuItem('Special','cascade',**{'underline': 0, 'label': 'Special'})
+MenuItem('Hide','command',**{'label': 'Hide', 'underline': 0})
+MenuItem('Layout','command',**{'label': 'Layout ON', 'background': 'lightgreen', 'underline': 0})
+MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'lightgreen', 'underline': 0})
+MenuItem('Special','cascade',**{'label': 'Special', 'underline': 0})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'disabledforeground': 'black', 'fg': 'black'})
+Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'disabledforeground': 'black', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
-MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options'})
+MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options', 'photoimage': 'guidesigner/images/meeting-chair.gif', 'compound': 'left'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -245,13 +245,13 @@ select_menu()
 
 goOut()
 
-MenuItem('Refresh','command',**{'underline': 0, 'label': 'Refresh'})
-MenuItem('Toproot','command',**{'label': 'Toproot'})
-MenuItem('alphabetical','radiobutton',**{'underline': 0, 'label': 'alphabetical', 'value': 'alphabetical'})
-MenuItem('order','command',**{'activebackground': 'white', 'label': 'Navigation Order', 'state': 'disabled'})
+MenuItem('Refresh','command',**{'label': 'Refresh', 'photoimage': 'guidesigner/images/view-restore.gif', 'compound': 'left', 'underline': 0})
+MenuItem('Toproot','command',**{'label': 'Toproot', 'photoimage': 'guidesigner/images/top.gif', 'compound': 'left'})
+MenuItem('alphabetical','radiobutton',**{'label': 'alphabetical', 'photoimage': 'guidesigner/images/tools-check-spelling.gif', 'compound': 'left', 'underline': 0, 'value': 'alphabetical'})
+MenuItem('order','command',**{'label': 'Navigation Order', 'activebackground': 'white', 'state': 'disabled'})
 MenuItem('separator','separator')
 MenuItem('separator','separator')
-MenuItem('z-order','radiobutton',**{'underline': 0, 'label': 'z-order', 'value': 'basement'})
+MenuItem('z-order','radiobutton',**{'label': 'z-order', 'photoimage': 'guidesigner/images/view-sort-descending.gif', 'compound': 'left', 'underline': 0, 'value': 'basement'})
 
 widget('Refresh').layout(index=1)
 widget('Toproot').layout(index=2)
@@ -324,14 +324,14 @@ goOut()
 MenuItem('help','cascade',**{'label': 'Help'})
 goIn()
 
-Menu('menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('backup','command',**{'label': 'Backup'})
 MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
 goIn()
 
-Menu('menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('dynaccess','command',**{'label': 'DynAccess'})
@@ -379,7 +379,7 @@ MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
 MenuItem('programming','cascade',**{'label': 'Programming'})
 goIn()
 
-Menu('menu',**{'relief': 'solid', 'activeforeground': 'black', 'bg': 'white', 'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black'})
+Menu('menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
 goIn()
 
 MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})

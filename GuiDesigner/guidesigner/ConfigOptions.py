@@ -224,6 +224,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "myclass",
 "baseclass",
 "call Code(self)",
+"methods",
 "link",
 "photoimage",
 "activephotoimage",
@@ -281,6 +282,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "bd",
 "anchor",
 "justify",
+'show',
 "font",
 "fg",
 "bg",
@@ -289,14 +291,18 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "troughcolor",
 "selectforeground",
 "selectbackground",
+'insertbackground',
 "insertwidth",
 "insertborderwidth",
 "insertontime",
+"insertofftime",
+'exportselection',
 "selectborderwidth",
 "activeforeground",
 "activebackground",
 "disabledforeground",
 "disabledbackground",
+'readonlybackground',
 "highlightcolor",
 "highlightbackground",
 "highlightthickness",
@@ -309,7 +315,7 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
 "handlesize",
 "handlepad",
 "takefocus",
-"cursor"
+"cursor",
 ):
                 if entry in confdict: conflist.append((entry,confdict.pop(entry)))
             for confname,entry in confdict.items():conflist.append((confname,entry))
@@ -327,6 +333,11 @@ def show_config(msg,onflag = enable_flag, cont = config_frame,thisframe=my_frame
                     Button(text="+").rcgrid(0,2)
                     do_command(lambda: DynAccess('guidesigner//text_edit.py',this()))
                     Text("Entry", height=3, width=20, font="TkDefaultFont").insert(END,entry[1])
+                elif entry[0] == "methods":
+                    Button(text="+").rcgrid(0,2)
+                    do_command(lambda: DynAccess('guidesigner//methods_edit.py',this()))
+                    Entry("Entry").delete(0,'end')
+                    this().insert(0,get_entry_as_string(entry[1]))
 
                 elif entry[0] in (
 "digits", # Scale (Integer default 0)

@@ -6,6 +6,9 @@ class EventBroker():
     def __init__(self):
         self._dictionary_ = {}
  
+    def clear(self):
+        self._dictionary_.clear()
+
     def subscribe(self,message_id,callback_or_alias,warning = True):
 
         is_string = True
@@ -38,19 +41,33 @@ class EventBroker():
  
 
     def publish(self,message_id,*args,**kwargs):
+
         if message_id not in self._dictionary_:
             output('EventBroker: no callback defined for message: {},*{},**{}'.format(message_id,args,kwargs))
-        else:
-            callback = self._dictionary_[message_id]
-            if not isinstance(callback ,set):
-                return callback(*args,**kwargs)
-            for element in callback:
-                if element in self._dictionary_:
-                    callback = self._dictionary_[element]
-                    if isinstance(callback,set):
-                        output("EventBroker: for message id '{}' is alias '{}' allowed, but no furter aliases for this alias".format(message_id,element))
-                    else:
-                        callback(*args,**kwargs)
+            return
+
+        if 'ALL' in self._dictionary_:
+            callback = self._dictionary_['ALL']
+            if isinstance(callback ,set):
+                for element in callback:
+                    if element in self._dictionary_:
+                        callback = self._dictionary_[element]
+                        if isinstance(callback,set):
+                            output("EventBroker: for message id '{}' is alias '{}' allowed, but no furter aliases for this alias".format(message_id,element))
+                        else:
+                            callback(message_id,*args,**kwargs)
+
+        callback = self._dictionary_[message_id]
+        if not isinstance(callback ,set):
+            return callback(*args,**kwargs)
+        for element in callback:
+            if element in self._dictionary_:
+                callback = self._dictionary_[element]
+                if isinstance(callback,set):
+                    output("EventBroker: for message id '{}' is alias '{}' allowed, but no furter aliases for this alias".format(message_id,element))
+                else:
+                    callback(*args,**kwargs)
+
 
 
 eventbroker = EventBroker()

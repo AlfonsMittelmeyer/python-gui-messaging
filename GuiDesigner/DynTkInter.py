@@ -35,6 +35,10 @@ except ImportError:
     import tkColorChooser as colorchooser
     import Queue as queue
 
+try:
+    import webbrowser
+except: pass
+
 def output(param):
     sys.stdout.write(param+'\n')
 
@@ -44,7 +48,7 @@ from functools import partial
 import traceback
 import Communication.proxy as dynproxy
 from dyntkinter.Selection import Create_Selection
-from dyntkinter.name_dictionary import GuiDictionary
+from dyntkinter.name_dictionary import *
 from dyntkinter.layouts import *
 from dyntkinter.grid_tables import *
 from DynTkImports import *
@@ -107,6 +111,7 @@ try:
 except ImportError:
     HAS_PIL = False
 
+table_row_gif = None
 
 
 def dynTkImage(widget,filename):
@@ -205,7 +210,8 @@ class Callback:
         self.mydata = None # may be used for many purposes. Accessible via self
 
         self.isFunction = False
-        if type(function) is type(dummyfunction):
+        #if type(function) is type(dummyfunction):
+        if True:
             self.isFunction = True
             self.function = function
             self.parameters = []
@@ -338,101 +344,32 @@ class GuiElement:
 
 
     def dyntk_up(self):
+        if isinstance(self,StatTkInter.Canvas): return
         children = self.master.winfo_children()[::-1]
         children_copy = list(children)
         for child in children_copy:
-            if isinstance(child,(StatTkInter.Menu,StatTkInter.Toplevel)):
+            if isinstance(child,(StatTkInter.Menu,StatTkInter.Toplevel)) or not isinstance(child,GuiElement):
                 children.pop(children.index(child))
-        children_copy = list(children)
-        for child in children_copy:
-            if not isinstance(child,GuiElement):
-                children.pop(children.index(child))
-
-        def top_lower(child_list):
-            for child in child_list:
-                if not isinstance(child,GuiElement):
-                    child.lower()
-                    child_list.append(child_list.pop(0))
-                else:
-                    child.lower()
-                    child_list.append(child_list.pop(0))
-                    break
-
         index = children.index(self)
-        if children.index(self):
-            while children.index(self) != 1:
-                top_lower(children_copy)
-                children.append(children.pop(0))
-            self.lift()
-            children.insert(0,children.pop(1))
-        else:
-            return
-
-        def bottom_lift(child_list):
-            for child in child_list:
-                if not isinstance(child,GuiElement):
-                    child.lift()
-                    child_list.append(child_list.pop(0))
-                else:
-                    child.lift()
-                    child_list.append(child_list.pop(0))
-                    break
-
-        children_copy = children_copy[::-1]
-        while children.index(self) != index -1:
-            bottom_lift(children_copy)
-            children.insert(0,children.pop())
+        if index:
+            self.lift(children[index-1])
 
 
     def dyntk_down(self):
 
+        if isinstance(self,StatTkInter.Canvas): return
         children = self.master.winfo_children()
         children_copy = list(children)
         for child in children_copy:
-            if isinstance(child,(StatTkInter.Menu,StatTkInter.Toplevel)):
+            if isinstance(child,(StatTkInter.Menu,StatTkInter.Toplevel)) or not isinstance(child,GuiElement):
                 children.pop(children.index(child))
-        children_copy = list(children)
-        for child in children_copy:
-            if not isinstance(child,GuiElement):
-                children.pop(children.index(child))
-        
-        def bottom_lift(child_list):
-            for child in child_list:
-                if not isinstance(child,GuiElement):
-                    child.lift()
-                    child_list.append(child_list.pop(0))
-                else:
-                    child.lift()
-                    child_list.append(child_list.pop(0))
-                    break
-
-
         index = children.index(self)
-        if children.index(self):
-            while children.index(self) != 1:
-                bottom_lift(children_copy)
-                children.append(children.pop(0))
-            self.lower()
-            children.insert(0,children.pop(1))
-        else:
-            return
+        if index:
+            self.lower(children[index-1])
 
-        def top_lower(child_list):
-            for child in child_list:
-                if not isinstance(child,GuiElement):
-                    child.lower()
-                    child_list.append(child_list.pop(0))
-                else:
-                    child.lower()
-                    child_list.append(child_list.pop(0))
-                    break
-
-        children_copy = children_copy[::-1]
-        while children.index(self) != index -1:
-            top_lower(children_copy)
-            children.insert(0,children.pop())
 
     def dyntk_basement(self,basement):
+        if isinstance(self,StatTkInter.Canvas): return
         children = self.master.winfo_children()[::-1]
         children_copy = list(children)
         for child in children_copy:
@@ -451,6 +388,26 @@ class GuiElement:
             for i in range(di):
                 self.dyntk_down()
             
+    def lower(self,*args):
+        self.tkClass.lower(self,*args)
+        if not isinstance(self,(Tk,Toplevel,Canvas)) and not args:
+            master = self.master
+            children = master.Dictionary.getChildDictionaryWith(NONAME)
+            if children[self] == NONAME: return
+            for child,name in children.items():
+                if name == NONAME and not isinstance(child,Canvas):
+                    child.tkClass.lower(child)
+
+    def dyntk_lift(self,*args):
+        self.tkClass.lift(self,*args)
+        if not isinstance(self,(Tk,Toplevel,Canvas)) and not args:
+            master = self.master
+            children = master.Dictionary.getChildDictionaryWith(NONAME2)
+            if children[self] == NONAME2: return
+            for child,name in children.items():
+                if name == NONAME2 and not isinstance(child,Canvas):
+                    child.tkClass.lift(child)
+        
 
     def reset_grid(self):
         self.grid_conf_rows = None
@@ -464,19 +421,26 @@ class GuiElement:
         self.grid_rows = []
         self.grid_rows_how_many = {}
         self.grid_cols_how_many = {}
+        self.grid_special = False
+        self.grid_show = False
+        self.grid_show_enabled = True
+        self.grid_uni_row = ''
+        self.grid_uni_col = ''
 
     def grid_rowconfigure(self,row,**kwargs):
-        self.tkClass.grid_rowconfigure(self,row,**kwargs)
+        value = self.tkClass.grid_rowconfigure(self,row,**kwargs)
         self._do_rowconfigure(row,**kwargs)
+        return value
 
     def rowconfigure(self,row,**kwargs):
-        self.tkClass.rowconfigure(self,row,**kwargs)
+        value = self.tkClass.rowconfigure(self,row,**kwargs)
         self._do_rowconfigure(row,**kwargs)
+        return value
 
     def _do_rowconfigure(self,row,**kwargs):
         # extend grid_cols if not long enough
         for index in range(len(self.grid_rows),row+1):
-            self.grid_rows.append((0,0,0))
+            self.grid_rows.append((0,0,0,''))
         # get entry as list, overwite parameters and store it back
         entry = list(self.grid_rows[row])
         for key,value in kwargs.items():
@@ -486,6 +450,8 @@ class GuiElement:
                 entry[1] = value
             elif key == 'weight':
                 entry[2] = value
+            elif key == 'uniform':
+                entry[3] = value
         t_entry = tuple(entry)
         self.grid_rows[row] = t_entry
 
@@ -495,17 +461,19 @@ class GuiElement:
             
 
     def grid_columnconfigure(self,column,**kwargs):
-        self.tkClass.columnconfigure(self,column,**kwargs)
+        value = self.tkClass.columnconfigure(self,column,**kwargs)
         self._do_columnconfigure(column,**kwargs)
+        return value
 
     def columnconfigure(self,column,**kwargs):
-        self.tkClass.columnconfigure(self,column,**kwargs)
+        value = self.tkClass.columnconfigure(self,column,**kwargs)
         self._do_columnconfigure(column,**kwargs)
+        return value
 
     def _do_columnconfigure(self,column,**kwargs):
         # extend grid_cols if not long enough
         for index in range(len(self.grid_cols),column+1):
-            self.grid_cols.append((0,0,0))
+            self.grid_cols.append((0,0,0,''))
         # get entry as list, overwite parameters and store it back
         entry = list(self.grid_cols[column])
         for key,value in kwargs.items():
@@ -515,6 +483,8 @@ class GuiElement:
                 entry[1] = value
             elif key == 'weight':
                 entry[2] = value
+            elif key == 'uniform':
+                entry[3] = value
 
         t_entry = tuple(entry)
         self.grid_cols[column] = t_entry
@@ -531,17 +501,19 @@ class GuiElement:
         self.photoimage = ''
         self.menu = ''
         self.call_code = ''
+        self.dyntk_methods = ''
 
         self.myclass_par = kwargs.pop('myclass','')
         self.baseclass_par = kwargs.pop('baseclass','')
         self.call_code_par = kwargs.pop('call Code(self)','')
+        self.dyntk_methods_par = kwargs.pop('methods','')
         self.photoimage_par = kwargs.pop('photoimage','')
         self.menu_par = kwargs.pop('menu','')
 
 
     def addinit_addconfig(self,kwargs):
 
-        for element in (('myclass',self.myclass_par),('baseclass',self.baseclass_par),('photoimage',self.photoimage_par),('call Code(self)',self.call_code_par),('menu',self.menu_par)):
+        for element in (('methods',self.dyntk_methods_par),('myclass',self.myclass_par),('baseclass',self.baseclass_par),('photoimage',self.photoimage_par),('call Code(self)',self.call_code_par),('menu',self.menu_par)):
             if element[1]:
                 kwargs[element[0]] = element[1]
 
@@ -550,6 +522,7 @@ class GuiElement:
             self.photoimage_par = None
             self.call_code_par = None
             self.menu_par = None
+            self.dyntk_methods_par = None
 
     def executeclear_addconfig(self,kwargs):
 
@@ -561,6 +534,9 @@ class GuiElement:
 
         if 'call Code(self)' in kwargs:
             self.call_code = kwargs.pop('call Code(self)')
+
+        if 'methods' in kwargs:
+            self.dyntk_methods = kwargs.pop('methods')
 
         if 'menu' in kwargs and isinstance(kwargs['menu'],Menu):
             activate_menu(kwargs['menu'],self)
@@ -578,12 +554,12 @@ class GuiElement:
                 del kwargs[entry[0]]
                 kwargs[entry[1]] = entry[2]
             
-        for entry in (('myclass',self.myclass),('baseclass',self.baseclass),('call Code(self)',self.call_code)):
+        for entry in (('myclass',self.myclass),('baseclass',self.baseclass),('call Code(self)',self.call_code),('methods',self.dyntk_methods)):
             kwargs[entry[0]] = entry[1]
             
 
     def clear_addconfig(self,kwargs):
-        for element in ('myclass','baseclass','photoimage','call Code(self)','link'):
+        for element in ('myclass','baseclass','photoimage','call Code(self)','link','methods'):
             kwargs.pop(element,None)
 
         
@@ -689,7 +665,7 @@ class GuiElement:
         cmd = Callback(self,function,parameters,wishWidget,wishEvent,wishSelf).setEvent
         self.bind(eventkey,lambda event: execute_lambda(cmd(event)))
 
-    # used by the GUI Creator: it tries to take the name of the widget as text. So Labels, Buttons and LabelFrames may be easily identified when doing the layout
+    # used by the GuiDesigner: it tries to take the name of the widget as text. So Labels, Buttons and LabelFrames may be easily identified when doing the layout
     def text(self,mytext):
         if 'text' in self.getconfdict(): self.config(text=mytext)
     
@@ -829,7 +805,10 @@ class GuiElement:
             limit = self.master.PackListLen()
             if new_index >= 0 and new_index < limit:
                 confdict = self.getconfdict()
+
                 self.clear_addconfig(confdict)
+                if not self.master.type(old_index+offset) == 'separator':
+                    confdict['image'] = self['image']
                 self.master.tkClass.delete(self.master,old_index+offset)
                 self.master.insert(new_index+offset,self.mytype,confdict)
                 del self.master.PackList[old_index]
@@ -1172,7 +1151,7 @@ def send(msgid,msgdata=None): proxy.send(msgid,msgdata)
 def send_immediate(msgid,msgdata=None): proxy.send_immediate(msgid,msgdata)
 def unregister_msgid(msgid): proxy.unregister_msgid(msgid)
 def execute_lambda(cmd): proxy.send('execute_function',cmd)
-def do_receive(msgid,function,parameters=None,): proxy.do_receive(container(),msgid,Callback(None,function,parameters).receive)
+#def do_receive(msgid,function,parameters=None,**kwargs): proxy.do_receive(container(),msgid,Callback(this(),function,parameters,**kwargs).receive)
 
 def undo_receive(container,msgid,receive):
     proxy.undo_receive(container,msgid,receiver)
@@ -1213,7 +1192,7 @@ def widget(*args):
         else:
             return container().Dictionary.getEntry(name,nr)
         
-    elif name == NONAME: return container().Dictionary.getEntry(name,nr)
+    elif isinstance(name,NONAMES): return container().Dictionary.getEntry(name,nr)
     else: return name.Dictionary.getEntry(nr,par3)
 
 
@@ -1224,13 +1203,11 @@ def FileImportContainer(container):
     DynLoad(container.link)
     setSelection(selection_before)
     
-NONAME = -1
-
 
 def _getMasterAndNameAndSelect(name_or_master,altname,kwargs):
 
     # if the name is a string or NONAME, the master is the current container
-    if type(name_or_master) == str or name_or_master == NONAME:
+    if type(name_or_master) == str or isinstance(name_or_master,NONAMES):
         return _Selection._container,name_or_master,True
     
     # if there isn't a name, the master is the current container
@@ -1284,7 +1261,7 @@ class Tk(GuiContainer,StatTkInter.Tk):
     def __init__(self,myname=None,**kwargs):
 
         
-        global proxy,SelfStack,ObjectStack,CanvasDefaults
+        global proxy,SelfStack,ObjectStack,CanvasDefaults,table_row_gif
         #Stack= []
         ObjectStack = []
         SelfStack = []
@@ -1298,6 +1275,7 @@ class Tk(GuiContainer,StatTkInter.Tk):
         _initGuiContainer(kwargs,StatTkInter.Tk,self,myname,"Application",True,True,'Application')
         self.Layout = LAYOUTNEVER
         cdApp()
+        table_row_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/insert_table_row.gif')
 
         menu = Menu(self)
         self.config_menuitems['menu'] = menu.config()
@@ -1691,67 +1669,12 @@ class Canvas(GuiContainer,StatTkInter.Canvas):
         return loadimage
 
     def get_itemconfig(self,item_id):
+        self_config = self.tkClass.itemconfig(self,item_id)
         dictionary = {}
-        for entry in (
-'anchor',
-'height',
-'state',
-'tags',
-'width',
-'window',
-'activefill',
-'activestipple',
-'disabledfill',
-'disabledstipple',
-'fill',
-'font',
-'justify',
-'offset',
-'stipple',
-'text',
-'activedash',
-'activeoutline',
-'activeoutlinestipple',
-'activewidth',
-'dash',
-'dashoffset',
-'default',
-'relief',
-'overrelief',
-'disableddash',
-'disabledoutline',
-'disabledoutlinestipple',
-'disabledwidth',
-'outline',
-'outlineoffset',
-'outlinestipple',
-'joinstyle',
-'smooth',
-'splinesteps',
-'arrow',
-'arrowshape',
-'capstyle',
-'activeimage',
-'disabledimage',
-'image',
-'activebackground',
-'activebitmap',
-'activeforeground',
-'background',
-'bitmap',
-'disabledbackground',
-'disabledbitmap',
-'disabledforeground',
-'foreground',
-'extent',
-'start',
-'style'):
-
-            try:
-                option = self.itemcget(item_id,entry)
-                if entry == 'state' and option == "": option='normal'
-                dictionary[entry] = (option,)
-            except TclError: pass
+        for entry in self_config:
+            option = self.itemcget(item_id,entry)
+            if entry == 'state' and option == "": option='normal'
+            dictionary[entry] = (option,)
         return dictionary
 
                 
@@ -2089,42 +2012,10 @@ class MenuDelimiter(GuiElement):
         index = 0
 
         if not kwargs:
+            self_config = self.master.entryconfig(index)
             dictionary = {}
-            
-            for entry in (
-'activebackground',
-'activeforeground',
-'accelerator',
-'background',
-'bitmap',
-'columnbreak',
-'command',
-'font',
-'compound',
-'foreground',
-'hidemargin',
-'image',
-'indicatoron',
-'label',
-'menu',
-'offvalue',
-'onvalue',
-'selectcolor',
-'selectimage',
-'state',
-'underline',
-'value',
-'variable'
-):
-
-                try:
-                    dictionary[entry] = (self.master.entrycget(index,entry),)
-                except TclError: pass
-
-            if _Application.config_menuitems['delimiter'] == None:
-                base_dict = dict(dictionary)
-                _Application.config_menuitems['delimiter'] = base_dict
-
+            for entry in self_config:
+                dictionary[entry] = (self.master.entrycget(index,entry),)
             return dictionary
         else:
             GuiElement.executeclear_addconfig(self,kwargs)
@@ -2161,6 +2052,11 @@ class MenuItem(GuiElement):
         confdict = { key : item }
         self.config(**confdict)
 
+    def __getitem__(self, key): 
+        offset = self.master['tearoff']
+        index = self.getPackListIndex() + offset
+        return self.master.entrycget(index,key)
+
     # required for dynTkImage
     def __delitem__(self, key, item): 
         confdict = { key : item }
@@ -2182,37 +2078,10 @@ class MenuItem(GuiElement):
         offset = self.master['tearoff']
         index = self.getPackListIndex() + offset
         if not kwargs:
+            self_config = self.master.entryconfig(index)
             dictionary = {}
-
-            for entry in (
-'activebackground',
-'activeforeground',
-'accelerator',
-'background',
-'bitmap',
-'compound',
-'columnbreak',
-'command',
-'font',
-'foreground',
-'hidemargin',
-'indicatoron',
-'image',
-'label',
-'menu',
-'offvalue',
-'onvalue',
-'selectcolor',
-'selectimage',
-'state',
-'underline',
-'value',
-'variable'
-):
-
-                try:
-                    dictionary[entry] = (self.master.entrycget(index,entry),)
-                except TclError: pass
+            for entry in self_config:
+                dictionary[entry] = (self.master.entrycget(index,entry),)
             return dictionary
         else:
             GuiElement.executeclear_addconfig(self,kwargs)
@@ -2223,6 +2092,7 @@ class MenuItem(GuiElement):
         kwargs.pop('myclass',None)
         kwargs.pop('baseclass',None)
         kwargs.pop('call Code(self)',None)
+        kwargs.pop('methods',None)
                 
     def set_menu(self,menu):
         offset = self.master['tearoff']
@@ -2305,7 +2175,7 @@ def getAllWidgetsWithoutNoname(containerWidget):
     dictionary=containerWidget.Dictionary.elements
     elementlist = []
     for key,entry in dictionary.items():
-        if key != NONAME:
+        if not isinstance(key,NONAMES):
             for x in entry:
                 elementlist.append(x)
     return elementlist
@@ -2332,6 +2202,7 @@ def deleteWidgetsForName(containerWidget,name):
     if elementlist != None:
         for x in elementlist: x.destroy()
     setSelection(SelectionBefore)
+
 
 def eraseEntry(name,index):
     return _Selection._container.Dictionary.eraseEntry(name,index)
@@ -2362,7 +2233,7 @@ def EraseNames():
 def Lock(): this().isLocked=True
 
 
-# =============== grid_config aus tuples
+# =============== grid_config from tuples
 def get_grid_multilist(iterable,most_used,keys):
     return [ [item != most_used, dict(zip(keys, item))] for item in iterable ]
 
@@ -2381,15 +2252,15 @@ def get_gridconfig(iterable,how_many):
         return None,[]
 
     if len(iterable) == 1:
-        most_used = (0,0,0)
+        most_used = (0,0,0,'')
     else:
         most_used,count = most_of(how_many)
         if count < len(iterable):
-            most_used = (0,0,0)
+            most_used = (0,0,0,'')
 
-    config = get_grid_multilist(iterable,most_used,('minsize','pad','weight'))
+    config = get_grid_multilist(iterable,most_used,('minsize','pad','weight','uniform'))
     general = [len(iterable)]
-    general.extend(most_used)
+    general.extend(most_used[:3])
     return tuple(general),config
 
 # ============= New Save Functions ===================================================================
@@ -2426,7 +2297,7 @@ def del_config_before_compare(dictionaryWidget):
 
 
     # delete empty entries
-    for element in ('link','cursor','call Code(self)','myclass','baseclass','photoimage','text'):
+    for element in ('link','cursor','call Code(self)','myclass','baseclass','photoimage','text','methods'):
         if element in dictionaryWidget and not dictionaryWidget[element]:
             del dictionaryWidget[element]
 
@@ -2687,7 +2558,11 @@ def get_save_config():
                 conf_list = [len(this().grid_multi_conf_rows)]
                 index = 0
                 for entry in this().grid_multi_conf_rows:
-                    if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
+                    if entry[0]:
+                        if 'uniform' in entry[1] and entry[1]['uniform']:
+                            conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight'],entry[1]['uniform']))
+                        else:
+                            conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
                     index += 1
                 dictionaryConfig['grid_multi_rows'] = repr(conf_list)
             dictionaryConfig['grid_rows'] =repr(this().grid_conf_rows)
@@ -2702,7 +2577,11 @@ def get_save_config():
                 conf_list = [len(this().grid_multi_conf_cols)]
                 index = 0
                 for entry in this().grid_multi_conf_cols:
-                    if entry[0]: conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
+                    if entry[0]:
+                        if 'uniform' in entry[1] and entry[1]['uniform']:
+                            conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight'],entry[1]['uniform']))
+                        else:
+                            conf_list.append((index,entry[1]['minsize'],entry[1]['pad'],entry[1]['weight']))
                     index += 1
                 dictionaryConfig['grid_multi_cols'] = repr(conf_list)
             dictionaryConfig['grid_cols'] = repr(this().grid_conf_cols)
@@ -2858,7 +2737,7 @@ def saveContainer(filehandle):
         # sorted name list
         namelist = []
         for name in dictionary:
-            if name != NONAME: namelist.append(name)
+            if not isinstance(name,NONAMES): namelist.append(name)
         namelist.sort()
 
         # now we save the widgets in the container
@@ -2993,7 +2872,7 @@ def saveAccessContainer(filehandle):
     # sorted name list
     namelist = []
     for name in dictionary:
-        if name != NONAME: namelist.append(name)
+        if not isinstance(name,NONAMES): namelist.append(name)
     namelist.sort()
     # now we save the widgets in the container
     for name in namelist:
@@ -3241,7 +3120,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
 
         # alphabetical order
         for name in dictionary:
-            if name != NONAME: namelist.append(name)
+            if not isinstance(name,NONAMES): namelist.append(name)
         namelist.sort()
 
         for widget_name in namelist:
@@ -3608,7 +3487,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
 
         # alphabetical order
         for name in dictionary:
-            if name != NONAME: namelist.append(name)
+            if not isinstance(name,NONAMES): namelist.append(name)
         namelist.sort()
  
         # for MenuDelimiter and MenuItems
@@ -3620,7 +3499,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             if container()['tearoff']:
                 ready = FALSE
                 for name,widgetlist in dictionary.items():
-                    if name != NONAME:
+                    if not isinstance(name,NONAMES):
                         for widget in widgetlist:
                             if isinstance(widget,MenuDelimiter):
                                 accesslist.append((name,widget))
@@ -3632,7 +3511,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             packlist = container().PackList
             for widget in packlist:
                 foundname = get_key_of_value(widget,dictionary)
-                if foundname and foundname != NONAME:
+                if foundname and not isinstance(foundname,NONAMES):
                     accesslist.append((foundname,widget))
 
             for item in accesslist:
@@ -3721,12 +3600,22 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
 
 
         if container().getconfig('call Code(self)'):
-                filehandle.write('        # call Code ===================================\n')
+            filehandle.write('        # call Code ===================================\n')
+
+            callcode = container().call_code.strip()
+            if callcode[-1] == ')':
+                filehandle.write("        {}\n".format(container().call_code))
+            else:
                 filehandle.write("        {}(self)\n".format(container().call_code))
 
-                splits = container().call_code.split('.')
-                if len(splits) > 1:
-                    imports_callcode.add(splits[0])
+            splits = container().call_code.split('.')
+            if len(splits) > 1:
+                imports_callcode.add(splits[0])
+
+        methods = container().getconfig('methods')
+        if methods.strip():
+            methods = container().getconfig('methods')
+            filehandle.write('\n'+methods)
 
         # now we export sub containers ==============================================
 
@@ -3795,7 +3684,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             if this().baseclass:
                 filehandle.write("        self.baseclass = '{}'\n".format(this().baseclass))
             if this().call_code:
-                filehandle.write("        self.call_code = '{}'\n".format(this().call_code))
+                filehandle.write("        self.call_code = {!r}\n".format(this().call_code))
 
      
         conf_dict = get_self_export_config()
@@ -3845,21 +3734,35 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
                 if 'grid_multi_rows' in grid_dict:
                     for index,entry in enumerate(this().grid_multi_conf_rows):
                         if entry[0]:
-                            if entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 } or has_general_grid_rows:
-                                filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                            conf = dict(entry[1])
+                            if 'uniform' in conf and not conf['uniform']:
+                                del conf['uniform']
+                            if conf != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 } or has_general_grid_rows:
+                                filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues(conf)+")\n")
                     # write for ending (0,0,0)
-                    if this().grid_conf_rows[1:] == (0,0,0) and this().grid_multi_conf_rows[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                        filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
+                    if this().grid_conf_rows[1:] == (0,0,0):
+                        conf = dict(this().grid_multi_conf_rows[-1][1])
+                        if 'uniform' in conf and not conf['uniform']:
+                            del conf['uniform']
+                        if conf == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                            filehandle.write("        self.rowconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
                             
                 if 'grid_multi_cols' in grid_dict:
                     for index,entry in enumerate(this().grid_multi_conf_cols):
                         if entry[0]:
-                            if entry[1] != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 } or has_general_grid_cols:
-                                filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(entry[1])+")\n")
+                            conf = dict(entry[1])
+                            if 'uniform' in conf and not conf['uniform']:
+                                del conf['uniform']
+                            if conf != { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 } or has_general_grid_cols:
+                                filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues(conf)+")\n")
                     # write for ending (0,0,0)
-                    if this().grid_conf_cols[1:] == (0,0,0) and this().grid_multi_conf_cols[-1][1] == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
-                        filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
-                            
+                    if this().grid_conf_cols[1:] == (0,0,0):
+                        conf = dict(this().grid_multi_conf_cols[-1][1])
+                        if 'uniform' in conf and not conf['uniform']:
+                            del conf['uniform']
+                        if conf == { 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 }:
+                            filehandle.write("        self.columnconfigure({},".format(index)+generate_keyvalues({ 'minsize' : 0 , 'pad' : 0 , 'weight' : 0 })+")\n")
+
         # after class definition export the content
         if this().hasWidgets():
             filehandle.write('        # widget definitions ===================================\n')
@@ -3867,13 +3770,23 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
             exportContainer(filehandle)
             goOut()
 
-        elif this().getconfig('call Code(self)'):
-            filehandle.write('        # call Code ===================================\n')
-            filehandle.write("        {}(self)\n".format(this().call_code))
-            splits = this().call_code.split('.')
-            if len(splits) > 1:
-                imports_callcode.add(splits[0])
+        else:
+            if this().getconfig('call Code(self)'):
+                filehandle.write('        # call Code ===================================\n')
 
+                callcode = this().call_code.strip()
+                if callcode[-1] == ')':
+                    filehandle.write("        {}\n".format(this().call_code))
+                else:
+                    filehandle.write("        {}(self)\n".format(this().call_code))
+                splits = this().call_code.split('.')
+                if len(splits) > 1:
+                    imports_callcode.add(splits[0])
+
+            methods = this().getconfig('methods')
+            if methods.strip():
+                methods = this().getconfig('methods')
+                filehandle.write('\n'+methods)
         
     def saveExport_intern(readhandle,writehandle):
 

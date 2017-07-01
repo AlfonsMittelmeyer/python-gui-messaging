@@ -111,6 +111,7 @@ def main():
         else:
             send('POSITION_CHANGED',me)
             send('LAYOUT_VALUES_REFRESH',me)
+        me.dyntk_lift()
 
     def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
         me.mydata=[0,0,'mouse',0,0,0,True,False]
@@ -129,6 +130,8 @@ def main():
 
         layout_before = this().Layout
         yxplace(0,0)
+        if layout_before == NOLAYOUT:
+            this().dyntk_lift()
         if container().is_mouse_select_on: mouse_on(this())
         else: send("SWITCH_MOUSE_ON")
 
@@ -142,7 +145,9 @@ def main():
 
         layout_before = this().Layout
 
-        if layout_before == NOLAYOUT: yxplace(0,0)
+        if layout_before == NOLAYOUT:
+            yxplace(0,0)
+            this().dyntk_lift()
         elif layout_before != PLACELAYOUT:
             (x,y) = this().winfo_rootx()-container().winfo_rootx(),this().winfo_rooty()-container().winfo_rooty()
             yxplace(y,x)

@@ -21,15 +21,17 @@ widget('spinbox').do_command(basement)
 widget('spinbox').bind('<Return>',basement)
 
 def do_lift():
-    this().lift()
-    send('BASEMENTLEVEL_CHANGED')
+    if not isinstance(this(),Canvas):
+        this().lift()
+        send('BASEMENTLEVEL_CHANGED')
 
 widget('lift').do_command(do_lift)
 
 
 def do_lower():
-    this().lower()
-    send('BASEMENTLEVEL_CHANGED')
+    if not isinstance(this(),Canvas):
+        this().lower()
+        send('BASEMENTLEVEL_CHANGED')
 
 widget('lower').do_command(do_lower)
 
