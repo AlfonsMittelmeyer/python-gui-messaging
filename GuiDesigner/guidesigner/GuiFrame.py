@@ -3,7 +3,8 @@ Frame('ClassAndBaseLayout',**{'link': 'guidesigner/ClassAndBaseLayout.py'}).grid
 LabelFrame('ConfigOptions',**{'link': 'guidesigner/ConfigOptions.py'}).grid(sticky='nw', column=2, row=0)
 Frame('CreateFrame',**{'link': 'guidesigner/CreateFrame.py'}).grid(sticky='nw', row=0)
 LabelFrame('DetailedLayout',**{'link': 'guidesigner/DetailedLayout.py'}).grid(sticky='nw', column=3, row=0)
-LabelFrame('Selection',**{'link': 'guidesigner/Selection.py'}).grid(sticky='nw', column=4, row=0)
+LabelFrame('Selection',**{'link': 'guidesigner/Selection.py'})
+grid(sticky='nw', column=4, row=0)
 
 ### CODE ===================================================
 

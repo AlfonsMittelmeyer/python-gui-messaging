@@ -31,6 +31,7 @@ def undo_refresh(thisframe=my_frame):
 
 undo_refresh()
 
+'''
 interior_id = my_canvas.create_window(0, 0, window=my_frame,anchor=NW)
 
 
@@ -48,7 +49,7 @@ def frame_configure(me,canvas):
     else: canvas.config(height=me.winfo_reqheight())
 
 my_frame.do_event("<Configure>",frame_configure,my_canvas,True)
-
+'''
 # -------------- receivers for SELECTION_CHANGED and CREATE_WIDGET_DONE messages -----------
 
 # in both cases an internal 'SHOW_CONFIG' message will be sent
@@ -522,6 +523,25 @@ widget('Canvas').pack(fill=BOTH, expand=TRUE)
 ### CODE ========================================================
 
 # -------------- make a frame with a vertical scrollbar ------------------------------------
+
+interior_id = my_canvas.create_window(0, 0, window=my_frame,anchor=NW)
+
+
+# -------------- <Configure> events for the scrollbar frame ------------------------------------
+
+def canvas_configure(me,frame,int_id = interior_id):
+    if me.winfo_reqwidth() != frame.winfo_width(): me.itemconfigure(int_id, width=me.winfo_width())
+ 
+my_canvas.do_event("<Configure>",canvas_configure,my_frame,True)
+
+def frame_configure(me,canvas):
+    canvas.config(scrollregion="0 0 %s %s" % (me.winfo_reqwidth(), me.winfo_reqheight()))
+    if me.winfo_reqwidth() > canvas.winfo_width(): canvas.config(width=me.winfo_reqwidth())
+    if me.winfo_reqheight() > 340: canvas.config(height=340)
+    else: canvas.config(height=me.winfo_reqheight())
+
+my_frame.do_event("<Configure>",frame_configure,my_canvas,True)
+
 
 widget("Canvas").config(yscrollcommand=widget("Scrollbar").set)
 widget("Scrollbar").config(command=widget("Canvas").yview)

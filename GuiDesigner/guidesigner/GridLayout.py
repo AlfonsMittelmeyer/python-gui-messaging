@@ -15,7 +15,7 @@ Label('lrows',**{'text': 'Rows', 'font': 'TkDefaultFont 9 bold'}).grid(row=4, st
 Entry('EntryRows',**{'width': 6, 'bg': '#ffffd4'}).grid(column=1, row=4, sticky='nesw')
 Entry('EntryCols',**{'width': 5, 'bg': '#ffffd4'}).grid(column=3, row=4, sticky='nesw')
 Label('lcols',**{'text': 'Columns', 'font': 'TkDefaultFont 9 bold'}).grid(column=4, row=4, sticky='nesw')
-Button('special',**{'text': 'special', 'bd': 2, 'photoimage': 'guidesigner/images/insert_table_row.gif'}).grid(rowspan=2, column=4, row=2)
+Button('special',**{'cursor' : 'star','text': 'special', 'bd': 2, 'photoimage': 'guidesigner/images/insert_table_row.gif'}).grid(rowspan=2, column=4, row=2)
 Label('LableTitle',**{'text': 'grid', 'bd': '3', 'font': 'TkDefaultFont 9 bold', 'relief': 'ridge', 'fg': 'blue'}).grid(row=0, sticky='nesw')
 Spinbox('EntryRowHeight',**{'width': 4, 'to': 1000.0}).grid(column=1, row=1, sticky='nesw')
 Spinbox('EntryColWidth',**{'width': 4, 'to': 1000.0}).grid(column=3, row=1, sticky='nesw')

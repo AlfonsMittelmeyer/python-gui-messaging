@@ -1,4 +1,3 @@
-
 ### CODE ===================================================
 
 Lock()
@@ -134,7 +133,7 @@ def for_names(frame_Selection = Selection(),button_command = do_button_command,f
         for_entries(row,name,entry,selection_before)
         row += 1
 
-    frame_Selection._container.pack(anchor='nw')	
+    #frame_Selection._container.pack(anchor='nw')	
     setSelection(selection_before) # restore the user selection
 
 
@@ -196,7 +195,7 @@ def for_basement(frame_Selection = Selection(),button_command = do_button_comman
             index += 1
         row += 1
 
-    frame_Selection._container.pack(anchor='nw')	
+    #frame_Selection._container.pack(anchor='nw')	
     setSelection(selection_before) # restore the user selection
 
 
