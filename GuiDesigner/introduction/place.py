@@ -12,6 +12,7 @@ Frame('right_frame')
 goIn()
 
 LabelFrame('BaseLayout',**{'text': 'Layout', 'link': 'introduction/BaseLayoutPlace.py'}).grid(**{'column': '1', 'sticky': 'nw', 'row': '0'})
+
 LabelFrame('Selection',**{'text': 'Selection', 'link': 'guidesigner/Selection.py'}).grid(**{'column': '1', 'sticky': 'nw', 'row': '1'})
 
 goOut()

@@ -1,5 +1,33 @@
-LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
+config(text = 'Layout')
+config(**{'grid_rows': '(9, 0, 0, 1)', 'grid_cols': '(1, 0, 0, 1)'})
+
+LabelFrame('WindowLayout')#,link="guidesigner/WindowLayout.py")
 grid(sticky='ew',row='0')
+
+LabelFrame('PackLayout')#,link="guidesigner/PackLayout.py")
+grid(sticky='ew',row='1')
+
+LabelFrame('GridLayout')#,link="guidesigner/GridLayout.py")
+grid(sticky='ew',row='2')
+
+LabelFrame('PlaceLayout',link="guidesigner/PlaceLayout.py")
+grid(sticky='ew',row='3')
+
+LabelFrame('PaneLayout')#,link="guidesigner/PaneLayout.py")
+grid(sticky='ew',row='4')
+
+LabelFrame('ItemLayout')#,link="guidesigner/MenuItemLayout.py")
+grid(sticky='ew',row='5')
+
+LabelFrame('MenuLayout')#,link="guidesigner/MenuLayout.py")
+grid(sticky='ew',row='6')
+
+LabelFrame('PageLayout')#,link="guidesigner/PageLayout.py")
+grid(sticky='ew',row='7')
+
+LabelFrame('Basement')#,link="guidesigner/Basement.py")
+grid(sticky='ew',row='8')
+
 
 ### CODE ===================================================
 
@@ -42,7 +70,8 @@ def function(layout_before):
     else:
         send("BASE_LAYOUT_REFRESH",this())
         send("SHOW_LAYOUT",this())
-        if layout_before == NOLAYOUT: send('SELECTION_LAYOUT_CHANGED')
+        if layout_before == NOLAYOUT:
+            send('SELECTION_LAYOUT_CHANGED')
 
 do_receive('BASE_LAYOUT_CHANGED',function,wishMessage=True)
 
@@ -51,24 +80,112 @@ do_receive('BASE_LAYOUT_CHANGED',function,wishMessage=True)
 # This would cause a system hang up of TkInter. If the parent (container) contains already the other layout (pack or grid),
 # the pack or grid portion will be hidden (unlayout)
 
-def hide_pack_or_grid(placely=widget('PlaceLayout')):
+def hide_pack_or_grid(
+    packly=widget('PackLayout'),
+    gridly=widget('GridLayout'),
+    placely=widget('PlaceLayout'),
+    panely=widget('PaneLayout'),
+    itemly=widget('ItemLayout'),
+    menuly=widget('MenuLayout'),
+    windowly=widget('WindowLayout'),
+    pagely=widget('PageLayout'),
+    basement = widget('Basement'),
+    ):
 
     if this().Layout != LAYOUTNEVER:
 
         if this().tkClass == StatTkInter.Menu:
+            packly.unlayout()
+            gridly.unlayout()
             placely.unlayout()
+            itemly.unlayout()
+            panely.unlayout()
+            pagely.unlayout()
+            windowly.unlayout()
+            menuly.grid()
+            basement.unlayout()
+
+            send("ENABLE_SASH_LIST",False)
+
+        elif container() != this() and container().tkClass is StatTtk.Notebook:
+            packly.unlayout()
+            gridly.unlayout()
+            basement.unlayout()
+            placely.unlayout()
+            itemly.unlayout()
+            menuly.unlayout()
+            windowly.unlayout()
+            panely.unlayout()
+            pagely.grid()
+            send("ENABLE_SASH_LIST",False)
 
         elif container() != this() and container().tkClass in (StatTkInter.PanedWindow,StatTtk.PanedWindow):
+            packly.unlayout()
+            gridly.unlayout()
             placely.unlayout()
+            itemly.unlayout()
+            basement.unlayout()
+            menuly.unlayout()
+            windowly.unlayout()
+            pagely.unlayout()
+            panely.grid()
+            send("ENABLE_SASH_LIST",True)
 
         elif container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT:
+            packly.unlayout()
+            gridly.unlayout()
+            basement.unlayout()
             placely.unlayout()
+            panely.unlayout()
+            menuly.unlayout()
+            windowly.unlayout()
+            pagely.unlayout()
+            itemly.grid()
+            send("ENABLE_SASH_LIST",False)
+        elif this().Layout == WINDOWLAYOUT:
+            packly.unlayout()
+            gridly.unlayout()
+            placely.unlayout()
+            panely.unlayout()
+            basement.unlayout()
+            menuly.unlayout()
+            pagely.unlayout()
+            itemly.unlayout()
+            windowly.grid()
+            send("ENABLE_SASH_LIST",False)
         else:
+            if isinstance(container(),Canvas) and this() != container():
+                windowly.grid()
+            else:
+                windowly.unlayout()
+
+            if this() !=container()\
+            and isinstance(container(),(Tk,Toplevel,Frame,LabelFrame,ttk.Frame,ttk.LabelFrame))\
+            and not isinstance(this(),StatTkInter.Menu):
+                basement.grid()
+            else:
+                basement.unlayout()
+
+
             placely.grid()
+            packly.grid()
+            gridly.grid()
+            panely.unlayout()
+            pagely.unlayout()
+            menuly.unlayout()
+            itemly.unlayout()
+            send("ENABLE_SASH_LIST",False)
+
             cont = container()
             if container() == this() and container().master != None:
                 cont = container().master
             cont_layouts = getContLayouts(cont)
+            if cont_layouts & GRIDLAYOUT:
+                if packly.Layout != NOLAYOUT: packly.unlayout()
+            elif packly.Layout == NOLAYOUT: packly.grid()
+            if cont_layouts & PACKLAYOUT:
+                if gridly.Layout != NOLAYOUT: gridly.unlayout()
+            elif gridly.Layout == NOLAYOUT: gridly.grid()
 
 do_receive('BASE_LAYOUT_REFRESH', hide_pack_or_grid)
 
@@ -95,18 +212,31 @@ def update_mouse_select_on(select_hili_on=select_hili_on,hili_off=hili_off):
         do_event('<ButtonRelease-1>',hili_off,this())
 
 do_receive('UPDATE_MOUSE_SELECT_ON',update_mouse_select_on)
+
+def update_canvas_mouse_select_on(canvas,select_hili_on=select_hili_on,hili_off=hili_off):
+    if canvas.master.is_mouse_select_on:
+        canvas.mydata = [0,0,0,0,0,0,False,False]
+        if canvas.Layout in (PACKLAYOUT,PANELAYOUT,WINDOWLAYOUT):
+            canvas.do_event('<Button-1>',select_hili_on,this())
+            canvas.do_event('<ButtonRelease-1>',hili_off,this())
+        elif canvas.Layout == PLACELAYOUT:
+            send('PLACE_MOUSE_ON',canvas)
+        elif canvas.Layout == GRIDLAYOUT:
+            send('GRID_MOUSE_ON',canvas)
+
+do_receive("UPDATE_CANVAS_MOUSE_SELECT_ON",update_canvas_mouse_select_on,wishMessage = True)
     
 def mouse_select_on(select_on,select_hili_on = select_hili_on,hili_off=hili_off):
     widget_list = getAllWidgetsWithoutNoname(container())
     if not select_on:
         for wi in widget_list:
-            if wi.Layout in (PACKLAYOUT,PANELAYOUT,GRIDLAYOUT,PLACELAYOUT):
+            if wi.Layout in (PACKLAYOUT,PANELAYOUT,GRIDLAYOUT,PLACELAYOUT,WINDOWLAYOUT):
                 wi.unbind('<Button-1>')
                 wi.unbind('<ButtonRelease-1>')
                 wi.mydata = [0,0,0,0,0,0,False,False]
     else:
         for wi in widget_list:
-            if wi.Layout in (PACKLAYOUT,PANELAYOUT):
+            if wi.Layout in (PACKLAYOUT,PANELAYOUT,WINDOWLAYOUT):
                 wi.do_event('<Button-1>',select_hili_on,wi)
                 wi.do_event('<ButtonRelease-1>',hili_off,wi)
             elif wi.Layout == PLACELAYOUT:
