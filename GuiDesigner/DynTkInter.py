@@ -389,8 +389,9 @@ class GuiElement:
                 self.dyntk_down()
             
     def lower(self,*args):
+        if isinstance(self,Canvas): return
         self.tkClass.lower(self,*args)
-        if not isinstance(self,(Tk,Toplevel,Canvas)) and not args:
+        if not isinstance(self,(Tk,Toplevel)) and not args:
             master = self.master
             children = master.Dictionary.getChildDictionaryWith(NONAME)
             if children[self] == NONAME: return
@@ -399,8 +400,9 @@ class GuiElement:
                     child.tkClass.lower(child)
 
     def dyntk_lift(self,*args):
+        if isinstance(self,Canvas): return
         self.tkClass.lift(self,*args)
-        if not isinstance(self,(Tk,Toplevel,Canvas)) and not args:
+        if not isinstance(self,(Tk,Toplevel)) and not args:
             master = self.master
             children = master.Dictionary.getChildDictionaryWith(NONAME2)
             if children[self] == NONAME2: return
