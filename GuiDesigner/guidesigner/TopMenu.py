@@ -113,7 +113,8 @@ def help_options_part(menu=widget('Help')):
 widget('Help').do_command(help_options_part)
 
 
-def enable_parts(menu_items=(widget('Load & Edit'),widget('Load & Run'))):
+#def enable_parts(menu_items=(widget('Load & Edit'),widget('Load & Run'),widget('Split & Join'))):
+def enable_parts(menu_items=(widget('Load & Edit'),widget('Load & Run'),widget('Save'))):
 
     if isinstance(container(),_CreateTopLevelRoot) or this().isLocked: state = 'disabled'
     else: state = 'normal'
