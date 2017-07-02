@@ -1,15 +1,15 @@
-MenuItem('Config','command',**{'label': 'Config ON', 'background': 'lightgreen', 'underline': 1})
-MenuItem('Create','command',**{'label': 'Create ON', 'background': 'lightgreen', 'underline': 0})
-MenuItem('File','cascade',**{'label': 'File', 'underline': 0})
+MenuItem('Config','command',**{'background': 'lightgreen', 'underline': 1, 'label': 'Config ON'})
+MenuItem('Create','command',**{'background': 'lightgreen', 'underline': 0, 'label': 'Create ON'})
+MenuItem('File','cascade',**{'underline': 0, 'label': 'File'})
 goIn()
 
-Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('Container','command',**{'label': 'Container Depth'})
@@ -38,16 +38,16 @@ select_menu()
 
 goOut()
 
-MenuItem('Export','cascade',**{'label': 'Export tkinter', 'photoimage': 'guidesigner/images/document-save-as.gif', 'compound': 'left', 'underline': 0})
+MenuItem('Export','cascade',**{'photoimage': 'guidesigner/images/document-save-as.gif', 'underline': 0, 'compound': 'left', 'label': 'Export tkinter'})
 goIn()
 
-Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
-MenuItem('With Names','command',**{'label': 'tkinter (names)', 'underline': 9})
-MenuItem('Without Names','command',**{'label': 'tkinter', 'underline': 0})
-MenuItem('designer','command',**{'label': 'tkinter (Designer)', 'underline': 9})
+MenuItem('With Names','command',**{'underline': 9, 'label': 'tkinter (names)'})
+MenuItem('Without Names','command',**{'underline': 0, 'label': 'tkinter'})
+MenuItem('designer','command',**{'underline': 9, 'label': 'tkinter (Designer)'})
 MenuItem('separator','separator')
 
 widget('Help').layout(index=1)
@@ -82,14 +82,14 @@ select_menu()
 
 goOut()
 
-MenuItem('Load & Edit','command',**{'label': 'Load & Edit', 'photoimage': 'guidesigner/images/gtk-open.gif', 'compound': 'left', 'underline': 0})
+MenuItem('Load & Edit','command',**{'photoimage': 'guidesigner/images/gtk-open.gif', 'underline': 0, 'compound': 'left', 'label': 'Load & Edit'})
 MenuItem('Load & Run','command',**{'label': 'Load & Run'})
-MenuItem('Quit','command',**{'label': 'Quit', 'photoimage': 'guidesigner/images/application-exit.gif', 'compound': 'left'})
-MenuItem('Save','command',**{'label': 'Save', 'photoimage': 'guidesigner/images/geany-save-all.gif', 'compound': 'left', 'underline': 0})
+MenuItem('Quit','command',**{'photoimage': 'guidesigner/images/application-exit.gif', 'compound': 'left', 'label': 'Quit'})
+MenuItem('Save','command',**{'photoimage': 'guidesigner/images/geany-save-all.gif', 'underline': 0, 'compound': 'left', 'label': 'Save'})
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'relief': 'solid', 'bg': 'white'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -149,7 +149,7 @@ select_menu()
 
 goOut()
 
-MenuItem('backup','command',**{'label': 'Backup', 'photoimage': 'guidesigner/images/filesave.gif', 'compound': 'left', 'underline': 0})
+MenuItem('backup','command',**{'photoimage': 'guidesigner/images/filesave.gif', 'underline': 0, 'compound': 'left', 'label': 'Backup'})
 MenuItem('separator','separator')
 MenuItem('separator_quit','separator')
 
@@ -200,19 +200,19 @@ select_menu()
 
 goOut()
 
-MenuItem('Hide','command',**{'label': 'Hide', 'underline': 0})
-MenuItem('Layout','command',**{'label': 'Layout ON', 'background': 'lightgreen', 'underline': 0})
-MenuItem('Mouse','command',**{'label': 'Mouse ON', 'background': 'lightgreen', 'underline': 0})
-MenuItem('Special','cascade',**{'label': 'Special', 'underline': 0})
+MenuItem('Hide','command',**{'underline': 0, 'label': 'Hide'})
+MenuItem('Layout','command',**{'background': 'lightgreen', 'underline': 0, 'label': 'Layout ON'})
+MenuItem('Mouse','command',**{'background': 'lightgreen', 'underline': 0, 'label': 'Mouse ON'})
+MenuItem('Special','cascade',**{'underline': 0, 'label': 'Special'})
 goIn()
 
-Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'disabledforeground': 'black', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'disabledforeground': 'black', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
-MenuItem('ExpertOptions','cascade',**{'label': 'Expert Options', 'photoimage': 'guidesigner/images/meeting-chair.gif', 'compound': 'left'})
+MenuItem('ExpertOptions','cascade',**{'photoimage': 'guidesigner/images/meeting-chair.gif', 'compound': 'left', 'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('Menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -245,24 +245,27 @@ select_menu()
 
 goOut()
 
-MenuItem('Refresh','command',**{'label': 'Refresh', 'photoimage': 'guidesigner/images/view-restore.gif', 'compound': 'left', 'underline': 0})
-MenuItem('Toproot','command',**{'label': 'Toproot', 'photoimage': 'guidesigner/images/top.gif', 'compound': 'left'})
-MenuItem('alphabetical','radiobutton',**{'label': 'alphabetical', 'photoimage': 'guidesigner/images/tools-check-spelling.gif', 'compound': 'left', 'underline': 0, 'value': 'alphabetical'})
-MenuItem('order','command',**{'label': 'Navigation Order', 'activebackground': 'white', 'state': 'disabled'})
+MenuItem('GUI Refresh','command',**{'photoimage': 'guidesigner/images/fullscreen.gif', 'underline': 4, 'compound': 'left', 'label': 'GUI Refresh'})
+MenuItem('Refresh','command',**{'photoimage': 'guidesigner/images/view-restore.gif', 'underline': 0, 'compound': 'left', 'label': 'GuiDesigner Refresh'})
+MenuItem('Toproot','command',**{'photoimage': 'guidesigner/images/top.gif', 'compound': 'left', 'label': 'Toproot'})
+MenuItem('alphabetical','radiobutton',**{'underline': 0, 'value': 'alphabetical', 'label': 'alphabetical', 'compound': 'left', 'photoimage': 'guidesigner/images/tools-check-spelling.gif'})
+MenuItem('order','command',**{'state': 'disabled', 'activebackground': 'white', 'label': 'Navigation Order'})
 MenuItem('separator','separator')
 MenuItem('separator','separator')
-MenuItem('z-order','radiobutton',**{'label': 'z-order', 'photoimage': 'guidesigner/images/view-sort-descending.gif', 'compound': 'left', 'underline': 0, 'value': 'basement'})
+MenuItem('z-order','radiobutton',**{'underline': 0, 'value': 'basement', 'label': 'z-order', 'compound': 'left', 'photoimage': 'guidesigner/images/view-sort-descending.gif'})
 
 widget('Refresh').layout(index=1)
-widget('Toproot').layout(index=2)
-widget('separator',0).layout(index=3)
-widget('order').layout(index=4)
-widget('alphabetical').layout(index=5)
-widget('z-order').layout(index=6)
-widget('separator',1).layout(index=7)
-widget('ExpertOptions').layout(index=8)
+widget('GUI Refresh').layout(index=2)
+widget('Toproot').layout(index=3)
+widget('separator',0).layout(index=4)
+widget('order').layout(index=5)
+widget('alphabetical').layout(index=6)
+widget('z-order').layout(index=7)
+widget('separator',1).layout(index=8)
+widget('ExpertOptions').layout(index=9)
 
 ### CODE ===================================================
+# GUI Refresh
 
 basement = StatTkInter.StringVar()
 basement.set('alphabetical')
@@ -270,6 +273,10 @@ widget('alphabetical').mydata = basement
 widget('alphabetical')['variable'] = basement
 widget('z-order')['variable'] = basement
 
+def gui_refresh():
+    widget('/')['geometry'] = ''
+
+widget('GUI Refresh').do_command(gui_refresh)
 
 def select_alphabetical():
     send('SELECT_ALPHABETICAL')
@@ -324,14 +331,14 @@ goOut()
 MenuItem('help','cascade',**{'label': 'Help'})
 goIn()
 
-Menu('menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('backup','command',**{'label': 'Backup'})
 MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
 goIn()
 
-Menu('menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('dynaccess','command',**{'label': 'DynAccess'})
@@ -379,7 +386,7 @@ MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
 MenuItem('programming','cascade',**{'label': 'Programming'})
 goIn()
 
-Menu('menu',**{'activeforeground': 'black', 'relief': 'solid', 'fg': 'black', 'tearoff': 0, 'bg': 'white', 'activebackground': '#7bfeff'})
+Menu('menu',**{'tearoff': 0, 'activebackground': '#7bfeff', 'fg': 'black', 'relief': 'solid', 'bg': 'white', 'activeforeground': 'black'})
 goIn()
 
 MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})
@@ -460,9 +467,9 @@ select_menu()
 
 goOut()
 
-MenuItem('space','command',**{'label': ' ', 'state': 'disabled'})
-MenuItem('space','command',**{'label': ' ', 'state': 'disabled'})
-MenuItem('space','command',**{'label': ' ', 'state': 'disabled'})
+MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
+MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
+MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
 
 widget('File').layout(index=1)
 widget('Special').layout(index=2)

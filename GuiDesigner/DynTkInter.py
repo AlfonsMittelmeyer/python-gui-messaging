@@ -747,6 +747,9 @@ class GuiElement:
         self.tkClass.grid_forget(self)
         self.Layout = NOLAYOUT
     
+    def place_forget(self):
+        self.tkClass.place_forget(self)
+        self.Layout = NOLAYOUT
 
     def grid_remove(self):
         self.tkClass.grid_remove(self)
