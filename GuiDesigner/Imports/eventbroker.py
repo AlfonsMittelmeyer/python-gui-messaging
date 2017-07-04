@@ -2,6 +2,7 @@ import sys
 def output(param):
     sys.stdout.write(param+'\n')
 
+
 class EventBroker():
     def __init__(self):
         self._dictionary_ = {}
@@ -72,10 +73,45 @@ class EventBroker():
 
 eventbroker = EventBroker()
 publish = eventbroker.publish
-subscribe = eventbroker.subscribe
-def subscribe_nowarning(message_id,callback_or_alias):
-    eventbroker.subscribe(message_id,callback_or_alias,False)
-    
+
+
+class Callback:
+
+    def __init__(self,function,*args,**kwargs):
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self,*args,**kwargs):
+        dict_kwargs = dict(self.kwargs)
+        dict_kwargs.update(kwargs)
+        self.function(*list(self.args)+list(args),**dict_kwargs)
+
+def partial(function,*args,**kwargs):
+    return Callback(function,*args,**kwargs).execute
+
+def subscribe_nowarning(message_id,callback_or_alias,*args,**kwargs):
+    try: # python2
+        is_string = isinstance(callback_or_alias,basestring)
+    except NameError: #python 3
+        is_string = isinstance(callback_or_alias,str)
+        
+    if is_string  or not callback_or_alias:
+        eventbroker.subscribe(message_id,callback_or_alias,False)
+    else:
+        eventbroker.subscribe(message_id,Callback(callback_or_alias,*args,**kwargs).execute,False)
+   
+def subscribe(message_id,callback_or_alias,*args,**kwargs):
+
+    try: # python2
+        is_string = isinstance(callback_or_alias,basestring)
+    except NameError: #python 3
+        is_string = isinstance(callback_or_alias,str)
+        
+    if is_string or not callback_or_alias:
+        eventbroker.subscribe(message_id,callback_or_alias)
+    else:
+        eventbroker.subscribe(message_id,Callback(callback_or_alias,*args,**kwargs).execute)
 
 
 if __name__ == '__main__':

@@ -108,6 +108,7 @@ Cols=widget('EntryCols'),
                 for conf in container().grid_multi_conf_rows:
                     if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
                         update_rows_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
+                        me.grid_current_uniform = (conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
                         break
         else:
             if container().grid_conf_rows and container().grid_conf_rows[0]:
@@ -122,6 +123,8 @@ Cols=widget('EntryCols'),
             if container().grid_multi_conf_cols:
                 for conf in container().grid_multi_conf_cols:
                     if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
+                        
+                        me.grid_current_uniform = (conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
                         update_cols_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
                         break
         else:
@@ -172,13 +175,14 @@ Cols=widget('EntryCols'),
         if container().grid_conf_individual_done:
             cols = container().grid_conf_cols[0]
             rows = container().grid_conf_rows[0]
-            container().grid_columnconfigure(cols,minsize = 0,pad=0,weight=0,uniform='')
-            container().grid_columnconfigure(cols+1,minsize = 0,pad=0,weight=0,uniform='')
-            container().grid_columnconfigure(cols+2,minsize = 0,pad=0,weight=0,uniform='')
+            container().grid_columnconfigure(cols,minsize = 0,pad=0,weight=0,uniform='') # space for additional line frame
+            container().grid_columnconfigure(cols+1,minsize = 0,pad=0,weight=0,uniform='') # space for canvas
+            # container().grid_columnconfigure(cols+2,minsize = 0,pad=0,weight=0,uniform='') # ???
+
             container().grid_rowconfigure(rows,minsize = 0,pad=0,weight=0,uniform='')
             container().grid_rowconfigure(rows+1,minsize = 0,pad=0,weight=0,uniform='')
-            container().grid_rowconfigure(rows+2,minsize = 0,pad=0,weight=0,uniform='')
-            container().grid_conf_individual_done = False
+            container().grid_rowconfigure(rows+2,minsize = 0,pad=0,weight=0,uniform='') # ???
+            # container().grid_conf_individual_done = False
         
         send("BASE_LAYOUT_REFRESH",this())
 
@@ -469,7 +473,7 @@ Cols=widget('EntryCols'),
                 eweight.insert(0,weight)
 
             uniform = euniform.get().strip()
-            send('ROW_CONFIG_CHANGED' if is_row else 'COL_CONFIG_CHANGED',(row_or_column,{'minsize': minsize,'pad':pad,'weight':weight,'uniform': uniform}))
+            send_immediate('ROW_CONFIG_CHANGED' if is_row else 'COL_CONFIG_CHANGED',(row_or_column,{'minsize': minsize,'pad':pad,'weight':weight,'uniform': uniform}))
             
         def update_and_close():
             update_values()
@@ -521,6 +525,7 @@ Cols=widget('EntryCols'),
         update_individual(cont)
 
     def update_canvascolor_row(me,row,bg):
+        #print(row,container().grid_multi_conf_rows)
         conf =  container().grid_multi_conf_rows[row][1]
         if container().grid_uni_row:
             me['bg'] = orange if 'uniform' in conf and conf['uniform'] and conf['uniform'] == container().grid_uni_row else bg
@@ -530,6 +535,9 @@ Cols=widget('EntryCols'),
 
 
     def update_canvascolor_col(me,col,bg):
+        #print(col)
+        #print(container().grid_multi_conf_cols)
+        
         conf =  container().grid_multi_conf_cols[col][1]
 
         if container().grid_uni_col:
@@ -1079,16 +1087,24 @@ uniform_col = widget('uniform_col'),
     widget('Grid()').do_command(do_grid0)
 
 
-    def row_default():
+    def row_default(me = widget('uniform_row')):
         conf = container().grid_conf_rows
         uniform = container().grid_uni_row if container().grid_uni_row else ''
-        return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
+        if not uniform:
+            return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
+        else: 
+            conf = me.grid_current_uniform
+            return { 'minsize' : conf[0], 'pad' : conf[1], 'weight' : conf[2], 'uniform' : uniform }
        
 
-    def col_default():
+    def col_default(me = widget('uniform_col')):
         conf = container().grid_conf_cols
         uniform = container().grid_uni_col if container().grid_uni_col else ''
-        return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
+        if not uniform:
+            return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
+        else: 
+            conf = me.grid_current_uniform
+            return { 'minsize' : conf[0], 'pad' : conf[1], 'weight' : conf[2], 'uniform' : uniform }
 
     class LineFrame(Frame):
      
@@ -1226,12 +1242,19 @@ uniform_col = widget('uniform_col'),
      
             self.measure_size()
             if self.is_endline:
-                self.new_cellsize = self.start_size + self.dpos
+                if self.is_uniform:
+                    self.new_cellsize = self.start_size + self.dpos//self.uniform_count
+                else:
+                    self.new_cellsize = self.start_size + self.dpos
             else:
                 self.new_cellsize = self.start_size + self.start_begin - self.begin + self.dpos
      
             self.new_cellsize = max(self.new_cellsize,0)
-            self.increase =  (self.new_cellsize - self.cellsize)//self.uniform_count
+
+            if self.is_uniform and self.is_endline:
+                self.increase =  self.new_cellsize - self.cellsize
+            else:
+                self.increase =  (self.new_cellsize - self.cellsize)//self.uniform_count
 
             if self.weight:
                 if self.increase < 0:
@@ -1383,7 +1406,6 @@ uniform_col = widget('uniform_col'),
                 for frame in self.master.dyntk_row_frames:
                     frame.grid(column = 0, columnspan = self.master.grid_conf_cols[0])
                 insert_frame.tableline_mark_col()
-                send('GRID_COLS_CHANGED')
             else:
                 conf = list(self.master.grid_conf_rows)
                 conf[0] += 1
@@ -1395,12 +1417,16 @@ uniform_col = widget('uniform_col'),
                 for frame in self.master.dyntk_col_frames:
                     frame.grid(row = 0,rowspan = self.master.grid_conf_rows[0])
                 insert_frame.tableline_mark_row()
-                send('GRID_ROWS_CHANGED')
 
+            setSelection(selection_before)
             create_NONAMECANVAS(self.master.grid_conf_rows[0],self.master.grid_conf_cols[0])
             special_noname_frame()            
             setSelection(selection_before)
-            
+            send('GRID_COLS_CHANGED' if self.is_col else 'GRID_ROWS_CHANGED')
+            set_col_width()
+            set_row_height()
+
+           
 
         def delete(self,event = None):
             selection_before = Selection()
@@ -1423,36 +1449,49 @@ uniform_col = widget('uniform_col'),
             children = self.master.grid_slaves()
             elements = [ element for element in children if int(element.grid_info()[self.grid_key]) == self.row_col and element not in self.master.dyntk_table_frames]
      
+            # if row or column isn't empty create the noname canvasses and the noname frame again and finished
             if elements:
                 create_NONAMECANVAS(self.master.grid_conf_rows[0],self.master.grid_conf_cols[0])
                 special_noname_frame()
                 setSelection(selection_before)
                 return
      
-            # ok we have an empty row or column, which isn't the first one, so we first destroy the line frame of this column or line
+            # ok we have an empty row or column, which isn't the first one
             if self.is_col:
+                # so we first destroy the line frame of this column or line
                 for frame in self.master.dyntk_col_frames:
+                    # if it's the line or colframe for this row or column
                     if int(frame.grid_info()[self.grid_key]) == self.row_col + 1:
-                        self.master.dyntk_col_frames.pop(self.master.dyntk_col_frames.index(frame)).destroy()
+                        # we pop it from dyntk_col_frames
+                        self.master.dyntk_col_frames.pop(self.master.dyntk_col_frames.index(frame))
+                        # we pop it also from dyntk_table_frames and destroy it
                         self.master.dyntk_table_frames.pop(self.master.dyntk_table_frames.index(frame)).destroy()
                         break
 
+                # now we decrease the number of columns in grid_conf_cols
                 conf = list(self.master.grid_conf_cols)
                 conf[0] -= 1
                 self.master.grid_conf_cols = tuple(conf)
+
+                # and pop the entry from grid_multi_conf_cols
                 self.master.grid_multi_conf_cols.pop(self.row_col)
 
+                # now we decrease the columnspan for horizontal line frames
                 for frame in self.master.dyntk_row_frames:
                     frame.grid(column = 0, columnspan = self.master.grid_conf_cols[0])
-                self.master.grid_columnconfigure(self.master.grid_conf_cols[0]+2,minsize=0,pad=0,weight=0)
-                send('GRID_COLS_CHANGED')
+
+                # what's this ??? It was the former master.grid_conf_cols[0]+1, means the space of the canvas
+                #self.master.grid_columnconfigure(self.master.grid_conf_cols[0]+2,minsize=0,pad=0,weight=0)
+
+                # I think, it should be this, but it isn't needed, because it will be done later
+                #self.master.grid_columnconfigure(self.master.grid_conf_cols[0],minsize=0,pad=0,weight=0)
                 
 
      
             else:
                 for frame in self.master.dyntk_row_frames:
                     if int(frame.grid_info()[self.grid_key]) == self.row_col + 1:
-                        self.master.dyntk_row_frames.pop(self.master.dyntk_row_frames.index(frame)).destroy()
+                        self.master.dyntk_row_frames.pop(self.master.dyntk_row_frames.index(frame))
                         self.master.dyntk_table_frames.pop(self.master.dyntk_table_frames.index(frame)).destroy()
                         break
      
@@ -1464,34 +1503,29 @@ uniform_col = widget('uniform_col'),
 
                 for frame in self.master.dyntk_col_frames:
                     frame.grid(row = 0,rowspan = self.master.grid_conf_rows[0])
-                self.master.grid_rowconfigure(self.master.grid_conf_rows[0]+2,minsize=0,pad=0,weight=0)
-                send('GRID_ROWS_CHANGED')
+                # I think, it should be this
+                #self.master.grid_rowconfigure(self.master.grid_conf_rows[0],minsize=0,pad=0,weight=0)
      
 
      
             #so we move the widgets one row or colum down
 
-            children = self.master.winfo_children()
-            child_copy = list(children)
-            for child in child_copy:
-                if isinstance(child,(StatTkInter.Toplevel,StatTkInter.Menu)):
-                    children.pop(children.index(child))
-
-            child_copy = list(children)
-            for child in child_copy:
-                if not child.grid_info():
-                    children.pop(children.index(child))
-
+            children = self.master.grid_slaves()
             for pos in range(self.row_col,endpos):
                 for child in children:
                     if int(child.grid_info()[self.grid_key]) == pos+1:
                         child.grid(**{ self.grid_key : pos })
                 self.grid_configure(pos,**self.grid_configure(pos+1))
-            self.grid_configure(endpos,minsize = 0, pad = 0, weight = 0)
-     
+            # endpos ist the former rows or columns, means the place of the end line
+
+            self.grid_configure(endpos-1,minsize = 0, pad = 0, weight = 0,uniform='')
+            setSelection(selection_before)
             create_NONAMECANVAS(self.master.grid_conf_rows[0],self.master.grid_conf_cols[0])
             special_noname_frame()
             setSelection(selection_before)
+            send('GRID_COLS_CHANGED' if self.is_col else 'GRID_ROWS_CHANGED')
+            set_col_width()
+            set_row_height()
 
             
 
