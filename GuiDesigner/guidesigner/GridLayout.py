@@ -119,8 +119,8 @@ Cols=widget('EntryCols'),
                 for conf in container().grid_multi_conf_rows:
                     if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
                         # look for first uniform entry if it exists and update the value of the grid layout coulumn input
-                        update_rows_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
                         me.grid_current_uniform = (conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
+                        update_rows_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
                         break
         else:
             # if the uniform entry was emptied, take over general row entries
@@ -147,9 +147,9 @@ Cols=widget('EntryCols'),
             if container().grid_multi_conf_cols:
                 for conf in container().grid_multi_conf_cols:
                     if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
-                        
                         me.grid_current_uniform = (conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
                         update_cols_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
+                        found is True
                         break
         else:
             if container().grid_conf_cols and container().grid_conf_cols[0]:
@@ -1127,7 +1127,7 @@ Cols=widget('EntryCols'),
     def row_default(me = widget('uniform_row')):
         conf = container().grid_conf_rows
         uniform = container().grid_uni_row if container().grid_uni_row else ''
-        if not uniform:
+        if not uniform or not getattr(me,'grid_current_uniform', None):
             return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
         else: 
             conf = me.grid_current_uniform
@@ -1137,7 +1137,7 @@ Cols=widget('EntryCols'),
     def col_default(me = widget('uniform_col')):
         conf = container().grid_conf_cols
         uniform = container().grid_uni_col if container().grid_uni_col else ''
-        if not uniform:
+        if not uniform or not getattr(me,'grid_current_uniform', None):
             return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
         else: 
             conf = me.grid_current_uniform
