@@ -111,9 +111,6 @@ try:
 except ImportError:
     HAS_PIL = False
 
-table_row_gif = None
-
-
 def dynTkImage(widget,filename):
     
     if filename:
@@ -1266,7 +1263,7 @@ class Tk(GuiContainer,StatTkInter.Tk):
     def __init__(self,myname=None,**kwargs):
 
         
-        global proxy,SelfStack,ObjectStack,CanvasDefaults,table_row_gif
+        global proxy,SelfStack,ObjectStack,CanvasDefaults
         #Stack= []
         ObjectStack = []
         SelfStack = []
@@ -1280,7 +1277,6 @@ class Tk(GuiContainer,StatTkInter.Tk):
         _initGuiContainer(kwargs,StatTkInter.Tk,self,myname,"Application",True,True,'Application')
         self.Layout = LAYOUTNEVER
         cdApp()
-        table_row_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/insert_table_row.gif')
 
         menu = Menu(self)
         self.config_menuitems['menu'] = menu.config()
