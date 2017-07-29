@@ -3,7 +3,28 @@ Frame("LayoutOptions").rcgrid(0,0,sticky='nw')
 ### CODE ===================================================
 
 Lock()
+layouts = {
+    NOLAYOUT : '',
+    PACKLAYOUT : 'pack',
+    GRIDLAYOUT : 'grid',
+    PLACELAYOUT : 'place',
+    PANELAYOUT : 'pane',
+    TTKPANELAYOUT : 'pane',
+    MENUITEMLAYOUT : 'menu item',
+    MENULAYOUT : 'select menu',
+    WINDOWLAYOUT : 'window',
+    PAGELAYOUT : 'page',
+    LAYOUTNEVER : '',
+    }
+    
+about_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/about.gif')
+help_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/help16.gif')
+sticky_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/sticky.gif')
+compound_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/view-fullscreen16.gif')
+insert_image_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/insert-image16.gif')
 
+    
+    
 # -------------- this LabelFrame contains data for a layout value refresh ---------------------
 
 # the data reference Entries for x,y,row,column,side, and index depending an the layout type
@@ -28,6 +49,9 @@ def values_refresh(widget = widget("LayoutOptions")):
     if mydata[4] != None:
         mydata[4].delete(0,END)	
         mydata[4].insert(0,getlayout("side"))
+    if mydata[5] != None:
+        mydata[5].delete(0,END)	
+        mydata[5].insert(0,getlayout("sticky"))
 
 do_receive('LAYOUT_VALUES_REFRESH',values_refresh)
 
@@ -75,20 +99,28 @@ def listbox_helpbutton(lbox,entry,lbox_click = do_lbox_click):
     lbox.do_event("<Return>",lbox_click,(lbox,entry,False),wishEvent=True)  # bind Return key to the listbox
     lbox.do_event("<Button-1>",lbox_click,(lbox,entry,True),wishEvent=True)  # bind mouse click to the listbox
 
-def listbox_selection(helpbutton = listbox_helpbutton):
-    Button(text="?").rcgrid(0,2) # create a help button for showing the listbox
+def listbox_selection(helpbutton = listbox_helpbutton,about_gif = about_gif):
+    Button(pady=1,padx=1,image=about_gif,bg='blue',text="?").rcgrid(0,2) # create a help button for showing the listbox
     do_command(helpbutton,(widget("listbox"),widget("Entry")))
 
 # -------------- receiver for message 'SHOW_LAYOUT' ------------------------------------
 
 
-def entry_event(me):
-    setlayout(me.mydata[0],me.get())
+def entry_event_insert(me):
     me.delete(0,END)
     me.insert(0,get_entry_as_string(getlayout(me.mydata[0])))
     me['bg']='gray'
     informLater(300,me,'color')
     send("LAYOUT_OPTIONS_CHANGED",this())
+
+
+def entry_event(me,insert = entry_event_insert):
+    setlayout(me.mydata[0],me.get())
+    insert(me)
+
+def set_entry(me,value,insert = entry_event_insert):
+    setlayout(me.mydata[0],value)
+    insert(me)
 
 enable_flag = [False,False,False]
 
@@ -106,9 +138,42 @@ def can_update(linfo, RefDict=RefDict,thisframe=widget("LayoutOptions")):
         elif entry == "row": thisframe.mydata[2]=RefDict[entry]
         elif entry == "column": thisframe.mydata[3]=RefDict[entry]
         elif entry == "side": thisframe.mydata[4]=RefDict[entry]
+        elif entry == "sticky": thisframe.mydata[5]=RefDict[entry]
     return True
 
 layout_before=[NOLAYOUT]
+
+class ToggleButton(Label):
+
+    def __init__(self,name,option):
+        Label.__init__(self,name,bg = '#ffa000', activebackground = 'lightgreen',width=3)
+        self.option = option
+        self.bind('<Button-1>',self.toggle)
+        
+
+    def show_value(self):
+        if self.value:
+            self['state'] = 'active'
+            self['relief'] = 'sunken'
+            self['text'] = '1'
+        else:
+            self['state'] = 'normal'
+            self['relief'] = 'raised'
+            self['text'] = '0'
+
+    def set(self,value):
+        if isinstance(value,str):
+            self.value = int(value)
+        else:
+            self.value = value
+            
+        self.show_value()
+
+    def toggle(self,event):
+        self.value = not self.value
+        this().setlayout(self.option,self.value)
+        self.show_value()
+
 
 def show_layout(
     msg,
@@ -122,6 +187,14 @@ def show_layout(
     layout_before = layout_before,
     entry_width = 7,
     choose_image = choose_image,
+    layouts = layouts,
+    about_gif = about_gif,
+    help_gif = help_gif,
+    sticky_gif = sticky_gif,
+    compound_gif = compound_gif,
+    insert_image_gif = insert_image_gif,
+    set_entry = set_entry,
+    ToggleButton = ToggleButton,
     ):
 
 
@@ -135,7 +208,7 @@ def show_layout(
         elif onflag[0]: #if shall switch off and SHOW_LAYOUT is on
             onflag[0]=False # switch flag to off
             cont.unlayout() # and unlayout the DetailedLayout frame
-            thisframe.mydata=[None,None,None,None,None] # set references for value refresh  to not active
+            thisframe.mydata=[None,None,None,None,None,None] # set references for value refresh  to not active
 
     elif type(msg) is tuple:
         layout_before[0] = NOLAYOUT
@@ -152,10 +225,10 @@ def show_layout(
         
     elif onflag[0]: # a correct message arrived and show layout is on
         # reset references for value refresh  to not active
-        thisframe.mydata = [None,None,None,None,None]
+        thisframe.mydata = [None,None,None,None,None,None]
         # if the widget has a layout, then show it
 
-        if msg.Layout & LAYOUTALL and msg.Layout not in (MENULAYOUT,MENUITEMLAYOUT):
+        if msg.Layout & LAYOUTALL and msg.Layout not in (MENULAYOUT,MENUITEMLAYOUT,WINDOWLAYOUT,LABELLAYOUT):
 
             cont.grid()			
 
@@ -187,6 +260,8 @@ def show_layout(
             # make a list of tuples of the layout dictionary and sort important options at the beginning
             layoutlist = []
             for entry in (
+"sticky",
+"anchor",
 "text",
 'underline',
 "image",
@@ -200,14 +275,12 @@ def show_layout(
 "rowspan",
 "columnspan",
 "side",
-"sticky",
 'padding',
 "stretch",
 "hide",
 "width",
 "height",
 'minsize',
-"anchor",
 "fill",
 "expand",
 "bordermode",
@@ -226,6 +299,10 @@ def show_layout(
             setWidgetSelection(thisframe,thisframe)
 
             entry_row = 0
+            Label('Label',bg='blue',fg='yellow',font = 'TkDefaultFont 12 bold',text=layouts[layout_before[0]])
+            rcgrid(entry_row,0,sticky='we')
+            entry_row += 1
+            
             for entry in layoutlist:
                 # for each option, we make a frame an in this frame a label with the option name and an entry
                 # for showing and changing the value
@@ -241,7 +318,6 @@ def show_layout(
 "rowspan", 
 "width", # Place Layout (Default leer "" oder Integer)
 "height", # Place Layout (Default leer "" oder Integer)
-"expand", # Pack Layout (Integer default 0)
 "padx", # Pack Layout und Grid Layout (Integer default 0)
 "pady", # Pack Layout und Grid Layout (Integer default 0)
 "ipadx", # Pack Layout und Grid Layout (Integer default 0)
@@ -260,6 +336,8 @@ def show_layout(
                 elif entry[0] == "underline":
                     Spinbox("Entry",from_=-1,to=300,increment=1,width=entry_width)
                     do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
+                elif entry[0] == "expand":
+                    ToggleButton('Entry',entry[0])
                 elif entry[0] == "text":
                     Entry("Entry",width=20)
                 elif entry[0] == "photoimage":
@@ -268,16 +346,22 @@ def show_layout(
                     Entry("Entry",width=11)
                 else:
                     Entry("Entry",width=entry_width)
-                do_action('color',lambda me = this(): me.config(bg='white'))
-                
-                var = StringVar()
-                var.set(get_entry_as_string(entry[1]))
-                this().mydata=[entry[0],var] # mydata shall also contain the option name
-                this()['textvariable'] = var
-                RefDict[entry[0]] = this()
-                rcgrid(0,1,sticky=E+W)
 
-                do_event("<Return>",e_event,wishWidget=True) # via return key the option value can be changed
+                if not isinstance(this(),ToggleButton):
+                    do_action('color',lambda me = this(): me.config(bg='white'))
+                    var = StringVar()
+                    var.set(get_entry_as_string(entry[1]))
+                    this().mydata=[entry[0],var] # mydata shall also contain the option name
+                    this()['textvariable'] = var
+                    RefDict[entry[0]] = this()
+                    rcgrid(0,1,sticky=E+W)
+                    do_event("<Return>",e_event,wishWidget=True) # via return key the option value can be changed
+                else:
+                    this().set(entry[1])
+                    this().mydata=[entry[0],this()] # mydata shall also contain the option name
+                    RefDict[entry[0]] = this()
+                    rcgrid(0,1,sticky=W,padx=1)
+                    
 
                 # reference update for a value refresh without new show layout option creation
                 if entry[0] == "x": thisframe.mydata[0]=this()
@@ -285,6 +369,7 @@ def show_layout(
                 elif entry[0] == "row": thisframe.mydata[2]=this()
                 elif entry[0] == "column": thisframe.mydata[3]=this()
                 elif entry[0] == "side": thisframe.mydata[4]=this()
+                elif entry[0] == "sticky": thisframe.mydata[5]=this()
 
                 # listboxes and readonly state for some options
                 if entry[0] =="stretch":
@@ -296,19 +381,11 @@ def show_layout(
                     lbox_select()
 
                 elif "photoimage" in entry[0]:
-                    Button(text="?").rcgrid(0,2)
+                    Button(pady=1,padx=1,image=insert_image_gif,text="?").rcgrid(0,2)
                     do_command(choose_image,(widget("Entry"),entry[0]))
-
-                elif entry[0] =="compound":
-                    Listbox(width=6,height=7).fillList(("text","image","none",'top','bottom','left','right'))
-                    lbox_select()
 
                 elif entry[0] =="side":
                     Listbox(width=7,height=4).fillList(("top","bottom","left","right"))
-                    lbox_select()
-
-                elif entry[0] =="anchor":
-                    Listbox(width=7,height=9).fillList(("nw","n","ne","e","se","s","sw","w","center"))
                     lbox_select()
 
                 elif entry[0] =="in": this().config(state="readonly")
@@ -322,21 +399,45 @@ def show_layout(
 
                 # help info message box for sticky option
                 elif entry[0] =="sticky":
-                    Button(text="?").rcgrid(0,2)
-                    do_command(lambda par = this(): messagebox.showinfo("Layout option 'sticky'","The 'sticky' option may be empty or may contain one or more of these characters: 'n' 'e' 'w' 's'",parent=par))
+                    Button(pady=0,padx=0, relief = 'flat', image=sticky_gif,text="?").rcgrid(0,2)
+
+                    #grid_frame = widget('/','GuiFrame','Selection')
+                    #col = grid_frame.getlayout('column')
+                    #row = grid_frame.getlayout('row')
+
+                    do_command(lambda grid_frame = this().master.master, root = widget('/','GuiFrame'): send('SELECT_STICKY',(
+                        grid_frame.winfo_rootx() - root.winfo_rootx()+grid_frame.winfo_width(),
+                        grid_frame.winfo_rooty() - root.winfo_rooty(),
+                        'layout'
+                      )))
+
+                elif entry[0] =="compound":
+                    Button(pady=0,padx=0, image=compound_gif,text="?").rcgrid(0,2)
+                    grid_frame = widget('/','GuiFrame','Selection')
+                    col = grid_frame.getlayout('column')
+                    row = grid_frame.getlayout('row')
+                    do_command(lambda col = col, row = row ,entry = widget('Entry'): send('SET_COMPOUND',(col,row,'layout',entry)))
+
+                elif entry[0] =="anchor":
+                    Button(pady=0,padx=0, relief = 'flat', image=sticky_gif,text="?").rcgrid(0,2)
+                    do_command(lambda grid_frame = this().master.master, root = widget('/','GuiFrame'),entry = widget('Entry'): send('SET_ANCHOR',(
+                        grid_frame.winfo_rootx() - root.winfo_rootx()+grid_frame.winfo_width(),
+                        grid_frame.winfo_rooty() - root.winfo_rooty(),
+                        "layout",entry
+                        )))
 
                 goOut() # leaving the frame for the option entry and pack it
                 rcgrid(entry_row,0,sticky='nw')
                 entry_row += 1
 
             setSelection(current_selection)
-            if thisframe['width'] < thisframe.winfo_reqwidth():
-                thisframe['width'] = thisframe.winfo_reqwidth()
-                cont.grid_columnconfigure(0,minsize = thisframe.winfo_reqwidth())
+            #if thisframe['width'] < thisframe.winfo_reqwidth():
+                #thisframe['width'] = thisframe.winfo_reqwidth()
+                #cont.grid_columnconfigure(0,minsize = thisframe.winfo_reqwidth())
 
         else:   # if the widget doesn't have a layout, then disable value refresh and hide the layout options
             cont.unlayout()
-            thisframe.mydata=[None,None,None,None,None]
+            thisframe.mydata=[None,None,None,None,None,None]
 
 
 do_receive('SHOW_LAYOUT',show_layout,wishMessage = True)

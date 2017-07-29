@@ -22,6 +22,7 @@ def show_frame(msg,oldname = widget("OldName"), newname = widget("NewName"), con
     if msg[1] == -1: oldname.config(text=msg[0])
     else: oldname.config(text=msg[0]+" [" +str(msg[1])+"]") # show the old name and index in Label OldName
     newname.delete(0,END) # prepare an empty Entry for the user input
+    newname.insert(0,msg[0])
     newname.mydata=msg # store old name and index in mydata of the Entry widget
     cont.pack() # show the RenameFrame
     newname.focus_set() # and focus the entry

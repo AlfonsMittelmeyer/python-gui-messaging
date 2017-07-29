@@ -47,11 +47,6 @@ class Frame(tk.GuiContainer,StatTtk.Frame):
     def __init__(self,myname=None,**kwargs):
         tk._initGuiContainer(kwargs,StatTtk.Frame,self,myname,"frame",True)
 
-class LabelFrame(tk.GuiContainer,StatTtk.LabelFrame):
-
-    def __init__(self,myname=None,**kwargs):
-        tk._initGuiContainer(kwargs,StatTtk.LabelFrame,self,myname,"labelframe",True)
-
 class Separator(tk.GuiElement,StatTtk.Separator):
 
     def __init__(self,myname=None,**kwargs):
@@ -71,6 +66,7 @@ class Combobox(tk.GuiElement,StatTtk.Combobox):
 
 # =======================================================================================
 
+
     def addclearinit_addconfig(self,kwargs):
         tk.Listbox.addclearinit_addconfig(self,kwargs)
 
@@ -81,11 +77,14 @@ class Combobox(tk.GuiElement,StatTtk.Combobox):
         tk.GuiElement.executeclear_addconfig(self,kwargs)
         if 'text' in kwargs:
             self.fillString(kwargs.pop('text'))
-            self.current(newindex=0) 
+            self.current(newindex=0)
+        elif 'fill by text' in kwargs:
+            self.fillString(kwargs.pop('fill by text'))
+            self.current(newindex=0)
 
     def addconfig(self,kwargs):
         tk.GuiElement.addconfig(self,kwargs)
-        kwargs['text'] = self.getString()
+        kwargs['fill by text'] = self.getString()
         kwargs.pop('values',None)
         
 
@@ -100,6 +99,9 @@ class LabelFrame(tk.GuiContainer,StatTtk.LabelFrame):
 
     def __init__(self,myname=None,**kwargs):
         tk._initGuiContainer(kwargs,StatTtk.LabelFrame,self,myname,"labelframe",True)
+
+    def executeclear_addconfig(self,kwargs):
+        tk.LabelFrame.executeclear_addconfig(self,kwargs)
 
 class PanedWindow(tk.GuiContainer,StatTtk.PanedWindow):
 
@@ -128,6 +130,9 @@ class Menubutton(tk.GuiContainer,StatTtk.Menubutton):
 
     def __init__(self,myname=None,**kwargs):
         tk._initGuiContainer(kwargs,StatTtk.Menubutton,self,myname,"menubutton")
+
+    def executeclear_addconfig(self,kwargs):
+        tk.Menubutton.executeclear_addconfig(self,kwargs)
 
 class Progressbar(tk.GuiElement,StatTtk.Progressbar):
 
@@ -160,10 +165,16 @@ class Notebook(tk.GuiContainer,StatTtk.Notebook):
 
     def add(self,child,**kwargs):
         child.Layout = tk.PAGELAYOUT
+        child.dyntk_photoimage_page = ''
+        if 'image' in kwargs and kwargs['image']:
+             child.dyntk_photoimage_page = getattr(kwargs['image'], 'filename', '')
         StatTtk.Notebook.add(self,child,**kwargs)
 
     def insert(self,pos,child,**kwargs):
         child.Layout = tk.PAGELAYOUT
+        child.dyntk_photoimage_page = ''
+        if 'image' in kwargs and kwargs['image']:
+             child.dyntk_photoimage_page = getattr(kwargs['image'], 'filename', '')
         StatTtk.Notebook.insert(self,pos,child,**kwargs)
 
     def forget(self,tab_id):
@@ -178,7 +189,9 @@ class Notebook(tk.GuiContainer,StatTtk.Notebook):
                 break
         if forgotten:
             forgotten.Layout = tk.NOLAYOUT
-        
+            forgotten.dyntk_photoimage_page = ''
+            
+
 
     #tab(tab_id, option=None, **kw)
         #Query or modify the options of the specific tab_id.

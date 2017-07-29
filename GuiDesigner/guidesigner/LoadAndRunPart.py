@@ -19,7 +19,7 @@ def show_load_dialog_part2(msg,root = widget('/'),os=os):
         setLoadWithCode(False)
         setSelection(selection_before)
         send('SHOW_SELECTION_UPDATE')
-
+        send('SELECTION_CHANGED') # for grid layout
 do_receive('LOAD_RUN_PART2',show_load_dialog_part2,wishMessage=True)
 
 def show_load_dialog_part1(msg,cont=container()):
@@ -29,6 +29,6 @@ def show_load_dialog_part1(msg,cont=container()):
         send('SHOW_SELECTION')
     send('LOAD_RUN_PART2',msg)
 
-do_receive('LOAD_RUN_PART',show_load_dialog_part1,wishMessage=True)
+do_receive('LOAD_RUN_PART',show_load_dialog_part2,wishMessage=True)
 ### ========================================================
 

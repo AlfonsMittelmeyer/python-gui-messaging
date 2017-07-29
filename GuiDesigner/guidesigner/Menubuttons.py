@@ -16,4 +16,9 @@ for item in (
     ('tearoff','delimiter')):
     widget(item[0]).do_command(lambda msg = (item[0],item[1]): send('CREATE_CLASS_SELECTED',msg)) # buttons send message with class name
 
+
+def check_tearoff(tearoff = widget('tearoff')):
+    tearoff['state'] = 'normal' if this()['tearoff'] else 'disabled'
+
+do_receive('CHECK_TEAROFF',check_tearoff)
 ### ========================================================

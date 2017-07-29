@@ -1,28 +1,30 @@
-Button('Button',**{'text': 'Button', 'padx': 1, 'width': 10}).grid(sticky='ew', column=2, row=0)
-Button('Canvas',**{'text': 'Canvas', 'padx': 1, 'width': 10}).grid(sticky='ew', column=2, row=4)
-Button('Checkbutton',**{'text': 'Checkbutton', 'padx': 1, 'width': 10}).grid(sticky='ew', row=1)
-Button('Entry',**{'text': 'Entry', 'padx': 1, 'width': 10}).grid(sticky='ew', column=2, row=1)
-Button('Frame',**{'text': 'Frame', 'padx': 1, 'width': 10}).grid(sticky='ew', column=2, row=3)
-Button('Label',**{'text': 'Label', 'padx': 1}).grid(sticky='ew', column=1, row=0)
-Button('LabelFrame',**{'text': 'LabelFrame', 'padx': 1, 'width': 10}).grid(sticky='ew', row=4)
-Button('LinkButton',**{'text': 'LinkButton', 'padx': 1, 'width': 10}).grid(sticky='ew', row=6)
-Button('LinkLabel',**{'text': 'LinkLabel', 'padx': 1}).grid(sticky='ew', column=1, row=6)
-Button('Listbox',**{'text': 'Listbox', 'padx': 1, 'width': 10}).grid(sticky='ew', row=3)
-Button('Menu',**{'text': 'Menu', 'padx': 1, 'width': 10}).grid(sticky='ew', row=5)
-Button('Menubutton',**{'text': 'Menubutton', 'padx': 1}).grid(sticky='ew', column=1, row=5)
-Button('Message',**{'text': 'Message', 'padx': 1, 'width': 10}).grid(sticky='ew', row=0)
-Button('Paint Canvas',**{'font': 'TkDefaultFont 9 bold', 'text': 'Paint Canvas', 'padx': 1, 'activeforeground': 'blue', 'fg': 'blue'}).grid(sticky='ew', column=2, row=6)
-Button('PanedWindow',**{'text': 'PanedWindow', 'padx': 1}).grid(sticky='ew', column=1, row=4)
-Button('Radiobutton',**{'text': 'Radiobutton', 'padx': 1}).grid(sticky='ew', column=1, row=1)
-Button('Scale',**{'text': 'Scale', 'padx': 1, 'width': 10}).grid(sticky='ew', column=2, row=2)
-Button('Scrollbar',**{'text': 'Scrollbar', 'padx': 1}).grid(sticky='ew', column=1, row=3)
-Button('Spinbox',**{'text': 'Spinbox', 'padx': 1}).grid(sticky='ew', column=1, row=2)
-Button('Text',**{'text': 'Text', 'padx': 1, 'width': 10}).grid(sticky='ew', row=2)
-Button('Toplevel',**{'text': 'Toplevel', 'padx': 1, 'width': 10}).grid(sticky='ew', column=2, row=5)
+config(**{'grid_cols': '(3, 0, 0, 0)', 'grid_rows': '(7, 25, 0, 0)'})
+
+Button('Canvas',**{'padx': 1, 'pady': '1', 'photoimage': 'guidesigner/images/graphics32.gif', 'text': ' Canvas', 'compound': 'left'}).grid(sticky='nesw', row=4, column=2)
+Button('Label',**{'padx': 1, 'photoimage': 'guidesigner/images/labelind.gif', 'text': 'Label', 'bg': 'white', 'compound': 'center'}).grid(sticky='nesw', row=0, column=1)
+Button('Menubutton',**{'padx': 1, 'photoimage': 'guidesigner/images/menubutton.gif', 'text': ' Menubutton', 'compound': 'left'}).grid(sticky='nesw', row=5, column=1)
+Button('Message',**{'padx': 1, 'photoimage': 'guidesigner/images/accessories-text-editor.gif', 'text': 'Message', 'width': 10, 'compound': 'left'}).grid(sticky='nesw', row=0)
+Button('Paint Canvas',**{'padx': 1, 'font': 'TkDefaultFont 9 bold', 'photoimage': 'guidesigner/images/graphics.gif', 'activeforeground': 'blue', 'text': 'Paint Canvas', 'fg': 'blue', 'compound': 'left'}).grid(sticky='nesw', row=6, column=2)
+Button('Entry',**{'padx': 1, 'pady': '1', 'photoimage': 'guidesigner/images/entry.gif', 'text': 'Entry', 'compound': 'center'}).grid(sticky='nesw', row=0, column=2)
+Button('Radiobutton',**{'padx': 1, 'photoimage': 'guidesigner/images/radiobutton.gif', 'text': ' Radiobutton', 'compound': 'left'}).grid(sticky='nesw', row=1, column=2)
+Button('Checkbutton',**{'padx': '3', 'pady': '1', 'photoimage': 'guidesigner/images/checkbutton.gif', 'text': ' Checkbutton', 'compound': 'left'}).grid(sticky='nesw', row=1, column=1)
+Button('Button',**{'padx': 1, 'photoimage': 'guidesigner/images/button.gif', 'text': 'Button', 'compound': 'center'}).grid(sticky='nesw', row=1)
+Button('Spinbox',**{'padx': 1, 'pady': '1', 'photoimage': 'guidesigner/images/spinbox.gif', 'text': 'Spinbox', 'compound': 'center'}).grid(sticky='nesw', row=2)
+Button('Scale',**{'padx': 1, 'photoimage': 'guidesigner/images/scale.gif', 'text': 'Scale', 'width': 10, 'compound': 'bottom'}).grid(sticky='nesw', row=2, column=1)
+Button('Scrollbar',**{'padx': 1, 'photoimage': 'guidesigner/images/scrollbar.gif', 'text': 'Scrollbar', 'compound': 'bottom'}).grid(sticky='nesw', row=2, column=2)
+Button('Frame',**{'padx': 1, 'photoimage': 'guidesigner/images/frame.gif', 'text': 'Frame', 'compound': 'bottom'}).grid(sticky='nesw', row=3)
+Button('LabelFrame',**{'padx': 1, 'photoimage': 'guidesigner/images/labelframe.gif', 'text': 'LabelFrame', 'width': 10}).grid(sticky='nesw', row=3, column=1)
+Button('PanedWindow',**{'padx': 1, 'photoimage': 'guidesigner/images/panedwindow.gif', 'text': 'PanedWindow', 'compound': 'bottom'}).grid(sticky='nesw', row=3, column=2)
+Button('Listbox',**{'padx': 1, 'photoimage': 'guidesigner/images/listbox.gif', 'text': 'Listbox', 'width': 10}).grid(sticky='ew', row=4)
+Button('Toplevel',**{'padx': 1, 'photoimage': 'guidesigner/images/toplevel.gif', 'text': 'Toplevel'}).grid(sticky='ew', row=5, column=2)
+Button('LinkLabel',**{'padx': 1, 'photoimage': 'guidesigner/images/go-next24.gif', 'text': ' LinkLabel', 'compound': 'left'}).grid(sticky='nesw', row=6)
+Button('LinkButton',**{'padx': 1, 'photoimage': 'guidesigner/images/go-next24.gif', 'text': ' LinkButton', 'width': 10, 'compound': 'left'}).grid(sticky='nesw', row=6, column=1)
+Button('Menu',**{'padx': 1, 'photoimage': 'guidesigner/images/menu.gif', 'text': ' Menu', 'compound': 'left'}).grid(sticky='nesw', row=5)
+Button('Text',**{'photoimage': 'guidesigner/images/text.gif', 'text': 'Text'}).grid(sticky='nesw', row=4, column=1)
 
 ### CODE ===================================================
 
-for widget_type in ("Message","Label","Button","Checkbutton","Radiobutton","Entry","Text","Spinbox","Scale","Listbox","Scrollbar","Frame","LabelFrame","PanedWindow","Canvas","Menu","Menubutton","Toplevel","LinkButton","LinkLabel","Paint Canvas"):
+for widget_type in ("Message","Label","Button","Checkbutton",'Text',"Radiobutton","Entry","Spinbox","Scale","Listbox","Scrollbar","Frame","LabelFrame","PanedWindow","Canvas","Menu","Menubutton","Toplevel","LinkButton","LinkLabel","Paint Canvas"):
     widget(widget_type).do_command(lambda msg = (decapitalize(widget_type),widget_type): send('CREATE_CLASS_SELECTED',msg)) # buttons send message with class name
 
 widget("Paint Canvas").unlayout()
@@ -34,11 +36,13 @@ def open_canvas_paint():
 widget("Paint Canvas").do_command(open_canvas_paint)
 
 
-def do_canvas_selected(paint_button = widget("Paint Canvas")):
+def dont_select(paint_button = widget("Paint Canvas"),menu_button = widget('Menu')):
     if isinstance(this(),Canvas) and this().Layout != NOLAYOUT or isinstance(container(),Canvas) and container().Layout != NOLAYOUT: paint_button.grid()
     else: paint_button.unlayout()
 
-do_receive('SELECTION_LAYOUT_CHANGED',do_canvas_selected)
-do_receive('SELECTION_CHANGED',do_canvas_selected)
+    menu_button['state'] = 'normal' if isinstance(container(),(Tk,Toplevel)) else 'disabled'
+
+do_receive('SELECTION_LAYOUT_CHANGED',dont_select)
+do_receive('SELECTION_CHANGED',dont_select)
 
 ### ========================================================

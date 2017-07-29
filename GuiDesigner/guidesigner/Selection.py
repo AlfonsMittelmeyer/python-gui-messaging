@@ -15,58 +15,88 @@ Frame("SelectionShow",bg="white",link="guidesigner/SelectionShow.py")
 # ---- Receiver for message 'CREATE_WIDGET_REQUEST' - somewhere it has to be: 
 # creates the widget with Class name and widget name in the current User selection and sends the message CREATE_WIDGET_DONE which contains the current user widget selection
 
-def create_widget(msg):
-    widget_type = msg[0]
-    name = msg[1]
-    kwargs = msg[2]
+def main():
 
-    if widget_type in ('cascade','radiobutton','command','separator','checkbutton','delimiter'):
-        if isinstance(container(),Menu):
-            if widget_type == 'separator':
-                eval("MenuItem('{}','{}')".format(name,widget_type))
-            elif widget_type == 'delimiter':
-                eval("MenuDelimiter('{}')".format(name))
+    class Var:
+        def __init__(self):
+            self.value = False
+
+
+    ALPHABET = 0
+    BASEMENT = 1
+    INDEX = 2
+
+    sort_order = Var()
+    sort_order.value = ALPHABET
+
+
+    def create_widget(msg):
+        widget_type = msg[0]
+        name = msg[1]
+        kwargs = msg[2]
+
+        if widget_type in ('cascade','radiobutton','command','separator','checkbutton','delimiter'):
+            if isinstance(container(),Menu):
+                if widget_type == 'separator':
+                    eval("MenuItem('{}','{}')".format(name,widget_type))
+                elif widget_type == 'delimiter':
+                    eval("MenuDelimiter('{}')".format(name))
+                else:
+                    eval("MenuItem('{}','{}',label = '{}')".format(name,widget_type,name))
+                send('SELECTION_CHANGED')
             else:
-                eval("MenuItem('{}','{}',label = '{}')".format(name,widget_type,name))
+                print("Wrong handling: cannot create a menu item outside a menu")
+        elif isinstance(container(),Menu):
+            print("Wrong handling: cannot create a widget inside a menu")
+        elif isinstance(container(),ttk.PanedWindow):
+            eval("{}('{}',**{})".format(widget_type,name,kwargs))
+            text(name)
             send('SELECTION_CHANGED')
+            
+        elif isinstance(container(),PanedWindow):
+            eval("{}('{}',**{})".format(widget_type,name,kwargs))
+            text(name)
+            pane()
+            send('UPDATE_MOUSE_SELECT_ON')
+            send('SELECTION_CHANGED')
+            
+        elif isinstance(container(),ttk.Notebook):
+            eval("{}('{}',**{})".format(widget_type,name,kwargs))
+            text(name)
+            page(text=name)
+            send('UPDATE_MOUSE_SELECT_ON')
+            send('SELECTION_CHANGED')
+
         else:
-            print("Wrong handling: cannot create a menu item outside a menu")
-    elif isinstance(container(),Menu):
-        print("Wrong handling: cannot create a widget inside a menu")
-    elif isinstance(container(),ttk.PanedWindow):
-        eval("{}('{}',**{})".format(widget_type,name,kwargs))
-        text(name)
-        send('SELECTION_CHANGED')
-        
-    elif isinstance(container(),PanedWindow):
-        eval("{}('{}',**{})".format(widget_type,name,kwargs))
-        text(name)
-        pane()
-        send('SELECTION_CHANGED')
-        
-    elif isinstance(container(),ttk.Notebook):
-        eval("{}('{}',**{})".format(widget_type,name,kwargs))
-        text(name)
-        page(text=name)
-        send('SELECTION_CHANGED')
+            if widget_type == "Toplevel": cdApp()
+            eval("{}('{}',**{})".format(widget_type,name,kwargs))
+            text(name)
+            if widget_type == 'Menu':
+                select_menu()
+                goIn()
+            send('SELECTION_CHANGED')
 
-    else:
-        if widget_type == "Toplevel": cdApp()
-        eval("{}('{}',**{})".format(widget_type,name,kwargs))
-        text(name)
-        if widget_type == 'Menu':
-            select_menu()
-            goIn()
-        send('SELECTION_CHANGED')
-        #if widget_type not in ('Toplevel','Menu'):
-        #    send
+    def selection_layout_changed():
+        if isinstance(container(),(Menu,PanedWindow,ttk.PanedWindow,ttk.Notebook)):
+            send('REFRESH_INDEX_ORDER')
+        elif sort_order.value == INDEX:
+            send('REFRESH_INDEX_ORDER')
+        else:
+            send('SHOW_SELECTION')
+
+    do_receive('CREATE_WIDGET_REQUEST',create_widget,wishMessage=True)
+    do_receive("SELECTION_CHANGED", lambda: send('SHOW_SELECTION'))
+    do_receive("SELECTION_LAYOUT_CHANGED",selection_layout_changed)
 
 
-do_receive('CREATE_WIDGET_REQUEST',create_widget,wishMessage=True)
-do_receive("SELECTION_CHANGED", lambda: send('SHOW_SELECTION'))
-do_receive("SELECTION_LAYOUT_CHANGED", lambda: send('SHOW_SELECTION'))
+    def select_order(value):
+        sort_order.value = value
 
+    do_receive('SELECT_INDEX_ORDER',select_order,INDEX)
+    do_receive('SELECT_ALPHABETICAL',select_order,ALPHABET)
+    do_receive('SELECT_BASEMENT',select_order,BASEMENT)
 
+main()
 
 my_frame = widget("SelectionShow")
 ### ========================================================
@@ -93,7 +123,7 @@ class FrameEvent:
         self.my_frame.bind("<Configure>",self.frame_configure)
 
     def frame_configure(self,event):
-        self.my_frame.unbind("<Configure>")
+        #self.my_frame.unbind("<Configure>")
         self.my_canvas.config(scrollregion="0 0 %s %s" % (self.my_frame.winfo_reqwidth(), self.my_frame.winfo_reqheight()))
         if self.my_frame.winfo_reqheight() > 400:
             self.scrollbar.grid()

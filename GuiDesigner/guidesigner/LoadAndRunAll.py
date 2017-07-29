@@ -21,6 +21,7 @@ def show_load_dialog(msg,root = widget('/'),os=os):
         DynLoad(filename)
         setLoadWithCode(False)
         send("SELECTION_CHANGED")
+        send("SHOW_SELECTION_UPDATE")
 
 do_receive('LOAD_RUN_ALL',show_load_dialog,wishMessage=True)
 ### ========================================================

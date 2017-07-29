@@ -15,6 +15,7 @@ def change_index(entry=widget('pane')):
     entry.delete(0,END)
     entry.insert(0,this().getlayout('pane'))
     send('LAYOUT_VALUES_REFRESH',this())
+    send('REFRESH_INDEX_ORDER')
 
 widget('pane').do_event("<Return>",change_index)
 widget('pane').do_command(change_index)

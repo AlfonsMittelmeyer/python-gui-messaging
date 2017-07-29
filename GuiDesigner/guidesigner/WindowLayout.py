@@ -13,6 +13,7 @@ def select_window():
         item = container().create_window(0,0,anchor='nw',window = this())
         this().window_item = item
         CanvasItem(container(),item)
+        send('UPDATE_MOUSE_SELECT_ON') # should be selectable via mouse click
     else:
         item_list = container().find_all()
         item = -1
@@ -25,8 +26,6 @@ def select_window():
             CanvasItem(container(),item,False)
         
     send('SELECTION_CHANGED')
-       
-    #this().select_menu()
     send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
 widget('Select').do_command(select_window)

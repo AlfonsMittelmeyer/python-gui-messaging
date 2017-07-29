@@ -1,52 +1,565 @@
-config(**{'grid_cols': '(6, 0, 0, 0)', 'grid_rows': '(8, 0, 0, 0)'})
+config(**{'minsize': '116 1', 'maxsize': '1920 1058', 'grid_rows': '(8, 0, 0, 0)', 'grid_multi_cols': '[7, (2, 0, 0, 0), (5, 0, 0, 0), (6, 0, 0, 1)]', 'grid_cols': '(7, 45, 0, 0)'})
 
-Button('ButtonGrid',**{'bd': '3', 'bg': 'lightgreen', 'padx': '1', 'pady': '1', 'text': 'GRID', 'font': 'TkDefaultFont 9 bold'}).grid(row=0, sticky='nesw', column=1, columnspan=2)
-Button('Grid()',**{'bd': '3', 'bg': 'lightgreen', 'padx': '1', 'pady': '1', 'text': 'Grid()'}).grid(row=0, sticky='nesw', column=3)
-ttk.Separator('separator').grid(row=5, sticky='ew', columnspan=5)
-Entry('uniform_row',**{'bg': '#e0ffb0', 'width': 0}).grid(row=7, sticky='nesw', columnspan=2)
-Entry('uniform_col',**{'bg': '#fff0b0', 'width': 0}).grid(row=7, sticky='nesw', column=3, columnspan=2)
-ttk.Label('luniformrow',**{'text': 'uniform (row)'}).grid(row=6, sticky='w', columnspan=2)
-Label('luniformcol',**{'text': 'uniform (column)'}).grid(row=6, sticky='w', column=3, columnspan=2)
-ttk.Separator('separator',**{'orient': 'vertical'}).grid(row=1, sticky='ns', column=2, rowspan=8)
+ttk.Separator('separator').grid(row=5, columnspan=5, sticky='ew')
+Entry('uniform_row',**{'bg': '#e0ffb0', 'width': 0}).grid(row=7, columnspan=2, sticky='nesw')
+Entry('uniform_col',**{'bg': '#fff0b0', 'width': 0}).grid(column=3, row=7, columnspan=2, sticky='nesw')
+ttk.Label('luniformrow',**{'text': 'uniform (row)'}).grid(row=6, columnspan=2, sticky='w')
+Label('luniformcol',**{'text': 'uniform (column)'}).grid(column=3, row=6, columnspan=2, sticky='w')
+ttk.Separator('separator',**{'orient': 'vertical'}).grid(column=2, row=1, rowspan=7, sticky='ns')
 Label('lpad',**{'text': 'pad'}).grid(row=2, sticky='e')
 Label('lweight',**{'text': 'weight'}).grid(row=3, sticky='e')
 Label('lheight',**{'text': 'minsize'}).grid(row=1, sticky='e')
-Label('lrows',**{'text': 'Rows', 'font': 'TkDefaultFont 9 bold'}).grid(row=4, sticky='nesw')
-Entry('EntryRows',**{'bg': '#ffffd4', 'width': 6}).grid(row=4, sticky='nesw', column=1)
-Entry('EntryCols',**{'bg': '#ffffd4', 'width': 5}).grid(row=4, sticky='nesw', column=3)
-Label('lcols',**{'text': 'Columns', 'font': 'TkDefaultFont 9 bold'}).grid(row=4, sticky='nesw', column=4)
-Button('special',**{'bd': 2, 'photoimage': 'guidesigner/images/insert_table_row.gif', 'cursor': 'star', 'text': 'special'}).grid(row=2, column=4, rowspan=2)
-Label('LableTitle',**{'fg': 'blue', 'bd': '3', 'relief': 'ridge', 'text': 'grid', 'font': 'TkDefaultFont 9 bold'}).grid(row=0, sticky='nesw')
-Spinbox('EntryRowHeight',**{'to': 1000.0, 'width': 4}).grid(row=1, sticky='nesw', column=1)
-Spinbox('EntryColWidth',**{'to': 1000.0, 'width': 4}).grid(row=1, sticky='nesw', column=3)
-Spinbox('EntryRowPad',**{'to': 1000.0, 'width': 4}).grid(row=2, sticky='nesw', column=1)
-Spinbox('EntryColPad',**{'to': 1000.0, 'width': 4}).grid(row=2, sticky='nesw', column=3)
-Spinbox('EntryRowWeight',**{'to': 1000.0, 'width': 4}).grid(row=3, sticky='nesw', column=1)
-Spinbox('EntryColWeight',**{'to': 1000.0, 'width': 4}).grid(row=3, sticky='nesw', column=3)
-Checkbutton('Individual',**{'highlightthickness': '2', 'text': 'indiv.'}).grid(row=1, sticky='ew', column=4)
-Label('ButtonShow',**{'bd': '3', 'bg': 'lightgreen', 'relief': 'raised', 'text': 'Show'}).grid(row=0, sticky='nesw', column=4)
-ttk.Separator('separator',**{'orient': 'vertical'}).grid(row=0, sticky='nsw', column=5, rowspan=9)
+Label('lrows',**{'font': 'TkDefaultFont 9 bold', 'text': 'Rows'}).grid(row=4, sticky='nesw')
+Entry('EntryRows',**{'bg': '#ffffd4', 'width': 6}).grid(column=1, row=4, sticky='nesw')
+Entry('EntryCols',**{'bg': '#ffffd4', 'width': 5}).grid(column=3, row=4, sticky='nesw')
+Label('lcols',**{'font': 'TkDefaultFont 9 bold', 'text': 'Columns'}).grid(column=4, row=4, sticky='nesw')
+Button('special',**{'bd': 2, 'cursor': 'star', 'text': 'special', 'photoimage': 'guidesigner/images/insert_table_row.gif'}).grid(column=4, row=2, rowspan=2)
+Label('LableTitle',**{'bd': '3', 'fg': 'blue', 'font': 'TkDefaultFont 9 bold', 'relief': 'ridge', 'text': 'grid'}).grid(row=0, sticky='nesw')
+Spinbox('EntryRowHeight',**{'to': 1000.0, 'width': 4}).grid(column=1, row=1, sticky='nesw')
+Spinbox('EntryColWidth',**{'to': 1000.0, 'width': 4}).grid(column=3, row=1, sticky='nesw')
+Spinbox('EntryRowPad',**{'to': 1000.0, 'width': 4}).grid(column=1, row=2, sticky='nesw')
+Spinbox('EntryColPad',**{'to': 1000.0, 'width': 4}).grid(column=3, row=2, sticky='nesw')
+Spinbox('EntryRowWeight',**{'to': 1000.0, 'width': 4}).grid(column=1, row=3, sticky='nesw')
+Spinbox('EntryColWeight',**{'to': 1000.0, 'width': 4}).grid(column=3, row=3, sticky='nesw')
+Checkbutton('Individual',**{'highlightthickness': '2', 'text': 'indiv.'}).grid(column=4, row=1, sticky='ew')
+Label('ButtonShow',**{'bd': '3', 'bg': 'lightgreen', 'relief': 'raised', 'text': 'Show'}).grid(column=4, row=0, sticky='nesw')
+Button('sticky',**{'relief': 'flat', 'text': 'sticky', 'photoimage': 'guidesigner/images/sticky.gif'}).grid(column=5, row=0, sticky='w')
+ttk.Separator('separator',**{'orient': 'vertical'}).grid(column=5, row=0, rowspan=8, sticky='nsw')
+Button('grid',**{'bd': '3', 'bg': 'lightgreen', 'text': 'grid'}).grid(column=1, row=0, sticky='nesw')
+Button('grid0',**{'bd': '3', 'bg': 'lightgreen', 'text': 'grid 0'}).grid(column=2, row=0, columnspan=2, sticky='nesw')
 
 ### CODE ===================================================
 
-#Entry('uniform_row',**{'bg': '#def6b4', 'width': 0}).grid(row=7, sticky='nesw', columnspan=2)
-#Entry('uniform_col',**{'bg': '#fff4b1', 'width': 0}).grid(row=7, sticky='nesw', column=3, columnspan=2)
-
-
-
-IndividualVar =  IntVar()
-widget('Individual').config(variable = IndividualVar, onvalue = 1, offvalue = 0)
-widget('Individual').mydata=IndividualVar
-
-# -------- Receivers for message 'BASE_LAYOUT_REFRESH' ----------------------
-
-
-
-
 def main():
 
+    # ==================================
+    # Variables:
+    # ===================================
+
+    # Widgets =======================
+    
+    widget_Button_Grid0 = widget('grid0')
+    widget_Button_Grid = widget('grid')
+    widget_Button_Show = widget('ButtonShow')
+    widget_Button_Sticky = widget('sticky')
+    widget_Checkbutton_Individual = widget('Individual')
+    widget_Button_Special = widget('special')
+
+    widget_Entry_Rows = widget('EntryRows')
+    widget_Entry_Cols = widget('EntryCols')
+    widget_Spinbox_ColWidth = widget('EntryColWidth')
+    widget_Spinbox_RowHeight = widget('EntryRowHeight')
+    widget_Spinbox_ColPad = widget('EntryColPad')
+    widget_Spinbox_RowPad = widget('EntryRowPad')
+    widget_Spinbox_RowWeight = widget('EntryRowWeight')
+    widget_Spinbox_ColWeight = widget('EntryColWeight')
+    widget_Entry_UniformCol = widget('uniform_col')
+    widget_Entry_UniformRow = widget('uniform_row')
+
+    # init toggle buttons
+    widget_Button_Special.is_on = False
+    widget_Button_Show.is_on = False
+
+    # init checkbutton Individual =====
+    IndividualVar =  IntVar()
+    widget_Checkbutton_Individual.config(variable = IndividualVar, onvalue = 1, offvalue = 0)
+    widget_Checkbutton_Individual.mydata=IndividualVar
+
+    
+    # images =========================
     insert_uniform_gif = StatTkInter.PhotoImage(file = 'guidesigner/images/insert-text.gif')
     container().help_image = StatTkInter.PhotoImage(file = 'guidesigner/images/help16.gif')
+
+    # colors =======
+    orange = '#f0f080'
+    color_uni_col = '#fff0b0'
+    color_uni_row = '#e0ffb0'
+    indiv_hilibg = widget_Checkbutton_Individual['highlightbackground']
+    indiv_selcolor = widget_Checkbutton_Individual['selectcolor']
+
+    # configuration for NONAME frames
+    fill_cell = {'height': '0', 'width': '0','relief': 'solid','bd':'1','bg':'#b3d9d9','padx':0,'pady':0}
+    fill_cell2 = {'height': '0', 'width': '0','relief': 'flat','bd':'0','bg':'#b3d9d9','padx':0,'pady':0}
+
+
+    # Start initialisation
+    MIN_HEIGHT = 40
+    MIN_WIDTH = 40
+
+    start_default_row_values = (0,MIN_HEIGHT,0,0)
+    start_default_col_values = (0,MIN_WIDTH,0,0)
+
+
+    # ==================================
+    # Startvalues
+    # ===================================
+
+    # for each GuiElement the following initialisation is done during reset_grid
+    #    self.grid_conf_rows = None
+    #    self.grid_conf_cols = None
+    #    self.grid_multi_conf_cols = []
+    #    self.grid_multi_conf_rows = []
+    #    self.grid_uni_row = ''
+    #    self.grid_uni_col = ''
+
+    # when the selection changes,update_grid_table_on_enter is called
+    #    do_receive("SELECTION_CHANGED",update_grid_table_on_enter)
+    #
+    # update_grid_table_on_enter does the following
+    #   if grid_conf_rows and/or grid_conf_cols already exists, then it's fine
+    #   otherwise the function tries to get the values by definitions by tkinter application - get_gridconfig
+    #   if no success, these start values are used: start_default_row_values, start_default_col_values
+
+
+    # ====================================
+    # changing values minsize,pad, weight
+    # ====================================
+
+    # changing may be done by the
+    # - spinbox fields in the grid imput mask
+    # - spinbox fields in the toplevels
+    # - by mouse wheel on canvasses
+    # - by moving the table lines
+    # mouse wheel and table lines affect only the minsizes
+
+    # ====================================
+    # grid_uni_col and grid_uni_row
+    # ====================================
+    # if there exists a grid_uni_col and/or a grid_uni_row, then there has also to be updated:
+    # - grid_current_uniform_col and or grid_current_uniform_row
+    # if changes are made for these uniforms
+
+    # changes by mouse wheel
+
+
+    # ==================================
+    # Functions:
+    # ===================================
+
+
+        
+
+        # -------------------------------------------
+        # Functions for highlight and mouse move
+        # -------------------------------------------
+
+        #   def mouse_move(me,wi_row=widget('Row'),wi_col=widget('Col')):
+
+        #   def after_mouse_up(me):
+        #   def on_mouse_up(me):
+        #   def on_app_mouse_up(me,app_id=apprelease_id_list):
+        #   def on_mouse_down(me,event,app_id=apprelease_id_list):
+        #   def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
+        #   def grid_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
+
+        
+
+        # -------------------------------------------
+        # Functions which read minsize, pad, weight and set values if an exception occurs
+        # -------------------------------------------
+        #   def get_row_values():
+        #   def get_col_values():
+        #   def set_grid_conf_rows():
+        #   def set_grid_conf_cols():
+
+        # -------------------------------------------
+        # Functions which set minsize, pad, weight
+        # -------------------------------------------
+        #   def update_rows_data(size,pad,weight):
+        #   def update_cols_data(size,pad,weight):
+        #   update_grid_table_on_enter(set_row_height=set_row_height,set_col_width=set_col_width)
+    
+        # -------------------------------------------
+        # Functions which set also uniform
+        # -------------------------------------------
+
+        # -------------------------------
+        #   def fill_general_multirows(cont)
+        #   def configure_rows(cont)
+        #   def rowupdate_canvas_top(cont)
+        #   def rowconfigure_andcanvas_andtop(cont)
+        #   def set_row_height()
+
+        # -------------------------------
+        #   def fill_general_multicols(cont)
+        #   def configure_columns(cont)
+        #   def colupdate_canvas_top(cont)
+        #   def colconfigure_andcanvas_andtop(cont)
+        #   def set_col_width()
+
+
+    # show_help()
+    # def update_rows_data(size,pad,weight):
+    # def update_rows_data_uniform(uniform,config):
+    # def update_cols_data_uniform(uniform,config):
+    # def update_general_rows():
+    # def update_cols_data(size,pad,weight):
+    # def update_general_cols():
+    # def update_general_grid():
+    # def update_uni_row():
+    # def update_uni_col():
+    # def take_over_uniform_row(cont,uniform,config):
+    # def take_over_uniform_col(cont,uniform,config):
+    # def do_bg_title(title = widget('LableTitle'),titlebg = widget('LableTitle')["bg"]):
+    # def grid_cols_changed():
+    # def grid_rows_changed():
+    # def hide_grid():
+    # def do_grid_forget():
+    # def set_grid_conf_rows():
+    # def set_grid_conf_cols():
+    # def update_col_values():
+    # def update_row_values():
+    # def check_col_values():
+    # def check_row_values():
+    # def update_individual(cont,hili_bg = indiv_hilibg[0]):
+    # def update_individual_mark(cont):
+    # def update_canvascolor_row(me,row,bg):
+    # def update_canvascolor_col(me,col,bg):
+    # def update_col(me,column,grid_conf,bg):
+    # def take_over_uniform_row(cont,uniform,config):
+    # def update_row(me,row,grid_conf,bg):
+    # def mouse_wheel_row(me,event,row,bg):
+    # def mouse_wheel_col(me,event,column,bg):
+    # def button3_event_col(me,column):
+    # def button3_event_row(me,row):
+    # def button1_grid_help(me):
+    # def update_canvas_col_line(me):
+    # def update_canvas_row_line(me):
+    # def update_canvas_row_line_arrow(msg,me,row):
+    # def update_canvas_col_line_arrow(msg,me,col):
+    # def top_update_col(msg,me,col):
+    # def top_update_row(msg,me,row):
+    # def check_update_canvascolor_col(me,col,bg):
+    # def check_update_canvascolor_row(me,col,bg):
+    # def create_NONAMECANVAS(rows,cols,gui_grid_container=container()):
+    # def show_grid(event=None,withNONAME = True,set_col_width=set_col_width,set_row_height=set_row_height):
+    # def update_indiv_wish():
+    # def press_button_show(event=None):
+    # def update_button_show(event=None):
+    # def animate_button_show(event=None):
+    # def entry_show_grid(event=None):
+    # def update_after_pack(show_grid = show_grid):
+    # def do_grid_col_row(col,row,do_mouse_on=do_mouse_on):
+    # def mouse_do_grid_NONAME(me):
+    # def mouse_do_grid(me):
+    # def special_noname_frame():
+    # def NONAME_destroy(a):
+    # def do_grid():
+    # def do_grid0():
+    # def row_default(container):
+    # def col_default(container):
+    # def insert_col(self,col):
+    # def insert_row(self,row):
+    # def insert_table(self):
+    # def special_toggle():
+    # def update_special_button():
+
+    # def update_grid_table_on_enter(
+    #   set_row_height=set_row_height,set_col_width=set_col_width):
+
+
+
+
+    # ==================================
+    # Classes and methods
+    # ===================================
+
+    # class GridTop(Toplevel):
+    #     def __init__(self,master,x,y,row_col,grid_configure,item_text,is_row):
+    #     def update_widget_uniform(self):
+    #     def take_over_uniform(self):
+    #     def update_and_close(self):
+    #     def update_size(self,message):
+    #     def top_grid_show(self,msg,showRowCol = widget('showRowCol'),EntrySize = widget('EntrySize'),EntryPad=widget('EntryPad'),EntryWeight=widget('EntryWeight'),UniForm = widget('uniform')):
+    #     def update_values(self):
+
+    # class NonameCanvas(Canvas):
+    #    def __init__(self,*args,**kwargs):
+    #    def col_config_changed(self,col,config,update_col = update_col):
+    #    def row_config_changed(self,row,config,update_row = update_row):
+
+    # class LineFrame(Frame):
+    #    def __init__(self,master,**kwargs):
+    #    def tableline_leave(self,event=None):
+    #    def tableline_startmove_col(self,event = None):
+    #    def measure_colwidth(self):
+    #    def measure_rowheight(self):
+    #    def set_size(self):
+    #    def move(self):
+    #    def move_release(self,event = None):
+    #    def tableline_mark_end(self,event = None):
+    #    def tableline_mark_col(self,event = None):
+    #    def tableline_mark_row(self,event = None):
+    #    def bind_enter(self):
+    #    def tableline_enter_col(self,event=None):
+    #    def tableline_enter_row(self,event=None):
+    #    def tableline_enter_insert_col(self,event=None):
+    #    def tableline_enter_insert_row(self,event=None):
+    #    def insert(self,event = None):
+    #    def delete(self,event = None):
+
+    #widget('help_button')['command'] = show_help
+
+
+    # -------------------------------------------
+    # Functions for highlight and mouse move
+    # -------------------------------------------
+
+
+    # data for mouse move are initialized also in:
+
+    # - BaseLayout.py
+
+    #  and in introduction:
+
+    # - BaseLayoutGrid.py
+    # - BaseLayoutPlace.py
+    # - BaseLayoutPack.py
+    # - BaseLayoutMenus.py
+
+
+    # -------------------------------------------
+    # message MOUSE_SELECT_ON
+    # -------------------------------------------
+
+    # is sent by:
+    # - TopMenu.py
+    # - introduction/mousemenu.py
+
+
+    # is received by:
+    # - BaseLayout.py
+
+    # -------------------------------------------
+    # message UPDATE_MOUSE_SELECT_ON
+    # -------------------------------------------
+
+    # is sent by:
+    # - PackLayout.py
+    # - PageAddFrame.py
+
+    # is received by:
+    # - BaseLayout.py
+
+    # -------------------------------------------
+    # message UPDATE_CANVAS_MOUSE_SELECT_ON
+    # -------------------------------------------
+
+    # is sent by:
+    # - CanvasPaint.py
+    
+    # is received by:
+    # - BaseLayout.py
+    
+
+    # -------------------------------------------
+    # BaseLayout.py sends the following messages
+    # -------------------------------------------
+    # - GRID_MOUSE_ON
+    # - PLACE_MOUSE_ON
+
+
+
+    # -------------------------------------------
+    # the following list is used:
+    # -------------------------------------------
+
+    # wi.mydata = [0,0,0,0,0,0,False,False] in BaseLayout.py
+    # me.mydata=[0,0,'mouse',0,0,0,True,False] # PlaceLayout.py
+    # me.mydata=[0,0,'mouse',0,0,0,True,False,0,0] # GridLayout.py
+
+
+    # -------------------------------------------
+    # these lists have to be replaced by an object of a class
+    # -------------------------------------------
+    # so what's the purpose?
+
+    # in BaseLayout.py
+
+    #   mydata[0] - 'hili_on' or None
+    #   mydata[1] - backup of the relief
+    #   mydata[2] - backup of the highlightthickness
+    #   mydata[3] - backup of the highlightbackground
+
+
+    # in PlaceLayout.py
+
+    # mydata[0]: event.x
+    # mydata[1]: event.y
+    # mydata[2]: 'mouse'
+    # mydata[3]: xpos - the current x position for place()
+    # mydata[4]: xpos - the current y position for place()
+    # mydata[5]: a counter for incrementing an after reaching the value 100 sending POSITION_CHANGED and LAYOUT_VALUES_REFRESH
+    # mydata[6]: a flag for running or stopping the mouse move
+    # mydata[7]: a flag that another widget was selected for sending different messages when the move ends
+    
+    # in GridLayout.py additionally
+
+    # mydata[8]: width when moving via place layout
+    # mydata[9]: height when moving via place layout
+
+    # apprelease_id_list for unbinding the move from the root
+
+
+
+    # and there is also a UPDATE_CANVAS_MOUSE_SELECT_ON
+
+
+
+
+    # -------------------------------------------
+    # so let's start
+    # -------------------------------------------
+
+
+
+    # -------------- Mouse move button commands and mouse events ----------------------------------
+
+
+    class DynTk_HighLight:
+
+        def __init__(self,me):
+            self.me = me
+            dyntk_highlight(me)
+
+            self.selection_changed = False
+            if this() != self.me:
+                self.selection_changed = True
+                setWidgetSelection(self.me)
+                send('SHOW_LAYOUT',(None,False))
+                send('SHOW_CONFIG',(None,False))
+                send('SELECTION_CHANGED')
+
+        def restore(self):
+            dyntk_unhighlight(self.me)
+            if self.selection_changed:
+                send('SHOW_LAYOUT',(None,True))
+                send('SHOW_CONFIG',(None,True))
+                send('SELECTION_CHANGED')
+            else:
+                send('POSITION_CHANGED',self.me)
+                send('LAYOUT_VALUES_REFRESH',self.me)
+            
+    class DynTk_MouseMove:
+
+        def __init__(self,me):
+            self.me = me
+            self.diffx = self.me.winfo_pointerx() - self.me.winfo_rootx()
+            self.diffy = self.me.winfo_pointery() - self.me.winfo_rooty()
+            self.width = me.winfo_width()
+            self.height = me.winfo_height()
+
+            self.left = me.master.winfo_rootx()
+            self.top = me.master.winfo_rooty()
+            
+            self.right = self.left + me.master.winfo_width() -1
+            self.bottom = self.top + me.master.winfo_height() -1
+            self.check_steps = 0
+            self.last_x,self.last_y = me.master.winfo_pointerxy()
+
+            self.dyntk_start_frame = Frame((self.me.master,NONAME_MOVE))
+            self.dyntk_start_frame.yxplace(0,0)
+                                     
+            self.selection_changed = False
+            self.step = 0
+            self.is_moving=False
+            self.started = False
+
+        def end(self):
+            selection_before = Selection()
+            self.dyntk_start_frame.destroy()
+            setSelection(selection_before)
+
+        def start_move(self,event=None):
+            if self.me.master.grid_conf_cols and self.me.master.grid_conf_cols[0] and self.me.master.grid_conf_rows and self.me.master.grid_conf_rows[0]:
+                self.started = True
+                if not self.is_moving:
+                    self.me.unbind('<B1-Motion>')
+                    dyntk_unhighlight(self.me)
+                    for frame in self.me.master.dyntk_table_frames:
+                        frame.unbind_enter()
+
+                    self.me.lift()
+                    send('BASEMENTLEVEL_CHANGED')
+                    if this() != self.me:
+                        self.selection_changed = True
+                self.is_moving = True
+                self.me.Layout = PLACELAYOUT
+                self.me.after(10,self.move)
+
+        def stop_move(self):
+
+            if self.is_moving:
+                self.is_moving = False
+
+            (col,row) = self.me.master.grid_location(self.me.winfo_rootx()-self.me.master.winfo_rootx(),self.me.winfo_rooty()-self.me.master.winfo_rooty())
+            if col < 0: col = 0
+            if row < 0: row = 0
+            if col >= self.me.master.grid_conf_cols[0]:
+                col = self.me.master.grid_conf_cols[0] -1
+            if row >= self.me.master.grid_conf_rows[0]:
+                row = self.me.master.grid_conf_rows[0] -1
+
+            self.me.rcgrid(row,col)
+            self.me.dyntk_lift()
+            for frame in self.me.master.dyntk_table_frames:
+                frame.bind_enter()
+
+
+        def move(self):
+            if self.is_moving and widget_exists(self.me) and self.me.Layout == PLACELAYOUT:
+
+                (col,row) = (self.me.master.grid_location(self.me.winfo_rootx()-self.me.master.winfo_rootx(),self.me.winfo_rooty()-self.me.master.winfo_rooty()))
+                if col < 0 or row < 0:
+                    highlight_mouse_up(self.me)
+                    return
+
+                # mouse outside of container doesn't react on mouse up
+                if self.me.master.winfo_pointerx() >= self.me.master.winfo_rootx()+self.me.master.winfo_width() or self.me.master.winfo_pointery() >= self.me.master.winfo_rooty()+self.me.master.winfo_height():
+                    highlight_mouse_up(self.me)
+                    return
+
+                xpos = self.me.winfo_pointerx() - self.dyntk_start_frame.winfo_rootx() - self.diffx
+                ypos = self.me.winfo_pointery() - self.dyntk_start_frame.winfo_rooty() - self.diffy
+
+                self.me.yxplace(ypos,xpos,width=self.width,height=self.height)
+                self.me.after(10,self.move)
+
+    # we bind events to the widget - better not additional first, so nothing may happen with additional unexpected messages
+
+    def grid_mouse_on(me):
+        me.do_event('<Button-1>',highlight_widget,wishWidget=True)
+
+    def highlight_widget(me):
+        attr = getattr(me, 'dyntk_highlight', None)
+        if attr:
+            me.dyntk_highlight.restore()
+            
+        me.dyntk_highlight = DynTk_HighLight(me)
+        me.dyntk_mousemove = DynTk_MouseMove(me)
+        me.do_event('<B1-Motion>',me.dyntk_mousemove.start_move)
+        me.do_event('<ButtonRelease-1>',highlight_mouse_up,wishWidget=True)
+
+    def highlight_mouse_up(me):
+        if  me.dyntk_highlight:
+            me.dyntk_mousemove.is_moving = False
+            me.unbind('<B1-Motion>')
+            me.unbind('<ButtonRelease-1>')
+            if me.dyntk_mousemove.started:
+                me.dyntk_mousemove.stop_move()
+            me.dyntk_mousemove.end()
+            me.dyntk_highlight.restore() # last, because of grid now instead of place
+            me.dyntk_highlight = None
+            me.dyntk_mousemove = None
+
+
+    do_receive('GRID_MOUSE_ON',grid_mouse_on,wishMessage=True)
+
+    widget_Button_Sticky.do_command(lambda me = widget_Button_Sticky, root = widget('/','GuiFrame'): send('SELECT_STICKY',(
+        me.winfo_rootx() - root.winfo_rootx()+me.winfo_width(),
+        me.winfo_rooty() - root.winfo_rooty(),
+        this()
+        )))
 
     def show_help():
         messagebox.showinfo("Move, Delete and Insert Lines and Columns","You may move the lines by mouse. After mouse button click, when the line becomes blue, you may insert and delete rows or columns by pressing the [Insert] or [Delete] key.",parent=container())
@@ -56,148 +569,234 @@ def main():
         except: pass
         '''
 
-    #widget('help_button')['command'] = show_help
+    def update_rows_data(size,pad,weight):
+        widget_Spinbox_RowHeight.delete(0,'end')
+        widget_Spinbox_RowHeight.insert(0,size)
+        widget_Spinbox_RowPad.delete(0,'end')
+        widget_Spinbox_RowPad.insert(0,pad)
+        widget_Spinbox_RowWeight.delete(0,'end')
+        widget_Spinbox_RowWeight.insert(0,weight)
 
-    MIN_HEIGHT = 40
-    MIN_WIDTH = 40
-    orange = '#f0f080'
-    color_uni_col = '#fff0b0'
-    color_uni_row = '#e0ffb0'
+    def update_rows_data_uniform(uniform,config):
+        widget_Entry_UniformRow.delete(0,'end')
+        widget_Entry_UniformRow.insert(0,uniform)
+        update_rows_data(*config)
 
-    indiv_hilibg = [widget('Individual')['highlightbackground']]
-    
-    fill_cell = {'height': '0', 'width': '0','relief': 'solid','bd':'1','bg':'#b3d9d9','padx':0,'pady':0}
-    fill_cell2 = {'height': '0', 'width': '0','relief': 'flat','bd':'0','bg':'#b3d9d9','padx':0,'pady':0}
-
-
-
-    def update_rows_data(size,pad,weight,Width=widget('EntryRowHeight'),ColPad=widget('EntryRowPad'),ColWeight=widget('EntryRowWeight')):
-        Width.delete(0,'end')
-        Width.insert(0,size)
-        ColPad.delete(0,'end')
-        ColPad.insert(0,pad)
-        ColWeight.delete(0,'end')
-        ColWeight.insert(0,weight)
+    def update_cols_data_uniform(uniform,config):
+        widget_Entry_UniformCol.delete(0,'end')
+        widget_Entry_UniformCol.insert(0,uniform)
+        update_cols_data(*config)
 
     def update_general_rows():
         update_rows_data(container().grid_conf_rows[1],container().grid_conf_rows[2],container().grid_conf_rows[3])
 
-    def update_cols_data(size,pad,weight,Width=widget('EntryColWidth'),ColPad=widget('EntryColPad'),ColWeight=widget('EntryColWeight')):
-        Width.delete(0,'end')
-        Width.insert(0,size)
-        ColPad.delete(0,'end')
-        ColPad.insert(0,pad)
-        ColWeight.delete(0,'end')
-        ColWeight.insert(0,weight)
+    def update_cols_data(size,pad,weight):
+        widget_Spinbox_ColWidth.delete(0,'end')
+        widget_Spinbox_ColWidth.insert(0,size)
+        widget_Spinbox_ColPad.delete(0,'end')
+        widget_Spinbox_ColPad.insert(0,pad)
+        widget_Spinbox_ColWeight.delete(0,'end')
+        widget_Spinbox_ColWeight.insert(0,weight)
 
     def update_general_cols():
         update_cols_data(container().grid_conf_cols[1],container().grid_conf_cols[2],container().grid_conf_cols[3])
 
-    def update_general_grid(
-Rows=widget('EntryRows'),
-Cols=widget('EntryCols'),
-#set_row_height=set_row_height,
-#set_col_width=set_col_width,
-#individual = widget('Individual'),
-):
+    def update_general_grid():
 
-        Rows.delete(0,'end')
-        Rows.insert(0,container().grid_conf_rows[0])
+        widget_Entry_Rows.delete(0,'end')
+        widget_Entry_Rows.insert(0,container().grid_conf_rows[0])
         update_general_rows()
         
-        Cols.delete(0,'end')
-        Cols.insert(0,container().grid_conf_cols[0])
+        widget_Entry_Cols.delete(0,'end')
+        widget_Entry_Cols.insert(0,container().grid_conf_cols[0])
         update_general_cols()
 
 
+    def get_row_values():
+
+        default = row_default(container())
+        try:
+            minsize = int(widget_Spinbox_RowHeight.get())
+        except ValueError:
+            minsize = default['minsize']
+
+        try:
+            padvalue = int(widget_Spinbox_RowPad.get())
+        except ValueError:
+            padvalue = default['pad']
+
+        try:
+            weightvalue = int(widget_Spinbox_RowWeight.get())
+        except ValueError:
+            weightvalue = default['weight']
+
+        update_rows_data(minsize,padvalue,weightvalue)
+
+        return minsize, padvalue, weightvalue
+    
+
+
+    def get_col_values():
+
+        default = col_default(container())
+        try:
+            minsize = int(widget_Spinbox_ColWidth.get())
+        except ValueError:
+            minsize = default['minsize']
+
+        try:
+            padvalue = int(widget_Spinbox_ColPad.get())
+        except ValueError:
+            padvalue = default['pad']
+
+        try:
+            weightvalue = int(widget_Spinbox_ColWeight.get())
+        except ValueError:
+            weightvalue = default['weight']
+
+        update_cols_data(minsize,padvalue,weightvalue)
+
+        return minsize, padvalue, weightvalue
+
 
     # update input fields
-    def update_uni_row(me=widget('uniform_row')):
-        uniform = me.get().strip()
+    def update_uni_row_uniform(uniform):
         if uniform:
+            found = False
             if container().grid_multi_conf_rows:
                 for conf in container().grid_multi_conf_rows:
                     if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
-                        # look for first uniform entry if it exists and update the value of the grid layout coulumn input
-                        me.grid_current_uniform = (conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
-                        update_rows_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
+                        # look for first uniform entry if it exists and update the value of the grid layout row input
+                        container().grid_current_uniform_row = [conf[1]['minsize'],conf[1]['pad'],conf[1]['weight']]
+                        update_rows_data(*container().grid_current_uniform_row)
+                        found = True
                         break
+
+            if not found and container().grid_multi_conf_cols:
+                for conf in container().grid_multi_conf_cols:
+                    if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
+                        container().grid_current_uniform_row = [conf[1]['minsize'],conf[1]['pad'],conf[1]['weight']]
+                        update_rows_data(*container().grid_current_uniform_row)
+                        found is True
+                        break
+
+            if not found and container().grid_uni_col == uniform:
+                container().grid_current_uniform_row = container().grid_current_uniform_col
+                update_rows_data(*container().grid_current_uniform_row)
+                found = True
+
+            if not found:
+                minsize,pad,weight = get_row_values()
+                container().grid_current_uniform_row = [minsize,pad,weight]
+
         else:
             # if the uniform entry was emptied, take over general row entries
-            if container().grid_conf_rows and container().grid_conf_rows[0]:
+            #if container().grid_conf_rows and container().grid_conf_rows[0]:
+            if container().grid_conf_rows:
                 update_general_rows()
 
+
+
+
+    def update_uni_col_uniform(uniform):
+        if uniform:
+            found = False
+            if container().grid_multi_conf_cols:
+                for conf in container().grid_multi_conf_cols:
+                    if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
+                        container().grid_current_uniform_col = [conf[1]['minsize'],conf[1]['pad'],conf[1]['weight']]
+                        update_cols_data(*container().grid_current_uniform_col)
+                        found is True
+                        break
+                    
+            if not found and container().grid_multi_conf_rows:
+                for conf in container().grid_multi_conf_rows:
+                    if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
+                        # look for first uniform entry if it exists and update the value of the grid layout column input
+                        container().grid_current_uniform_col = [conf[1]['minsize'],conf[1]['pad'],conf[1]['weight']]
+                        update_cols_data(*container().grid_current_uniform_col)
+                        found = True
+                        break
+
+            if not found and container().grid_uni_row == uniform:
+                container().grid_current_uniform_col = container().grid_current_uniform_row
+                update_cols_data(*container().grid_current_uniform_col)
+                found = True
+                
+            if not found:
+                minsize,pad,weight = get_col_values()
+                container().grid_current_uniform_col = [minsize,pad,weight]
+        else:
+            #if container().grid_conf_cols and container().grid_conf_cols[0]:
+            if container().grid_conf_cols:
+                update_general_cols()
+
+    # update input fields
+    def update_uni_col():
+        uniform = widget_Entry_UniformCol.get().strip()
+        update_uni_col_uniform(uniform)
+        container().grid_uni_col = uniform
+        send('CANVAS_UPDATE_ROW') # color update für canvasses for container()
+        send('CANVAS_UPDATE_COL') # color update für canvasses for container()
+
+    # update input fields
+    def update_uni_row():
+        uniform = widget_Entry_UniformRow.get().strip()
+        update_uni_row_uniform(uniform)
         container().grid_uni_row = uniform 
         send('CANVAS_UPDATE_ROW') # update für canvasses
         send('CANVAS_UPDATE_COL') # update für canvasses
 
-
-    def take_over_uniform_row(uniform,me=widget('uniform_row')):
-        me.delete(0,'end')
-        me.insert(0,uniform)
-        update_uni_row()
-
-    do_receive('TAKE_OVER_UNIFORM_ROW',take_over_uniform_row,wishMessage = True)
-
-
-    # update input fields
-    def update_uni_col(me=widget('uniform_col')):
-        uniform = me.get().strip()
-        if uniform:
-            if container().grid_multi_conf_cols:
-                for conf in container().grid_multi_conf_cols:
-                    if conf[0] and 'uniform' in conf[1] and conf[1]['uniform'] and conf[1]['uniform'] == uniform:
-                        me.grid_current_uniform = (conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
-                        update_cols_data(conf[1]['minsize'],conf[1]['pad'],conf[1]['weight'])
-                        found is True
-                        break
-        else:
-            if container().grid_conf_cols and container().grid_conf_cols[0]:
-                update_general_cols()
-
+    def take_over_uniform_col(uniform):
         container().grid_uni_col = uniform
-        send('CANVAS_UPDATE_ROW') # color update für canvasses
-        send('CANVAS_UPDATE_COL') # color update für canvasses
+        widget_Entry_UniformCol.delete(0,'end')
+        widget_Entry_UniformCol.insert(0,uniform)
+        send('CANVAS_UPDATE_ROW') # color update für canvasses for container()
+        send('CANVAS_UPDATE_COL') # color update für canvasses for container()
 
 
-    def take_over_uniform_col(uniform,me=widget('uniform_col')):
-        me.delete(0,'end')
-        me.insert(0,uniform)
-        update_uni_col()
+    def take_over_uniform_row(uniform):
+        container().grid_uni_row = uniform
+        widget_Entry_UniformRow.delete(0,'end')
+        widget_Entry_UniformRow.insert(0,uniform)
+        send('CANVAS_UPDATE_ROW') # color update für canvasses for container()
+        send('CANVAS_UPDATE_COL') # color update für canvasses for container()
+            
 
-    do_receive('TAKE_OVER_UNIFORM_COL',take_over_uniform_col,wishMessage = True)
-
-
-    widget('uniform_col').do_event('<Key>',container().after,[1,update_uni_col])
-    widget('uniform_row').do_event('<Key>',container().after,[1,update_uni_row])
-
-    #Button('ButtonForget',**{'text': 'Forget'}).grid(**{'column': '1', 'sticky': 'nesw', 'row': '5'})
+    widget_Entry_UniformCol.do_event('<Key>',container().after,[1,update_uni_col])
+    widget_Entry_UniformRow.do_event('<Key>',container().after,[1,update_uni_row])
 
     # -------- Receivers for message 'BASE_LAYOUT_REFRESH' ----------------------
 
     # set the bg color of the GridTitle label to yellow, if the current widget has a GRIDLAYOUT, otherwise to original color
 
     def do_bg_title(title = widget('LableTitle'),titlebg = widget('LableTitle')["bg"]):
-        if this().Layout == GRIDLAYOUT: title['bg'] = "yellow"
-        else: title['bg'] = titlebg
+        if this().Layout == GRIDLAYOUT:
+            title['bg'] = "yellow"
+            if widget_exists(widget_Button_Sticky):
+                widget_Button_Sticky.grid()
+        else:
+            title['bg'] = titlebg
+            if widget_exists(widget_Button_Sticky):
+                widget_Button_Sticky.grid_remove()
 
     do_receive('BASE_LAYOUT_REFRESH',do_bg_title)
 
 
-    def grid_cols_changed(EntryCols = widget('EntryCols')):
-        EntryCols['state'] = 'normal'
-        EntryCols.delete(0,'end')
-        EntryCols.insert(0,str(container().grid_conf_cols[0]))
-        EntryCols['state'] = 'disabled'
+    def grid_cols_changed():
+        widget_Entry_Cols['state'] = 'normal'
+        widget_Entry_Cols.delete(0,'end')
+        widget_Entry_Cols.insert(0,str(container().grid_conf_cols[0]))
+        widget_Entry_Cols['state'] = 'disabled'
 
     do_receive('GRID_COLS_CHANGED',grid_cols_changed)
 
 
-    def grid_rows_changed(EntryRows = widget('EntryRows')):
-        EntryRows['state'] = 'normal'
-        EntryRows.delete(0,'end')
-        EntryRows.insert(0,str(container().grid_conf_rows[0]))
-        EntryRows['state'] = 'disabled'
+    def grid_rows_changed():
+        widget_Entry_Rows['state'] = 'normal'
+        widget_Entry_Rows.delete(0,'end')
+        widget_Entry_Rows.insert(0,str(container().grid_conf_rows[0]))
+        widget_Entry_Rows['state'] = 'disabled'
 
     do_receive('GRID_ROWS_CHANGED',grid_rows_changed)
 
@@ -228,177 +827,174 @@ Cols=widget('EntryCols'),
 
     #widget('ButtonForget').do_command(do_grid_forget)
 
-    def update_rows(rows_widget=widget('EntryRows'),height_widget=widget('EntryRowHeight'),pad_widget = widget('EntryRowPad'),weight_widget=widget('EntryRowWeight'),uniform_row = widget('uniform_row')):
+
+
+
+    def set_grid_conf_rows():
 
         is_uniform = False
 
         try:
-            rows = int(rows_widget.get())
+            rows = int(widget_Entry_Rows.get())
         except ValueError: 
-            rows_widget.delete(0,'end')
-            rows_widget.insert(0,10)
-            rows = 10
+            rows = container().grid_conf_rows[0]
+            widget_Entry_Rows.delete(0,'end')
+            widget_Entry_Rows.insert(0,rows)
 
-        try:
-            row_height = int(height_widget.get())
-            padvalue = int(pad_widget.get())
-            weightvalue = int(weight_widget.get())
-
-            if not container().grid_conf_rows or not container().grid_conf_rows[0] or not container().grid_uni_row:
-                container().grid_conf_rows = (rows,row_height,padvalue,weightvalue)
-            else:
-                container().grid_conf_rows = tuple([rows] + list(container().grid_conf_rows[1:]))
-                is_uniform = True
-
-            return is_uniform, row_height, padvalue, weightvalue
-
-        except ValueError:
-            return False,0,0,0
+        row_height, padvalue, weightvalue = get_row_values()
 
 
-    def set_row_height():
+        #if not container().grid_conf_rows or not container().grid_conf_rows[0] or not container().grid_uni_row:
+        if not container().grid_uni_row:
+            container().grid_conf_rows = (rows,row_height,padvalue,weightvalue)
+        else:
+            container().grid_conf_rows = tuple([rows] + list(container().grid_conf_rows[1:]))
+            is_uniform = True
 
-        rows = container().grid_conf_rows[0]
-        to_insert =  {'minsize':container().grid_conf_rows[1],'pad':container().grid_conf_rows[2],'weight':container().grid_conf_rows[3],'uniform' : ''}
-        
-        for row in range(rows):
-            if container().grid_multi_conf_rows[row][0] == False: container().grid_multi_conf_rows[row][1] = dict(to_insert)
- 
-        for row in range(rows):
-            container().grid_rowconfigure(row,**(container().grid_multi_conf_rows[row][1]))
-            config = container().grid_multi_conf_rows[row][1]
-            send('ROW_WEIGHT',(row,config['weight']))
-            send('TOP_UPDATE_ROW',(row,config))
+        return is_uniform, row_height, padvalue, weightvalue
 
 
-
-    def update_cols(
-        cols_widget=widget('EntryCols'),
-        width_widget=widget('EntryColWidth'),
-        pad_widget = widget('EntryColPad'),
-        weight_widget=widget('EntryColWeight'),
-        ):
+    def set_grid_conf_cols():
 
         is_uniform = False
         
         try:
-            cols = int(cols_widget.get())
+            cols = int(widget_Entry_Cols.get())
         except ValueError: 
-            cols_widget.delete(0,'end')
-            cols_widget.insert(0,10)
-            cols = 6
+            cols = container().grid_conf_cols[0]
+            widget_Entry_Cols.delete(0,'end')
+            widget_Entry_Cols.insert(0,cols)
 
-        try:
-            col_width = int(width_widget.get())
-            padvalue = int(pad_widget.get())
-            weightvalue = int(weight_widget.get())
+        col_width, padvalue, weightvalue = get_col_values()
+
+        #if not container().grid_conf_cols or not container().grid_conf_cols[0] or not container().grid_uni_col:
+        if not container().grid_uni_col:
+            container().grid_conf_cols = (cols,col_width,padvalue,weightvalue)
+        else:
+            container().grid_conf_cols = tuple([cols] + list(container().grid_conf_cols[1:]))
+            is_uniform = True
+
+        return is_uniform, col_width, padvalue, weightvalue
 
 
-            if not container().grid_conf_cols or not container().grid_conf_cols[0] or not container().grid_uni_col:
-                container().grid_conf_cols = (cols,col_width,padvalue,weightvalue)
-            else:
-                container().grid_conf_cols = tuple([cols] + list(container().grid_conf_cols[1:]))
-                is_uniform = True
+    # ===== for new rows or columns ===========================
 
-            return is_uniform, col_width, padvalue, weightvalue
 
-        except ValueError:
-            return False, 0,0,0
+    # === columns ========================================
+    def fill_general_multicols(cont):
+        cols = cont.grid_conf_cols[0]
+        to_insert =  {'minsize':cont.grid_conf_cols[1],'pad':cont.grid_conf_cols[2],'weight':cont.grid_conf_cols[3],'uniform' : ''}
+        for col in range(cols):
+            if cont.grid_multi_conf_cols[col][0] == False: cont.grid_multi_conf_cols[col][1] = dict(to_insert)
 
+    def configure_columns(cont):
+        cols = cont.grid_conf_cols[0]
+        for col in range(cols):
+            cont.grid_columnconfigure(col,**(cont.grid_multi_conf_cols[col][1]))
+
+    def colupdate_canvas_top(cont):
+        cols = cont.grid_conf_cols[0]
+        for col in range(cols):
+            config = cont.grid_multi_conf_cols[col][1]
+            send('COL_WEIGHT',(col,config['weight'],cont))
+            send('TOP_UPDATE_COL',(col,config,cont))
+
+    def colconfigure_andcanvas_andtop(cont):
+        configure_columns(cont)
+        colupdate_canvas_top(cont)
 
     def set_col_width():
-
-        cols = container().grid_conf_cols[0]
-        to_insert =  {'minsize':container().grid_conf_cols[1],'pad':container().grid_conf_cols[2],'weight':container().grid_conf_cols[3],'uniform' : ''}
-        
-        for col in range(cols):
-            if container().grid_multi_conf_cols[col][0] == False: container().grid_multi_conf_cols[col][1] = dict(to_insert)
- 
-        for col in range(cols):
-            container().grid_columnconfigure(col,**(container().grid_multi_conf_cols[col][1]))
-            config = container().grid_multi_conf_cols[col][1]
-            send('COL_WEIGHT',(col,config['weight']))
-            send('TOP_UPDATE_COL',(col,config))
+        fill_general_multicols(container())
+        colconfigure_andcanvas_andtop(container())
 
 
+    # === rows ========================================
 
-    def update_col_values_uniform(size,pad,weight,uniform):
-        cols = container().grid_conf_cols[0]
-        for col in range(cols):
-            if container().grid_multi_conf_cols[col][0]:
-                conf = container().grid_multi_conf_cols[col][1]
-                if 'uniform' in conf and conf['uniform'] and conf['uniform'] == uniform:
-                    conf.update({ 'minsize' : size, 'pad' : pad, 'weight':weight})
-        set_col_width()
-
-    def update_row_values_uniform(size,pad,weight,uniform):
-        rows = container().grid_conf_rows[0]
+    def fill_general_multirows(cont):
+        rows = cont.grid_conf_rows[0]
+        to_insert =  {'minsize':cont.grid_conf_rows[1],'pad':cont.grid_conf_rows[2],'weight':cont.grid_conf_rows[3],'uniform' : ''}
         for row in range(rows):
-            if container().grid_multi_conf_rows[row][0]:
-                conf = container().grid_multi_conf_rows[row][1]
-                if 'uniform' in conf and conf['uniform'] and conf['uniform'] == uniform:
-                    conf.update({ 'minsize' : size, 'pad' : pad, 'weight':weight})
-        set_row_height()
+            if cont.grid_multi_conf_rows[row][0] == False: cont.grid_multi_conf_rows[row][1] = dict(to_insert)
 
+    def configure_rows(cont):
+        rows = cont.grid_conf_rows[0]
+        for row in range(rows):
+            cont.grid_rowconfigure(row,**(cont.grid_multi_conf_rows[row][1]))
+
+    def rowupdate_canvas_top(cont):
+        rows = cont.grid_conf_rows[0]
+        for row in range(rows):
+            config = cont.grid_multi_conf_rows[row][1]
+            send('ROW_WEIGHT',(row,config['weight'],cont))
+            send('TOP_UPDATE_ROW',(row,config,cont))
+
+    def rowconfigure_andcanvas_andtop(cont):
+        configure_rows(cont)
+        rowupdate_canvas_top(cont)
+
+    def set_row_height():
+        fill_general_multirows(container())
+        rowconfigure_andcanvas_andtop(container())
+    # =========================================================
 
     def update_col_values():
-        is_uniform, size, pad, weight = update_cols()
+        is_uniform, size, pad, weight = set_grid_conf_cols()
         if is_uniform:
-            update_col_values_uniform(size,pad,weight,container().grid_uni_col)
-            update_row_values_uniform(size,pad,weight,container().grid_uni_col)
-       
+            grid_conf = { 'minsize' : size, 'pad' : pad, 'weight' : weight, 'uniform' : container().grid_uni_col}
+            update_all_uniforms(container(),grid_conf)
         else:
             set_col_width()
 
     def update_row_values():
-        is_uniform, size, pad, weight = update_rows()
+        is_uniform, size, pad, weight = set_grid_conf_rows()
         if is_uniform:
-            update_row_values_uniform(size,pad,weight,container().grid_uni_row)
-            update_col_values_uniform(size,pad,weight,container().grid_uni_row)
+            grid_conf = { 'minsize' : size, 'pad' : pad, 'weight' : weight, 'uniform' : container().grid_uni_row}
+            update_all_uniforms(container(),grid_conf)
         else:
             set_row_height()
 
-    def check_col_values(cols_widget=widget('EntryCols')):
+    def check_col_values():
         try:
-            cols = int(cols_widget.get())
+            cols = int(widget_Entry_Cols.get())
         except ValueError: 
-            cols_widget.delete(0,'end')
-            cols_widget.insert(0,10)
-            cols = 10
+            cols = container.grid_conf_cols[0]
+            widget_Entry_Cols.delete(0,'end')
+            widget_Entry_Cols.insert(0,cols)
 
-        if container().grid_conf_cols and container().grid_conf_cols[0] == cols:
+        #if container().grid_conf_cols[0] and container().grid_conf_cols[0] == cols:
+        if container().grid_conf_cols[0] == cols:
             update_col_values()
-        else:
+        else:  # we let this, because we first have to know, what happens, when reset cols to 0
             show_grid()
 
-
-    def check_row_values(rows_widget=widget('EntryRows')):
+    def check_row_values():
         try:
-            rows = int(rows_widget.get())
+            rows = int(widget_Entry_Rows.get())
         except ValueError: 
-            rows_widget.delete(0,'end')
-            rows_widget.insert(0,10)
-            rows = 10
+            rows = container.grid_conf_rows[0]
+            widget_Entry_Rows.delete(0,'end')
+            widget_Entry_Rows.insert(0,rows)
 
-        if container().grid_conf_rows and container().grid_conf_rows[0] == rows:
+        #if container().grid_conf_rows[0] and container().grid_conf_rows[0] == rows:
+        if container().grid_conf_rows[0] == rows:
             update_row_values()
-        else:
+        else: # we let this, because we first have to know, what happens, when reset rows to 0
             show_grid()
 
 
-    widget('EntryRowHeight').do_command(check_row_values)
-    widget('EntryRowHeight').do_event('<Return>',check_row_values)
-    widget('EntryRowWeight').do_command(check_row_values)
-    widget('EntryRowWeight').do_event('<Return>',check_row_values)
-    widget('EntryRowPad').do_command(check_row_values)
-    widget('EntryRowPad').do_event('<Return>',check_row_values)
+    widget_Spinbox_RowHeight.do_command(check_row_values)
+    widget_Spinbox_RowHeight.do_event('<Return>',check_row_values)
+    widget_Spinbox_RowWeight.do_command(check_row_values)
+    widget_Spinbox_RowWeight.do_event('<Return>',check_row_values)
+    widget_Spinbox_RowPad.do_command(check_row_values)
+    widget_Spinbox_RowPad.do_event('<Return>',check_row_values)
 
-    widget('EntryColWidth').do_command(check_col_values)
-    widget('EntryColWidth').do_event('<Return>',check_col_values)
-    widget('EntryColPad').do_command(check_col_values)
-    widget('EntryColPad').do_event('<Return>',check_col_values)
-    widget('EntryColWeight').do_command(check_col_values)
-    widget('EntryColWeight').do_event('<Return>',check_col_values)
+    widget_Spinbox_ColWidth.do_command(check_col_values)
+    widget_Spinbox_ColWidth.do_event('<Return>',check_col_values)
+    widget_Spinbox_ColPad.do_command(check_col_values)
+    widget_Spinbox_ColPad.do_event('<Return>',check_col_values)
+    widget_Spinbox_ColWeight.do_command(check_col_values)
+    widget_Spinbox_ColWeight.do_event('<Return>',check_col_values)
 
 
     class GridTop(Toplevel):
@@ -465,7 +1061,7 @@ Cols=widget('EntryCols'),
             # Toplevels are close, if a grid is done, this is ok, because the toplevel is disturbing
             do_receive('DESTROY_INDIVIDUAL_GRID_TOPLEVEL',self.destroy)
             do_receive('UPDATE_INSERT_UNIFORM',self.update_widget_uniform)
-
+            do_receive('TOP_UPDATE_UNIFORM',self.top_update_uniform,wishMessage = True)
 
             self.EntrySize = widget('EntrySize')
             self.EntryPad = widget('EntryPad')
@@ -476,6 +1072,16 @@ Cols=widget('EntryCols'),
             setSelection(selection_before)
             self.update_widget_uniform()
 
+
+        def top_update_uniform(self,msg):
+            if msg[0] == self.mycanvas.master:
+                config = self.grid_configure(self.row_col)
+                if config['uniform'] == msg[1]:
+                    for entry in ((self.EntrySize,config['minsize']),(self.EntryPad,config['pad']),(self.EntryWeight,config['weight'])):
+                        entry[0].delete(0,'end')
+                        entry[0].insert(0,entry[1])
+
+
         def update_widget_uniform(self):
             if self.mycanvas.master == container():
                 self.InsertUniform.grid()
@@ -485,9 +1091,10 @@ Cols=widget('EntryCols'),
         def take_over_uniform(self):
             uniform = self.EntryUniform.get().strip()
             if self.is_row:
-                send('TAKE_OVER_UNIFORM_ROW',uniform)
+                take_over_uniform_row(uniform)
             else:
-                send('TAKE_OVER_UNIFORM_COL',uniform)
+                take_over_uniform_col(uniform)
+            self.update_values()
 
         def update_and_close(self):
             self.update_values()
@@ -501,23 +1108,20 @@ Cols=widget('EntryCols'),
         def top_grid_show(self,msg,showRowCol = widget('showRowCol'),EntrySize = widget('EntrySize'),EntryPad=widget('EntryPad'),EntryWeight=widget('EntryWeight'),UniForm = widget('uniform')):
             if msg[0] != self.mycanvas: return
 
-            #row_col = msg[1] # not needed, because this will not be changed. When rows or columns are deleted or inserted the canvas and the toplevel will be destroyed
             config = msg[2]
 
             uniform = config['uniform']
             if not uniform:
                 uniform = ''
-          
+
             # showRowCol['text'] = str(row_col)  # not needed, because this will not be changed. When rows or columns are deleted or inserted the canvas and the toplevel will be destroyed
             for entry in ((self.EntrySize,config['minsize']),(self.EntryPad,config['pad']),(self.EntryWeight,config['weight']),(self.EntryUniform,uniform)):
                 entry[0].delete(0,'end')
-                #print(entry[1])
                 entry[0].insert(0,entry[1])
 
         def update_values(self):
 
             grid_conf = self.grid_configure(self.row_col)
-
 
             try:
                 minsize = int(self.EntrySize.get())
@@ -547,9 +1151,11 @@ Cols=widget('EntryCols'),
             else:
                 self.mycanvas.col_config_changed(self.row_col,{'minsize': minsize,'pad':pad,'weight':weight,'uniform': uniform})
 
+            return minsize,pad,weight,uniform
 
-    def update_individual(cont,wi=widget('Individual'),hili_bg = indiv_hilibg[0]):
-        wi['highlightbackground'] = '#ff8000' if cont.grid_conf_individual_has else hili_bg
+    def update_individual(cont,hili_bg = indiv_hilibg,selcolor=indiv_selcolor):
+        widget_Checkbutton_Individual['highlightbackground'] = '#ff8000' if cont.grid_conf_individual_has else hili_bg
+        widget_Checkbutton_Individual['selectcolor'] = '#ffe0a0' if cont.grid_conf_individual_has else selcolor
  
     def update_individual_mark(cont):
 
@@ -572,7 +1178,6 @@ Cols=widget('EntryCols'),
 
     def update_canvascolor_row(me,row,bg):
         conf =  me.master.grid_multi_conf_rows[row][1]
-
         if me.master.grid_uni_row:
             if 'uniform' in conf and conf['uniform'] and conf['uniform'] == me.master.grid_uni_row:
                 me['bg'] = color_uni_row
@@ -605,67 +1210,90 @@ Cols=widget('EntryCols'),
         me['highlightbackground'] = 'red' if me.master.grid_multi_conf_cols[col][0] and 'uniform' in conf and conf['uniform'] else bg
 
 
-    def update_col(me,column,grid_conf,bg):
-        cont = me.master
-        cont.grid_multi_conf_cols[column][1] = grid_conf
-        cont.grid_columnconfigure(column,**grid_conf)
+    def update_uniform_cols(cont,grid_conf):
+        cols = cont.grid_conf_cols[0] # number of columns
+        for col in range(cols):
+            if cont.grid_multi_conf_cols[col][0]: # if marked as individual
+                conf = container().grid_multi_conf_cols[col][1] # grid column configuration of this column
+                if 'uniform' in conf and conf['uniform'] and conf['uniform'] == grid_conf['uniform']: # if it's the same uniform
+                    cont.grid_multi_conf_cols[col][1] = grid_conf # update the grid column configuration
+                    cont.grid_columnconfigure(col,**grid_conf) # and perform a grid_columnconfigure
+                    
+    def update_uniform_rows(cont,grid_conf):
+        rows = cont.grid_conf_rows[0] # number of rows
+        for row in range(rows):
+            if cont.grid_multi_conf_rows[row][0]: # if marked as individual
+                conf = container().grid_multi_conf_rows[row][1] # grid row configuration of this row
+                if 'uniform' in conf and conf['uniform'] and conf['uniform'] == grid_conf['uniform']: # if it's the same uniform
+                    cont.grid_multi_conf_rows[row][1] = grid_conf # update the grid row configuration
+                    cont.grid_rowconfigure(row,**grid_conf) # and perform a grid_rowconfigure
 
+
+    def update_all_uniforms(cont,grid_conf):
+        update_uniform_rows(cont,grid_conf)
+        update_uniform_cols(cont,grid_conf)
+
+        uniform = grid_conf['uniform']
+        send('CANVAS_UPDATE_UNIFORM',[cont,uniform])
+        send('TOP_UPDATE_UNIFORM',[cont,uniform])
+             
+        if cont.grid_uni_row == uniform:
+            cont.grid_current_uniform_row = (grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'])
+            if cont == container():
+                update_rows_data(*cont.grid_current_uniform_row)
+        
+        if cont.grid_uni_col == uniform:
+            cont.grid_current_uniform_col = (grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'])
+            if cont == container():
+                update_cols_data(*cont.grid_current_uniform_col)
+
+
+    def update_row_canvas(me,row,grid_conf,bg):
+        cont = me.master # container of the canvas
+        cont.grid_multi_conf_rows[row][1] = grid_conf # insert grid_conf into grid_multi_conf_rows
+        cont.grid_rowconfigure(row,**grid_conf) # and do the grid_rowconfigure
+
+        # if grid_conf contains no uniform, simply update the cont.grid_multi_conf_rows with False or True      
         if 'uniform' not in grid_conf or not grid_conf['uniform']:
-            if grid_conf['minsize'] == cont.grid_conf_cols[1] and grid_conf['pad'] == cont.grid_conf_cols[2] and grid_conf['weight'] == cont.grid_conf_cols[3]:
-                cont.grid_multi_conf_cols[column][0] = False
-            else:
-                cont.grid_multi_conf_cols[column][0] = True
-
-        elif container().grid_uni_col == grid_conf['uniform'] or container().grid_uni_row == grid_conf['uniform']:
-                cont.grid_multi_conf_cols[column][0] = True
-
-                if container().grid_uni_row == grid_conf['uniform']:
-                    update_rows_data(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'])
-                if container().grid_uni_col == grid_conf['uniform']:
-                    update_cols_data(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'])
-
-                update_col_values()
-                update_row_values()
-        else:
-            cont.grid_multi_conf_cols[column][0] = True
-            update_col_values_uniform(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'],grid_conf['uniform'])                
-            update_row_values_uniform(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'],grid_conf['uniform'])                
-
-        update_individual_mark(cont)
-        update_canvascolor_col(me,column,bg)            
-        send('COL_WEIGHT',(column,grid_conf['weight']))
-        send('UPDATE_INDIVIDUAL_GRID',(grid_conf['minsize'],me))
-
-    def update_row(me,row,grid_conf,bg):
-        cont = me.master
-        cont.grid_multi_conf_rows[row][1] = grid_conf
-        cont.grid_rowconfigure(row,**grid_conf)
-        if 'uniform' not in grid_conf or not grid_conf['uniform']:
+            # enter True or False for general or individual grid
             if grid_conf['minsize'] == cont.grid_conf_rows[1] and grid_conf['pad'] == cont.grid_conf_rows[2] and grid_conf['weight'] == cont.grid_conf_rows[3]:
-                cont.grid_multi_conf_rows[row][0] = False
+                cont.grid_multi_conf_rows[row][0] = False # general grid if identical with general grid
             else:
-                cont.grid_multi_conf_rows[row][0] = True
+                cont.grid_multi_conf_rows[row][0] = True # otherwise it's an individual grid
 
-        elif container().grid_uni_row == grid_conf['uniform'] or container().grid_uni_col == grid_conf['uniform']:
-                cont.grid_multi_conf_rows[row][0] = True
-
-                if container().grid_uni_row == grid_conf['uniform']:
-                    update_rows_data(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'])
-                if container().grid_uni_col == grid_conf['uniform']:
-                    update_cols_data(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'])
-
-                update_col_values()
-                update_row_values()
-
+            update_canvascolor_row(me,row,bg) # update  the color of the canvas according to the entry         
+            update_canvas_row_line_arrow((row,grid_conf['weight'],cont),me,row)
+            update_individual_mark(cont) # update also the highlight of widget_Checkbutton_Individual
+        
+        # but if it's a uniform entry then update all same uniform entries of the container
         else:
-            cont.grid_multi_conf_rows[row][0] = True
-            update_row_values_uniform(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'],grid_conf['uniform'])                
-            update_col_values_uniform(grid_conf['minsize'],grid_conf['pad'],grid_conf['weight'],grid_conf['uniform'])                
+            cont.grid_multi_conf_rows[row][0] = True # uniform is an individual grid
+            update_all_uniforms(cont,grid_conf)
 
-        update_individual_mark(cont)
-        update_canvascolor_row(me,row,bg)            
-        send('ROW_WEIGHT',(row,grid_conf['weight']))
-        send('UPDATE_INDIVIDUAL_GRID',(grid_conf['minsize'],me))
+        
+    def update_col_canvas(me,col,grid_conf,bg):
+        cont = me.master # container of the canvas
+        cont.grid_multi_conf_cols[col][1] = grid_conf # insert grid_conf into grid_multi_conf_rows
+        cont.grid_columnconfigure(col,**grid_conf) # and do the grid_rowconfigure
+
+        # if grid_conf contains no uniform, simply update the cont.grid_multi_conf_rows with False or True      
+        if 'uniform' not in grid_conf or not grid_conf['uniform']:
+            # enter True or False for general or individual grid
+            if grid_conf['minsize'] == cont.grid_conf_cols[1] and grid_conf['pad'] == cont.grid_conf_cols[2] and grid_conf['weight'] == cont.grid_conf_cols[3]:
+                cont.grid_multi_conf_cols[col][0] = False # general grid if identical with general grid
+            else:
+                cont.grid_multi_conf_cols[col][0] = True # otherwise it's an individual grid
+
+            update_canvascolor_col(me,col,bg) # update  the color of the canvas according to the entry         
+            update_canvas_col_line_arrow((col,grid_conf['weight'],cont),me,col)
+            update_individual_mark(cont) # update also the highlight of widget_Checkbutton_Individual
+        
+        # but if it's a uniform entry then update all same uniform entries of the container
+        else:
+            cont.grid_multi_conf_cols[col][0] = True # uniform is an individual grid
+            update_all_uniforms(cont,grid_conf)
+
+
 
     def mouse_wheel_row(me,event,row,bg):
         grid_conf=me.master.grid_multi_conf_rows[row][1]
@@ -673,7 +1301,8 @@ Cols=widget('EntryCols'),
             grid_conf['minsize'] -= 1
         if event.num == 4 or event.delta == 120:
             grid_conf['minsize'] += 1
-        update_row(me,row,grid_conf,bg)
+        #update_row(me,row,grid_conf,bg)
+        update_row_canvas(me,row,grid_conf,bg)
 
     def mouse_wheel_col(me,event,column,bg):
         grid_conf=me.master.grid_multi_conf_cols[column][1]
@@ -681,8 +1310,9 @@ Cols=widget('EntryCols'),
             grid_conf['minsize'] -= 1
         if event.num == 4 or event.delta == 120:
             grid_conf['minsize'] += 1
-        update_col(me,column,grid_conf,bg)
-
+        #update_col(me,column,grid_conf,bg)
+        update_col_canvas(me,column,grid_conf,bg)
+        
     def button3_event_col(me,column):
         xpos = me.winfo_rootx()
         ypos = me.winfo_rooty() + 20
@@ -697,27 +1327,27 @@ Cols=widget('EntryCols'),
         messagebox.showinfo("Individual Grid","By MouseWheel you change the 'size'.\nBy Button-3 (right mouse button) you may also change 'pad' and 'weight'.",parent=me.myRoot())
 
     def update_canvas_col_line(me):
-        coords = coords = (3,9,me.winfo_width()-3,9)
+        coords = (3,9,me.winfo_width()-3,9)
         me.coords('line',*coords)
         
     def update_canvas_row_line(me):
-        coords = coords = (9,3,9,me.winfo_height()-3)
+        coords = (9,3,9,me.winfo_height()-3)
         me.coords('line',*coords)
 
     def update_canvas_row_line_arrow(msg,me,row):
-        if me.master == container() and msg[0] == row:
+        if me.master == msg[2] and msg[0] == row:
             me.itemconfig('line', arrowshape = '8 8 5' if msg[1] else '8 0 5')
 
     def update_canvas_col_line_arrow(msg,me,col):
-        if me.master == container() and msg[0] == col:
+        if me.master == msg[2] and msg[0] == col:
             me.itemconfig('line', arrowshape = '8 8 5' if msg[1] else '8 0 5')
 
     def top_update_col(msg,me,col):
-        if me.master == container() and msg[0] == col:
+        if me.master == msg[2] and msg[0] == col:
             send('TOPGRIDSHOW',(me,col,msg[1]))
 
     def top_update_row(msg,me,row):
-        if me.master == container() and msg[0] == row:
+        if me.master == msg[2] and msg[0] == row:
             send('TOPGRIDSHOW',(me,row,msg[1]))
 
     class NonameCanvas(Canvas):
@@ -726,11 +1356,21 @@ Cols=widget('EntryCols'),
             Canvas.__init__(self,*args,**kwargs)
             self.orig_bg = self['bg']
 
+        '''
         def col_config_changed(self,col,config,update_col = update_col):
             update_col(self,col,config,self.orig_bg)
 
         def row_config_changed(self,row,config,update_row = update_row):
             update_row(self,row,config,self.orig_bg)
+        '''
+
+
+        def col_config_changed(self,col,config):
+            update_col_canvas(self,col,config,self.orig_bg)
+
+        def row_config_changed(self,row,config):
+            update_row_canvas(self,row,config,self.orig_bg)
+
 
     def check_update_canvascolor_col(me,col,bg):
         if me.master == container():
@@ -740,11 +1380,25 @@ Cols=widget('EntryCols'),
         if me.master == container():
             update_canvascolor_row(me,col,bg)
 
-
-
-
+    def canvas_update_uniform_row(msg,me,row,bg):
+        cont = me.master
+        if msg[0] == cont:
+            conf = cont.grid_multi_conf_rows[row][1] # grid row configuration of this row
+            if 'uniform' in conf and conf['uniform'] and conf['uniform'] == msg[1]: # if it's the same uniform
+                 update_canvascolor_row(me,row,bg) # update color and uniform highlight
+                 update_canvas_row_line_arrow((row,conf['weight'],cont),me,row)
+                    
+    def canvas_update_uniform_col(msg,me,col,bg):
+        cont = me.master
+        if msg[0] == cont:
+            conf = cont.grid_multi_conf_cols[col][1] # grid row configuration of this row
+            if 'uniform' in conf and conf['uniform'] and conf['uniform'] == msg[1]: # if it's the same uniform
+                 update_canvascolor_col(me,col,bg) # update color and uniform highlight
+                 update_canvas_col_line_arrow((col,conf['weight'],cont),me,col)
 
     def create_NONAMECANVAS(rows,cols,gui_grid_container=container()):
+        # not correct
+        cont = container()
         for row in range(rows):
             canvas_row = NonameCanvas(NONAMECANVAS,relief='raised',width=13,height=0,cursor='sizing',highlightthickness=2,bd=1)
             canvas_row.bg = canvas_row['bg']
@@ -753,14 +1407,14 @@ Cols=widget('EntryCols'),
             item = canvas_row.create_line(4,4,4,4)
             canvas_row.itemconfig(item,fill = 'blue',arrow = 'both',width = '3.0',tags = 'line')
 
-            if container().grid_special:
-                for frame in container().dyntk_row_frames:
+            if cont.grid_special:
+                for frame in cont.dyntk_row_frames:
                     if int(frame.grid_info()['row']) == row+1:
                         frame.mycanvas = canvas_row
                         break
 
             
-            do_event("<MouseWheel>", mouse_wheel_row,(row,this()['bg']),True,True)
+            do_event("<MouseWheel>", mouse_wheel_row,(row,this()['bg']),True,True) # spin mouse wheel
             do_event("<Button-4>", mouse_wheel_row,(row,this()['bg']),True,True)
             do_event("<Button-5>", mouse_wheel_row,(row,this()['bg']),True,True)
             do_event("<Button-3>", button3_event_row,row,True)
@@ -772,13 +1426,14 @@ Cols=widget('EntryCols'),
             do_receive('TOP_UPDATE_ROW',top_update_row,[this(),row],wishMessage=True)
             #do_receive('ROW_CONFIG_CHANGED',row_config_changed,[this(),row,this()['bg']],wishMessage = True)
             do_receive('CANVAS_UPDATE_ROW',check_update_canvascolor_row,[this(),row,this()['bg']])
+            do_receive('CANVAS_UPDATE_UNIFORM',canvas_update_uniform_row,[this(),row,this()['bg']],wishMessage = True)
             goOut()
-            send('ROW_WEIGHT',(row,container().grid_rowconfigure(row)['weight']))
+            send('ROW_WEIGHT',(row,cont.grid_rowconfigure(row)['weight'],cont))
 
             update_canvascolor_row(this(),row,this()['bg'])
         
 
-        if container().grid_special:
+        if cont.grid_special:
             Button(NONAMECANVAS,padx = 0, pady = 0,image = gui_grid_container.help_image,command=show_help,cursor = 'question_arrow')
             rcgrid(rows+1,cols+1)
 
@@ -790,8 +1445,8 @@ Cols=widget('EntryCols'),
             item = canvas_col.create_line(4,4,4,4)
             canvas_col.itemconfig(item,fill = 'blue',arrow = 'both',width = '3.0',tags = 'line')
            
-            if container().grid_special:
-                for frame in container().dyntk_col_frames:
+            if cont.grid_special:
+                for frame in cont.dyntk_col_frames:
                     if int(frame.grid_info()['column']) == col+1:
                         frame.mycanvas = canvas_col
                         break
@@ -808,23 +1463,19 @@ Cols=widget('EntryCols'),
             do_receive('TOP_UPDATE_COL',top_update_col,[this(),col],wishMessage=True)
             #do_receive('COL_CONFIG_CHANGED',col_config_changed,[this(),col,this()['bg']],wishMessage = True)
             do_receive('CANVAS_UPDATE_COL',check_update_canvascolor_col,[this(),col,this()['bg']])
+            do_receive('CANVAS_UPDATE_UNIFORM',canvas_update_uniform_col,[this(),col,this()['bg']],wishMessage = True)
 
             goOut()
-            send('COL_WEIGHT',(col,container().grid_columnconfigure(col)['weight']))
+            send('COL_WEIGHT',(col,cont.grid_columnconfigure(col)['weight'],cont))
            
             update_canvascolor_col(this(),col,this()['bg'])
        
-        container().grid_columnconfigure(cols+1,minsize = 0,pad=0,weight=0)
-        container().grid_rowconfigure(rows+1,minsize = 0,pad=0,weight=0)
+        cont.grid_columnconfigure(cols+1,minsize = 0,pad=0,weight=0)
+        cont.grid_rowconfigure(rows+1,minsize = 0,pad=0,weight=0)
 
 
-    def show_grid(
-        event=None,withNONAME = True,rows_widget=widget('EntryRows'),cols_widget=widget('EntryCols'),individual=widget('Individual'),set_col_width=set_col_width,set_row_height=set_row_height):
+    def show_grid(event=None,withNONAME = True,set_col_width=set_col_width,set_row_height=set_row_height):
 
-        try:
-            cols = int(cols_widget.get())
-            rows = int(rows_widget.get())
-        except ValueError: return
 
         # delete old configuration ================
 
@@ -833,6 +1484,10 @@ Cols=widget('EntryCols'),
         deleteWidgetsForName(container(),NONAME2)
         deleteWidgetsForName(container(),NONAMECANVAS)
 
+        # +++ hier ist ein Fehler.
+        # ich hatte den content gelöscht und damit auuch
+        # grid_conf_rows
+        # doch es erfolgte
         row_conf = container().grid_conf_rows
         col_conf = container().grid_conf_cols
         
@@ -854,8 +1509,11 @@ Cols=widget('EntryCols'),
 
         # decide about new configuration ================
 
-        update_cols()
-        update_rows()
+        set_grid_conf_cols()
+        set_grid_conf_rows()
+
+        cols = container().grid_conf_cols[0]
+        rows = container().grid_conf_rows[0]
 
         if cols <= old_cols:
             container().grid_multi_conf_cols = container().grid_multi_conf_cols[:cols]
@@ -881,208 +1539,94 @@ Cols=widget('EntryCols'),
                     this().lower()
                     do_event('<Button-1>',mouse_do_grid_NONAME,wishWidget=True)
 
+
+        # must be before canvases
+        fill_general_multicols(container())
+        fill_general_multirows(container())
+
         if individ and withNONAME:
             create_NONAMECANVAS(rows,cols)
-
             container().grid_conf_individual_done = True
 
+        # mes be after canvases
+        colconfigure_andcanvas_andtop(container())
+        rowconfigure_andcanvas_andtop(container())
+
         setSelection(selection_before)
-
-        set_col_width()
-        set_row_height()
-
+        # why this?
         send("BASE_LAYOUT_REFRESH",this())
 
-    def update_indiv_wish(wi = widget('Individual')):
-        container().grid_conf_individual_wish = wi.mydata.get() == 1
+    def update_indiv_wish():
+        container().grid_conf_individual_wish = widget_Checkbutton_Individual.mydata.get() == 1
         if container().grid_show:
             show_grid()
 
-    widget('Individual').do_command(update_indiv_wish)
+    widget_Checkbutton_Individual.do_command(update_indiv_wish)
 
-    def press_button_show(event=None,me = widget('ButtonShow')):
+    def press_button_show(event=None):
+
         if container().grid_show_enabled:
             container().grid_show = not container().grid_show
-            me.is_on = container().grid_show
+            widget_Button_Show.is_on = container().grid_show
 
-            if me.is_on:
+            if widget_Button_Show.is_on:
                 show_grid()
             else:
                 hide_grid()
 
-    def show_button_show(event=None,me = widget('ButtonShow')):
-            me.is_on = container().grid_show
-            me['relief'] = 'raised' if not me.is_on else 'sunken'
-            me['text'] = 'Show' if not me.is_on else 'Hide'
-
-
-    def animate_button_show(event=None,me = widget('ButtonShow')):
+    def update_button_show(event=None):
+        widget_Button_Show.is_on = container().grid_show
+        widget_Button_Show['relief'] = 'raised' if not widget_Button_Show.is_on else 'sunken'
+        widget_Button_Show['text'] = 'Show' if not widget_Button_Show.is_on else 'Hide'
+            
+    def animate_button_show(event=None):
         if container().grid_show_enabled:
-            me.is_on = container().grid_show
-            me['relief'] = 'raised' if me.is_on else 'sunken'
-            me['text'] = 'Show' if me.is_on else 'Hide'
+            widget_Button_Show.is_on = container().grid_show
+            widget_Button_Show['relief'] = 'raised' if widget_Button_Show.is_on else 'sunken'
+            widget_Button_Show['text'] = 'Show' if widget_Button_Show.is_on else 'Hide'
 
     def entry_show_grid(event=None):
         container().grid_show = True
-        show_button_show()
+        update_button_show()
         show_grid()
         
 
-    widget('ButtonShow').is_on = False
-    widget('ButtonShow').bind('<Button-1>',animate_button_show)
-    widget('ButtonShow').bind('<ButtonRelease-1>',press_button_show)
-    widget('EntryRows').bind('<Return>',entry_show_grid)
-    widget('EntryCols').bind('<Return>',entry_show_grid)
+    widget_Button_Show.bind('<Button-1>',animate_button_show)
+    widget_Button_Show.bind('<ButtonRelease-1>',press_button_show)
+    widget_Entry_Rows.bind('<Return>',entry_show_grid)
+    widget_Entry_Cols.bind('<Return>',entry_show_grid)
 
 
 
-    def update_after_pack(rows_widget=widget('EntryRows'),cols_widget=widget('EntryCols'),show_grid = show_grid):
+    def update_after_pack(show_grid = show_grid):
  
         if container().grid_conf_rows[0] != 0 or container().grid_conf_cols[0] != 0:
                 
-            rows_widget.delete(0,'end')
-            rows_widget.insert(0,'0')
-            cols_widget.delete(0,'end')
-            cols_widget.insert(0,'0')
+            widget_Entry_Rows.delete(0,'end')
+            widget_Entry_Rows.insert(0,'0')
+            widget_Entry_Cols.delete(0,'end')
+            widget_Entry_Cols.insert(0,'0')
             show_grid()
 
     do_receive('BASE_LAYOUT_PACK_DONE',update_after_pack)
 
-    def mouse_move(me,wi_row=widget('Row'),wi_col=widget('Col')):
-        if me.mydata[6]:
-            step = 10
-            diffx = me.winfo_pointerx() - me.winfo_rootx()
-            diffy = me.winfo_pointery() - me.winfo_rooty()
-            me.mydata[3] += diffx-me.mydata[0]
-            me.mydata[4] += diffy-me.mydata[1]
-            me.place(y=me.mydata[4],x = me.mydata[3], width = me.mydata[8],height=me.mydata[9])
-            
-            me.mydata[5] += step
-            if me.mydata[5] >= 100:
-                me.mydata[5] = 0
-                #send('POSITION_CHANGED',me)
-                #send('LAYOUT_VALUES_REFRESH',me)
-            me.mydata[5] += step
-            me.after(step,mouse_move,me)
-
-    def after_mouse_up(me):
-        if me.mydata[7]:
-            me.mydata[7] = False
-            send('SHOW_LAYOUT',(None,True))
-            send('SHOW_CONFIG',(None,True))
-            send('SELECTION_CHANGED')
-        else:
-            send('POSITION_CHANGED',me)
-            send('LAYOUT_VALUES_REFRESH',me)
-        me.dyntk_lift()
-
-
-    def on_mouse_up(me):
-        if me.mydata[6]:
-            me.mydata[6] = False # stop timer
-            (col,row) = me.container().grid_location(me.winfo_rootx()-me.container().winfo_rootx(),me.winfo_rooty()-me.container().winfo_rooty())
-            if col < 0: col = 0
-            if row < 0: row = 0
-            me.rcgrid(row,col)
-            me.after(50,after_mouse_up,me)
-
-    apprelease_id_list = [None]
-
-
-    def on_app_mouse_up(me,app_id=apprelease_id_list):
-        me.myRoot().unbind('<ButtonRelease-1>',app_id[0])
-        if me.mydata[6]: on_mouse_up(me)
-
-    def on_mouse_down(me,event,app_id=apprelease_id_list):
-
-        xpos = me.winfo_rootx()-me.container().winfo_rootx()
-        ypos = me.winfo_rooty()-me.container().winfo_rooty()
-        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True,False,me.winfo_width(),me.winfo_height()]
-        
-        # SHOW_CONFIG geht nicht - müsste das wohl als event und nicht als message machen - also mit bind statt do_event
-        #send('SHOW_LAYOUT',(None,True))
-        #send('SHOW_CONFIG',(None,True))
-
-        me.place(y=ypos,x = xpos, width = me.mydata[8],height=me.mydata[9])
-        me.lift()
-        app_id[0] = me.myRoot().bind('<ButtonRelease-1>',lambda event=event, wi = me, func=on_app_mouse_up: func(wi))
-        mouse_move(me)
-
-        if this() != me:
-            setWidgetSelection(me)
-            me.mydata[7] = True
-            send('SHOW_LAYOUT',(None,False))
-            send('SHOW_CONFIG',(None,False))
-            send('SELECTION_CHANGED')
-        else:
-            if me == container():
-                goOut()
-                me.mydata[7] = True
-                send('SHOW_LAYOUT',(None,False))
-                send('SHOW_CONFIG',(None,False))
-                send('SELECTION_CHANGED')
-                
-        send('BASEMENTLEVEL_CHANGED')
-
-    def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        me.mydata=([0,0,'mouse',0,0,0,True,False])
-        me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
-        me.do_event('<ButtonRelease-1>',mouse_up,me)
-
-    def grid_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        if type(me.mydata) != list or len(me.mydata) < 3 or me.mydata[2]!= 'mouse':
-            me.mydata=([0,0,'mouse',0,0,0,True,False])
-            me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
-            me.do_event('<ButtonRelease-1>',mouse_up,me)
-
-    do_receive('GRID_MOUSE_ON',grid_mouse_on,wishMessage=True)
-
-
-    def do_grid_col_row(col,row,do_mouse_on=do_mouse_on):
-
+    def do_grid_col_row(col,row,do_mouse_on=grid_mouse_on):
         send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
         layout_before = this().Layout
 
-        if this().Layout == NOLAYOUT:
-            if isinstance(this(),GuiContainer):
-                grid(row=row,column=col,sticky = 'news') # this isn't original, but makes sense
-
-                # we don't want this for the normal grid
-                if isinstance(this(),(LabelFrame,Frame,ttk.LabelFrame,ttk.Frame)): # and container().grid_special:
-                    this().grid_columnconfigure(0,minsize=MIN_WIDTH)
-                    this().grid_rowconfigure(0,minsize=MIN_HEIGHT)
-                    this().grid_conf_rows = (1,MIN_HEIGHT,0,0)
-                    this().grid_conf_cols = (1,MIN_WIDTH,0,0)
-                    this().grid_multi_conf_rows = [[False,None]]
-                    this().grid_multi_conf_cols = [[False,None]]
-                    a = Frame((this(),NONAME))
-                    a.rcgrid(0,0)
-                    this().after(100,NONAME_destroy,a)
-            else:
-                rcgrid(row,col)
-            this().dyntk_lift()
-        elif this().Layout == PLACELAYOUT:
-            
-            (col,row) = container().grid_location(this().winfo_rootx()-container().winfo_rootx(),this().winfo_rooty()-container().winfo_rooty())
-            if col < 0: col = 0
-            if row < 0: row = 0
+        if isinstance(this(),GuiContainer):
+            rcgrid(row,col,sticky = 'news') # this isn't original, but makes sense
+        else:
             rcgrid(row,col)
-            this().dyntk_lift()
-        elif this().Layout == GRIDLAYOUT:
-            rcgrid(row,col)
-            this().dyntk_lift()
-
-        if container().is_mouse_select_on: do_mouse_on(this())
+        this().dyntk_lift()
+        if container().is_mouse_select_on: grid_mouse_on(this())
         else: send("SWITCH_MOUSE_ON")
-
         send('BASE_LAYOUT_CHANGED',layout_before) # depending on the layout change we need less or more actions
-
 
     def mouse_do_grid_NONAME(me):
         if this().Layout == NOLAYOUT and not isinstance(this(),StatTkInter.Menu):
             info = me.grid_info()
             do_grid_col_row(info['column'],info['row'])
-        
 
     def mouse_do_grid(me):
         if this().Layout == NOLAYOUT and not isinstance(this(),StatTkInter.Menu):
@@ -1099,48 +1643,56 @@ Cols=widget('EntryCols'),
         do_event('<Button-1>',mouse_do_grid,wishWidget = True)
 
 
-
-
     def NONAME_destroy(a):
         selection_before = Selection()
         a.destroy()
         setSelection(selection_before)
 
 
-    def do_grid():
-        do_grid_col_row(0,0)
-        
-    widget('ButtonGrid').do_command(do_grid)
-
-
     def do_grid0():
+        do_grid_col_row(0,0)        
+    widget_Button_Grid0.do_command(do_grid0)
+
+
+    def do_grid(do_mouse_on=grid_mouse_on):
         send('DESTROY_INDIVIDUAL_GRID_TOPLEVEL')
         layout_before = this().Layout
-        grid()
+        if layout_before == PLACELAYOUT:
+
+            (col,row) = container().grid_location(this().winfo_rootx()-container().winfo_rootx(),this().winfo_rooty()-container().winfo_rooty())
+            if col < 0: col = 0
+            if row < 0: row = 0
+
+            if isinstance(this(),GuiContainer):
+                rcgrid(row,col,sticky = 'news') # this isn't original, but makes sense
+            else:
+                rcgrid(row,col)
+        else:
+            grid()
         this().dyntk_lift()
-        if container().is_mouse_select_on: do_mouse_on(this())
+        if container().is_mouse_select_on: grid_mouse_on(this())
         send('BASE_LAYOUT_CHANGED',layout_before) # depending on the layout change we need less or more actions
 
-    widget('Grid()').do_command(do_grid0)
+    widget_Button_Grid.do_command(do_grid)
 
 
-    def row_default(me = widget('uniform_row')):
-        conf = container().grid_conf_rows
-        uniform = container().grid_uni_row if container().grid_uni_row else ''
-        if not uniform or not getattr(me,'grid_current_uniform', None):
+    def row_default(container):
+        conf = container.grid_conf_rows
+        uniform = container.grid_uni_row if container.grid_uni_row else ''
+        if not uniform or not getattr(container,'grid_current_uniform_row', None):
             return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
         else: 
-            conf = me.grid_current_uniform
+            conf = container.grid_current_uniform_row
             return { 'minsize' : conf[0], 'pad' : conf[1], 'weight' : conf[2], 'uniform' : uniform }
        
 
-    def col_default(me = widget('uniform_col')):
-        conf = container().grid_conf_cols
-        uniform = container().grid_uni_col if container().grid_uni_col else ''
-        if not uniform or not getattr(me,'grid_current_uniform', None):
+    def col_default(container):
+        conf = container.grid_conf_cols
+        uniform = container.grid_uni_col if container.grid_uni_col else ''
+        if not uniform or not getattr(container,'grid_current_uniform_col', None):
             return { 'minsize' : conf[1], 'pad' : conf[2], 'weight' : conf[3], 'uniform' : uniform }
         else: 
-            conf = me.grid_current_uniform
+            conf = container.grid_current_uniform_col
             return { 'minsize' : conf[0], 'pad' : conf[1], 'weight' : conf[2], 'uniform' : uniform }
 
     class LineFrame(Frame):
@@ -1205,6 +1757,7 @@ Cols=widget('EntryCols'),
                         count += 1
                 self.uniform_count = count
                 
+            #self.do_event('<B1-Motion>',self.move)
             self.move()
      
         def tableline_startmove_col(self,event = None):
@@ -1242,7 +1795,9 @@ Cols=widget('EntryCols'),
                     if configs[col][0] and 'uniform' in configs[col][1] and configs[col][1]['uniform'] == uniform:
                         count += 1
                 self.uniform_count = count
+            #self.do_event('<B1-Motion>',self.move)
             self.move()
+            
      
         def measure_colwidth(self):
             self.begin,top,self.cellsize,height = self.master.grid_bbox(row = 0, column = self.row_col)
@@ -1254,7 +1809,7 @@ Cols=widget('EntryCols'),
             self.row_col_config['minsize'] = self.cellsize - 2 * int(self.row_col_config['pad'])
             self.line_configure(self.row_col,**self.row_col_config)
      
-        def move(self):
+        def move(self,event=None):
      
             if not self.is_moving:
                 self.bind_enter()
@@ -1371,10 +1926,16 @@ Cols=widget('EntryCols'),
                 else:
                     self.bind('<Enter>',self.tableline_enter_insert_row)
                 self.bind('<ButtonRelease-1>',self.tableline_mark_row)
+
+        def unbind_enter(self):
+            self.unbind('<Enter>')
+            self.unbind('<B1-Motion>')
+            self.unbind('<ButtonRelease-1>')
      
         # these are double defined, but nearly identical may be we not only a single definition
         def tableline_enter_col(self,event=None):
             for element in self.master.dyntk_table_frames:
+                element.is_moving = False
                 element.config( bg = self.gray)
                 element.bind_enter()
      
@@ -1385,6 +1946,7 @@ Cols=widget('EntryCols'),
      
         def tableline_enter_row(self,event=None):
             for element in self.master.dyntk_table_frames:
+                element.is_moving = False
                 element.config( bg = self.gray)
                 element.bind_enter()
      
@@ -1428,7 +1990,7 @@ Cols=widget('EntryCols'),
                         child.grid(**{ self.grid_key : pos+1})
                 self.grid_configure(pos+1,**self.grid_configure(pos))
      
-            self.grid_configure(self.row_col,**self.row_col_default())
+            self.grid_configure(self.row_col,**self.row_col_default(self.master))
             insert_frame = self.insert_row_col(self.master,self.row_col)
      
             self['bg'] = self.gray
@@ -1440,7 +2002,7 @@ Cols=widget('EntryCols'),
                 conf[0] += 1
                 self.master.grid_conf_cols = tuple(conf)
                 is_uni = True if self.master.grid_uni_col else False
-                self.master.grid_multi_conf_cols.insert(self.row_col,[is_uni,self.row_col_default()])
+                self.master.grid_multi_conf_cols.insert(self.row_col,[is_uni,self.row_col_default(self.master)])
                 
                 for frame in self.master.dyntk_row_frames:
                     frame.grid(column = 0, columnspan = self.master.grid_conf_cols[0])
@@ -1451,20 +2013,29 @@ Cols=widget('EntryCols'),
                 self.master.grid_conf_rows = tuple(conf)
 
                 is_uni = True if self.master.grid_uni_row else False
-                self.master.grid_multi_conf_rows.insert(self.row_col,[is_uni,self.row_col_default()])
+                self.master.grid_multi_conf_rows.insert(self.row_col,[is_uni,self.row_col_default(self.master)])
 
                 for frame in self.master.dyntk_col_frames:
                     frame.grid(row = 0,rowspan = self.master.grid_conf_rows[0])
                 insert_frame.tableline_mark_row()
 
-            setSelection(selection_before)
+            setWidgetSelection(self)
+            if self.is_col:
+                configure_columns(container())
+            else:
+                configure_rows(container())
             create_NONAMECANVAS(self.master.grid_conf_rows[0],self.master.grid_conf_cols[0])
             special_noname_frame()            
-            setSelection(selection_before)
-            send('GRID_COLS_CHANGED' if self.is_col else 'GRID_ROWS_CHANGED')
-            set_col_width()
-            set_row_height()
 
+
+            setSelection(selection_before)
+            # this is ok, fills widget_Entry_Cols or widget_Entry_Rows, but now change, if not container()
+            if self.master == container():
+                send('GRID_COLS_CHANGED' if self.is_col else 'GRID_ROWS_CHANGED')
+
+
+            #set_col_width()
+            #set_row_height()
            
 
         def delete(self,event = None):
@@ -1491,6 +2062,7 @@ Cols=widget('EntryCols'),
      
             # if row or column isn't empty create the noname canvasses and the noname frame again and finished
             if elements:
+                setWidgetSelection(self)
                 create_NONAMECANVAS(self.master.grid_conf_rows[0],self.master.grid_conf_cols[0])
                 special_noname_frame()
                 setSelection(selection_before)
@@ -1559,13 +2131,22 @@ Cols=widget('EntryCols'),
             # endpos ist the former rows or columns, means the place of the end line
 
             self.grid_configure(endpos-1,minsize = 0, pad = 0, weight = 0,uniform='')
-            setSelection(selection_before)
+            setWidgetSelection(self)
+            if self.is_col:
+                configure_columns(container())
+            else:
+                configure_rows(container())
             create_NONAMECANVAS(self.master.grid_conf_rows[0],self.master.grid_conf_cols[0])
             special_noname_frame()
+
             setSelection(selection_before)
-            send('GRID_COLS_CHANGED' if self.is_col else 'GRID_ROWS_CHANGED')
-            set_col_width()
-            set_row_height()
+
+            # this is ok, fills widget_Entry_Cols or widget_Entry_Rows, but now change, if not container()
+            if self.master == container():
+                send('GRID_COLS_CHANGED' if self.is_col else 'GRID_ROWS_CHANGED')
+            
+            #set_col_width()
+            #set_row_height()
 
             
 
@@ -1578,7 +2159,6 @@ Cols=widget('EntryCols'),
         self.dyntk_table_frames.append(frame)
         self.dyntk_col_frames.append(frame)
         return frame
- 
  
     def insert_row(self,row):
         frame = LineFrame(self,is_col = False)
@@ -1596,14 +2176,14 @@ Cols=widget('EntryCols'),
             insert_row(self,row)
  
 
-    def special_toggle(me = widget('special'),ButtonShow = widget('ButtonShow'),Individual = widget('Individual'),EntryRows = widget('EntryRows'),EntryCols = widget('EntryCols')):
+    def special_toggle():
         container().grid_special = not container().grid_special
-        me.is_on = container().grid_special
+        widget_Button_Special.is_on = container().grid_special
 
-        me['relief'] = 'sunken' if me.is_on else 'raised'
+        widget_Button_Special['relief'] = 'sunken' if widget_Button_Special.is_on else 'raised'
         hide_grid()
 
-        if me.is_on:
+        if widget_Button_Special.is_on:
 
             min_row = 0
             min_col = 0
@@ -1622,9 +2202,6 @@ Cols=widget('EntryCols'),
             rows = max(grid_conf_rows[0],min_row+1)
             cols = max(grid_conf_cols[0],min_col+1)
 
-            grid_conf_rows[0] = rows
-            grid_conf_cols[0] = cols
-
             if not children:
                 grid_conf_rows[1] = max(grid_conf_rows[1],MIN_HEIGHT)
                 grid_conf_cols[1] = max(grid_conf_cols[1],MIN_WIDTH)
@@ -1632,24 +2209,33 @@ Cols=widget('EntryCols'),
             container().grid_conf_rows = tuple(grid_conf_rows)
             container().grid_conf_cols = tuple(grid_conf_cols)
 
-            update_general_grid()
+            
+            # show_grid will read these values as new Rows and Columns
+            widget_Entry_Cols.delete(0,'end')
+            widget_Entry_Cols.insert(0,cols)
+
+            widget_Entry_Rows.delete(0,'end')
+            widget_Entry_Rows.insert(0,rows)
+
+
+            # update minsize, pad, weight in the grid input mask dependent on uniform entries
+            update_uni_row_uniform(container().grid_uni_row)
+            update_uni_col_uniform(container().grid_uni_col)
 
             container().save_grid_conf_individual_wish = container().grid_conf_individual_wish
             container().grid_conf_individual_wish = 1
 
-            container().grid_conf_rows  = grid_conf_rows_old # show_grid corrects this, otherwise crash
-            container().grid_conf_cols  = grid_conf_cols_old
             show_grid(None,False)
 
             selection_before = Selection()
             special_noname_frame()
 
-            ButtonShow['state'] = 'disabled' if me.is_on else 'normal'
-            container().grid_show_enabled = not me.is_on
+            widget_Button_Show['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+            container().grid_show_enabled = not widget_Button_Special.is_on
 
-            Individual['state'] = 'disabled' if me.is_on else 'normal'
-            EntryRows['state'] = 'disabled' if me.is_on else 'normal'
-            EntryCols['state'] = 'disabled' if me.is_on else 'normal'
+            widget_Checkbutton_Individual['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+            widget_Entry_Rows['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+            widget_Entry_Cols['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
 
             container().dyntk_table_frames = []
             container().dyntk_col_frames = []
@@ -1663,12 +2249,12 @@ Cols=widget('EntryCols'),
 
         else:
 
-            ButtonShow['state'] = 'disabled' if me.is_on else 'normal'
-            container().grid_show_enabled = not me.is_on
+            widget_Button_Show['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+            container().grid_show_enabled = not widget_Button_Special.is_on
 
-            Individual['state'] = 'disabled' if me.is_on else 'normal'
-            EntryRows['state'] = 'disabled' if me.is_on else 'normal'
-            EntryCols['state'] = 'disabled' if me.is_on else 'normal'
+            widget_Checkbutton_Individual['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+            widget_Entry_Rows['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+            widget_Entry_Cols['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
             container().grid_conf_individual_wish = container().save_grid_conf_individual_wish
 
             container().dyntk_table_frames = []
@@ -1679,90 +2265,79 @@ Cols=widget('EntryCols'),
                 show_grid()
 
 
-    def update_special_button(me = widget('special'),ButtonShow = widget('ButtonShow'),Individual = widget('Individual'),EntryRows = widget('EntryRows'),EntryCols = widget('EntryCols')):
-        me.is_on = container().grid_special
-        me['relief'] = 'sunken' if me.is_on else 'raised'
-        ButtonShow['state'] = 'disabled' if me.is_on else 'normal'
-        container().grid_show_enabled = not me.is_on
+    def update_special_button():
+        widget_Button_Special.is_on = container().grid_special
+        widget_Button_Special['relief'] = 'sunken' if widget_Button_Special.is_on else 'raised'
+        widget_Button_Show['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+        container().grid_show_enabled = not widget_Button_Special.is_on
 
-        Individual['state'] = 'disabled' if me.is_on else 'normal'
-        EntryRows['state'] = 'disabled' if me.is_on else 'normal'
-        EntryCols['state'] = 'disabled' if me.is_on else 'normal'
-
-
-    def update_grid_table_on_enter(
-Rows=widget('EntryRows'),
-Height=widget('EntryRowHeight'),
-RowPad=widget('EntryRowPad'),
-RowWeight=widget('EntryRowWeight'),
-Cols=widget('EntryCols'),
-Width=widget('EntryColWidth'),
-ColPad=widget('EntryColPad'),
-ColWeight=widget('EntryColWeight'),
-set_row_height=set_row_height,
-set_col_width=set_col_width,
-individual = widget('Individual'),
-uniform_row = widget('uniform_row'),
-uniform_col = widget('uniform_col'),
-):
+        widget_Checkbutton_Individual['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+        widget_Entry_Rows['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
+        widget_Entry_Cols['state'] = 'disabled' if widget_Button_Special.is_on else 'normal'
 
 
-        if not container().grid_conf_cols:
-            container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols,this().grid_cols_how_many)
+    def update_grid_table_on_enter(set_row_height=set_row_height,set_col_width=set_col_width):
 
-        if not container().grid_conf_rows:
-            container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows,this().grid_rows_how_many)
+        if this().Layout != LAYOUTNEVER and not isinstance(container(),(Menu,MenuItem,PanedWindow,ttk.PanedWindow,ttk.Notebook)):
 
-        if this().Layout != LAYOUTNEVER:
+            # start values for grid_conf_cols, grid_conf_rows, grid_multi_conf_cols, grid_multi_conf_rows, if not already initialized --------------
             
-            if not (container().Layout == MENULAYOUT or this().Layout == MENUITEMLAYOUT or isinstance(this(),Menu) or isinstance(container(),PanedWindow) or isinstance(container(),StatTtk.PanedWindow)):
-                not_initialized = container().grid_conf_rows == None
-                if not_initialized:
-                    container().grid_conf_rows = (0,MIN_HEIGHT,0,0)
-                    container().grid_conf_cols = (0,MIN_WIDTH,0,0)
-                
+            # try to get the values from definitions made by a tkinter application, otherwise take default values
+            if not container().grid_conf_cols:
+                container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols,this().grid_cols_how_many)
+                if not container().grid_conf_cols:
+                    container().grid_conf_cols = start_default_col_values
 
-                individual['state'] = 'normal'
-                Cols['state'] = 'normal'
-                Rows['state'] = 'normal'
+            if not container().grid_conf_rows:
+                container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows,this().grid_rows_how_many)
+                if not container().grid_conf_rows:
+                    container().grid_conf_rows = start_default_row_values
 
-                Rows.delete(0,'end')
-                Rows.insert(0,container().grid_conf_rows[0])
-                Height.delete(0,'end')
-                Height.insert(0,container().grid_conf_rows[1])
-                RowPad.delete(0,'end')
-                RowPad.insert(0,container().grid_conf_rows[2])
-                RowWeight.delete(0,'end')
-                RowWeight.insert(0,container().grid_conf_rows[3])
+            # --------------------------------------------------------------------------------------------------------------------------------------
 
-                Cols.delete(0,'end')
-                Cols.insert(0,container().grid_conf_cols[0])
-                Width.delete(0,'end')
-                Width.insert(0,container().grid_conf_cols[1])
-                ColPad.delete(0,'end')
-                ColPad.insert(0,container().grid_conf_cols[2])
-                ColWeight.delete(0,'end')
-                ColWeight.insert(0,container().grid_conf_cols[3])
-                
-                if container().grid_conf_individual_wish: individual.select()
-                else: individual.deselect()
-                update_individual_mark(container())
+            # update Rows and Columns
+            grid_cols_changed() # update widget_Entry_Cols
+            grid_rows_changed() # update widget_Entry_Rows
 
-                show_button_show()
+            # set normal states, so that we may insert values
+            widget_Checkbutton_Individual['state'] = 'normal'
+            widget_Entry_Rows['state'] = 'normal'
+            widget_Entry_Cols['state'] = 'normal'
 
-                uniform_row.delete(0,'end')
-                uniform_col.delete(0,'end')
-                uniform_row.insert(0,container().grid_uni_row)
-                uniform_col.insert(0,container().grid_uni_col)
+           
+            # update check mark for widget_Checkbutton_Individual
+            if container().grid_conf_individual_wish: widget_Checkbutton_Individual.select()
+            else: widget_Checkbutton_Individual.deselect()
 
-                update_special_button()
-                send('UPDATE_INSERT_UNIFORM')
+            # update highlight for widget_Checkbutton_Individual
+            update_individual_mark(container())
+
+            # update widget_Button_Show for Show or Hide
+            update_button_show() 
+
+            # update uniform entries
+            widget_Entry_UniformRow.delete(0,'end')
+            widget_Entry_UniformCol.delete(0,'end')
+            widget_Entry_UniformRow.insert(0,container().grid_uni_row)
+            widget_Entry_UniformCol.insert(0,container().grid_uni_col)
+
+            # update minsize, pad, weight dependent on uniform entries
+            update_uni_row_uniform(container().grid_uni_row)
+            update_uni_col_uniform(container().grid_uni_col)
+
+            # update widget_Button_Special and disable other buttons or entries
+            update_special_button()
+
+            # update the insert uniform buttons of Toplevels
+            # +++ ATTENTION, but why?
+            # should we not allow to use this functionality also, if it's not the current container?
+            # or better not, could be confusing, if nothing visible happens
+            send('UPDATE_INSERT_UNIFORM')
 
     do_receive("SELECTION_CHANGED",update_grid_table_on_enter)
 
 
-    widget('special').is_on = False
-    widget('special').do_command(special_toggle)
+    widget_Button_Special.do_command(special_toggle)
 
 main()
 

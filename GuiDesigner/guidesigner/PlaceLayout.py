@@ -1,16 +1,18 @@
-config(**{'grid_cols': '(5, 51, 0, 0)', 'grid_multi_cols': '[5, (1, 26, 0, 0)]', 'grid_rows': '(3, 25, 0, 0)'})
+config(**{'minsize': '116 1', 'maxsize': '1920 1058', 'grid_multi_rows': '[4, (2, 6, 0, 0)]', 'grid_rows': '(4, 25, 0, 0)', 'grid_multi_cols': '[6, (1, 26, 0, 0), (4, 42, 0, 0), (5, 0, 0, 1)]', 'grid_cols': '(6, 51, 0, 0)'})
 
-Button('Adjust',**{'text': 'adjust', 'state': 'disabled', 'bd': '3'}).grid(**{'row': '1'})
-Label('Label',**{'text': 'x', 'padx': '3'}).grid(**{'column': '1', 'row': '1'})
-Button('Place',**{'text': 'PLACE', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'bg': 'lightgreen'}).grid(**{'sticky': 'nesw', 'row': '2'})
-Label('PlaceTitle',**{'text': 'place', 'font': 'TkDefaultFont 9 bold', 'bd': '3', 'fg': 'blue', 'relief': 'ridge'}).grid(**{'sticky': 'nesw', 'row': '0'})
-Spinbox('X',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '1'})
-Spinbox('Y',**{'increment': '10.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '2', 'sticky': 'ns', 'row': '0'})
-Spinbox('incX',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'sticky': 'ns', 'row': '1'})
-Spinbox('incY',**{'from': '1.0', 'width': '4', 'to': '2000.0'}).grid(**{'column': '3', 'sticky': 'ns', 'row': '0'})
-Label('label',**{'text': 'inc x'}).grid(**{'column': '4', 'row': '1'})
-Label('label',**{'text': 'y', 'padx': '3'}).grid(**{'column': '1', 'row': '0'})
-Label('label',**{'text': 'inc y'}).grid(**{'column': '4', 'row': '0'})
+Label('Label',**{'padx': '3', 'text': 'x'}).grid(column=1, row=1)
+Label('PlaceTitle',**{'bd': '3', 'fg': 'blue', 'font': 'TkDefaultFont 9 bold', 'relief': 'ridge', 'text': 'place'}).grid(row=0, sticky='nesw')
+Spinbox('X',**{'increment': 10.0, 'to': 2000.0, 'width': 4}).grid(column=2, row=1, sticky='ns')
+Spinbox('Y',**{'increment': 10.0, 'to': 2000.0, 'width': 4}).grid(column=2, row=0, sticky='ns')
+Spinbox('incX',**{'to': 2000.0, 'width': 4, 'from_': 1.0}).grid(column=3, row=1, sticky='ns')
+Spinbox('incY',**{'to': 2000.0, 'width': 4, 'from_': 1.0}).grid(column=3, row=0, sticky='ns')
+Label('label',**{'text': 'inc x'}).grid(column=4, row=1)
+Label('label',**{'padx': '3', 'text': 'y'}).grid(column=1, row=0)
+Label('label',**{'text': 'inc y'}).grid(column=4, row=0)
+ttk.Separator('separator').grid(row=2, columnspan=6, sticky='ew')
+Button('Place',**{'bd': '3', 'bg': 'lightgreen', 'padx': '1m', 'text': 'place'}).grid(row=3, sticky='nesw')
+Button('relative',**{'bd': '3', 'text': 'relative'}).grid(column=3, row=3, columnspan=2, padx=1, sticky='nsw')
+Button('Adjust',**{'bd': '3', 'padx': '1m', 'state': 'disabled', 'text': 'adjust'}).grid(column=1, row=3, columnspan=2, padx=1, sticky='nesw')
 
 ### CODE ===================================================
 
@@ -32,6 +34,77 @@ def main():
     widget("incX").do_event("<Return>",set_increment,widget("X"),wishWidget=True)
     widget("incY").do_command(set_increment,widget("Y"),wishWidget=True)
     widget("incY").do_event("<Return>",set_increment,widget("Y"),wishWidget=True)
+
+
+    def calc_relative():
+
+        #y_diff = this().dyntk_start_frame.winfo_rooty()-container().winfo_rooty()
+        #x_diff = this().dyntk_start_frame.winfo_rootx()-container().winfo_rootx()
+        y_end = this().dyntk_end_frame.winfo_rooty()-this().dyntk_start_frame.winfo_rooty()
+        x_end = this().dyntk_end_frame.winfo_rootx()-this().dyntk_start_frame.winfo_rootx()
+        selection_before = Selection()
+        me = this()
+        me.dyntk_start_frame.destroy()
+        me.dyntk_end_frame.destroy()
+        setSelection(selection_before)
+
+        children = container().place_slaves()
+        cont_width = x_end
+        cont_height = y_end
+
+        for child in children:
+            place_info = child.place_info()
+            x = int(place_info['x'])
+            y = int(place_info['y'])
+            relx = float(place_info['relx'])
+            rely = float(place_info['rely'])
+        
+            width = place_info['width']
+            height = place_info['height']
+            relwidth = place_info['relwidth']
+            relheight = place_info['relheight']
+
+            if x:
+                relx += x/cont_width
+                x = 0
+
+            if y:
+                rely += y/cont_height
+                y = 0
+
+            if height:
+                if relheight:
+                    relheight = float(relheight)
+                else:
+                    relheight = 0
+
+                relheight += int(height)/cont_height
+                height = ''
+
+            if width:
+                if relwidth:
+                    relwidth = float(relwidth)
+                else:
+                    relwidth = 0
+
+                relwidth += int(width)/cont_width
+                width = ''
+
+            child.place(x=x,y=y,width=width,height=height,relx=relx,rely=rely,relwidth=relwidth,relheight=relheight)
+
+        send("POSITION_CHANGED")
+        send('SHOW_LAYOUT',this())
+
+    def calc_relative_after():
+        this().dyntk_start_frame = Frame((container(),NONAME_MOVE))
+        this().dyntk_start_frame.yxplace(0,0)
+        this().dyntk_end_frame = Frame((container(),NONAME_MOVE))
+        this().dyntk_end_frame.place(relx=1,rely=1)
+        this().after(10,calc_relative)
+        
+
+    widget('relative').do_command(calc_relative_after)
+
 
     # -------------- Adjust button command ----------------------------------
     # round according to stepwidth inX,incY
@@ -55,121 +128,158 @@ def main():
 
         yxplace(yval,xval)
 
-        send("POSITION_CHANGED",this())
-        send('LAYOUT_VALUES_REFRESH',this())
+        send("POSITION_CHANGED")
+        send('LAYOUT_VALUES_REFRESH')
 
     widget("Adjust").do_command(do_adjust)
 
 
     # -------------- Mouse move button commands and mouse events ----------------------------------
 
-    # on mouse button down the current y,x offset of the mouse pointer is stored in mydata
-    # if the widget isn't the selected widget, then it becomes the selected widget
+
+    class DynTk_HighLight:
+
+        def __init__(self,me):
+            self.me = me
+
+            dyntk_highlight(me)
+            
+            self.selection_changed = False
+            if this() != self.me:
+                self.selection_changed = True
+                setWidgetSelection(self.me)
+                send('SHOW_LAYOUT',(None,False))
+                send('SHOW_CONFIG',(None,False))
+                send('SELECTION_CHANGED')
+
+        def restore(self):
+            dyntk_unhighlight(self.me)
+            if self.selection_changed:
+                send('SHOW_LAYOUT',(None,True))
+                send('SHOW_CONFIG',(None,True))
+                send('SELECTION_CHANGED')
+            else:
+                send('POSITION_CHANGED')
+                send('LAYOUT_VALUES_REFRESH')
 
 
-    def mouse_move(me,wi_row=widget('Row'),wi_col=widget('Col')):
-        if me.mydata[6]:
-            step = 10
-            diffx = me.winfo_pointerx() - me.winfo_rootx()
-            diffy = me.winfo_pointery() - me.winfo_rooty()
-            me.mydata[3] += diffx-me.mydata[0]
-            me.mydata[4] += diffy-me.mydata[1]
-            me.yxplace(me.mydata[4],me.mydata[3])
-            me.mydata[5] += step
-            if me.mydata[5] >= 100:
-                me.mydata[5] = 0
-                send('POSITION_CHANGED',me)
-                send('LAYOUT_VALUES_REFRESH',me)
-            me.mydata[5] += step
-            me.after(step,mouse_move,me)
+            
+    class DynTk_MouseMove:
 
-    def on_mouse_down(me,event):
-        #xpos = int(me.getlayout("x"))
-        #ypos = int(me.getlayout("y"))
-        xpos = me.winfo_rootx()-me.container().winfo_rootx()
-        ypos = me.winfo_rooty()-me.container().winfo_rooty()
+        def __init__(self,me):
+            self.me = me
 
-        me.mydata = [event.x,event.y,'mouse',xpos,ypos,0,True,False]
-        me.lift()
-        mouse_move(me)
+            self.start_x = int(me.place_info()['x'])
+            self.start_y = int(me.place_info()['y'])
+            self.start_pointerx = me.winfo_pointerx()
+            self.start_pointery = me.winfo_pointery()
 
-        if this() != me:
-            setWidgetSelection(me)
-            me.mydata[7] = True
-            send('SHOW_LAYOUT',(None,False))
-            send('SHOW_CONFIG',(None,False))
-            send('SELECTION_CHANGED')
-        send('BASEMENTLEVEL_CHANGED')
+            self.selection_changed = False
+            self.step = 0
+            self.is_moving=False
+        
+        def start_move(self,event=None):
+            if not self.is_moving:
+                self.me.unbind('<B1-Motion>')
+                dyntk_unhighlight(self.me)
+                self.me.lift()
+                if this() != self.me:
+                    self.selection_changed = True
 
-    def on_mouse_up(me,event):
-        me.mydata[6] = False # stop timer
-        if me.mydata[7]:
-            me.mydata[7] = False
-            send('SHOW_LAYOUT',(None,True))
-            send('SHOW_CONFIG',(None,True))
-            send('SELECTION_CHANGED')
-        else:
-            send('POSITION_CHANGED',me)
-            send('LAYOUT_VALUES_REFRESH',me)
-        me.dyntk_lift()
+                send('BASEMENTLEVEL_CHANGED')
+            self.is_moving = True
+            self.move()
 
-    def do_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        me.mydata=[0,0,'mouse',0,0,0,True,False]
-        me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
-        me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
+        def stop_move(self):
+            self.is_moving = False
+            self.me.dyntk_lift()
 
-    def place_mouse_on(me,mouse_down = on_mouse_down, mouse_up = on_mouse_up):
-        if type(me.mydata) != list or len(me.mydata) < 3 or me.mydata[2]!= 'mouse':
-            me.mydata=([0,0,'mouse',0,0,0,True,False])
-            me.do_event('<Button-1>',mouse_down,wishWidget=True,wishEvent=True)
-            me.do_event('<ButtonRelease-1>',mouse_up,wishWidget=True,wishEvent=True)
+        def move(self):
+            if self.is_moving and widget_exists(self.me) and self.me.Layout == PLACELAYOUT:
+
+                diff_x = self.me.winfo_pointerx() - self.start_pointerx
+                diff_y = self.me.winfo_pointery() - self.start_pointery
+
+                self.me.yxplace(self.start_y + diff_y,self.start_x + diff_x)
+                if self.step >= 10:
+                    self.step = 0
+                    send('POSITION_CHANGED')
+                    send('LAYOUT_VALUES_REFRESH')
+                self.step += 1
+                self.me.after(10,self.move)
+
+    # we bind events to the widget - better not additional first, so nothing may happen with additional unexpected messages
+
+    def place_mouse_on(me):
+        me.do_event('<Button-1>',highlight_widget,wishWidget=True)
+
+    def highlight_widget(me):
+        me.dyntk_highlight = DynTk_HighLight(me)
+        me.dyntk_mousemove = DynTk_MouseMove(me)
+        me.do_event('<B1-Motion>',me.dyntk_mousemove.start_move)
+        me.do_event('<ButtonRelease-1>',highlight_mouse_up,wishWidget=True)
+
+    def highlight_mouse_up(me):
+        if  me.dyntk_highlight:
+            me.dyntk_mousemove.is_moving = False
+
+        me.unbind('<ButtonRelease-1>')
+        me.unbind('<B1-Motion>')
+        me.dyntk_highlight.restore()
+        me.dyntk_mousemove.stop_move()
+        me.dyntk_highlight = None
+        me.dyntk_mousemove = None
+
 
     do_receive('PLACE_MOUSE_ON',place_mouse_on,wishMessage=True)
 
-    def do_place_at00(mouse_on = do_mouse_on):
 
-        layout_before = this().Layout
-        yxplace(0,0)
-        if layout_before == NOLAYOUT:
-            this().dyntk_lift()
-        if container().is_mouse_select_on: mouse_on(this())
-        else: send("SWITCH_MOUSE_ON")
+    def place_after(par):
+        me = par[0]
+        layout_before =par[1]
+        (x,y) = me.winfo_rootx()-me.dyntk_start_frame.winfo_rootx(),me.winfo_rooty()-me.dyntk_start_frame.winfo_rooty()
+        yxplace(y,x,width=me.winfo_width(),height=me.winfo_height())
 
-        send('POSITION_CHANGED',this()) # show this in X an Y Spinbox, 'bd': '3'
+        selection_before = Selection()
+        me.dyntk_start_frame.destroy()
+        setSelection(selection_before)
         send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
+        send('POSITION_CHANGED') # show this in X an Y Spinbox, 'bd': '3'
 
-    #widget("Place").do_command(do_place_at00)
-
-
-    def do_place_dependent(mouse_on = do_mouse_on):
+    def do_place_dependent(mouse_on = place_mouse_on):
 
         layout_before = this().Layout
 
         if layout_before == NOLAYOUT:
             yxplace(0,0)
             this().dyntk_lift()
+            send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
+            send('POSITION_CHANGED') # show this in X an Y Spinbox, 'bd': '3'
+
         elif layout_before != PLACELAYOUT:
-            (x,y) = this().winfo_rootx()-container().winfo_rootx(),this().winfo_rooty()-container().winfo_rooty()
-            yxplace(y,x)
+            this().dyntk_start_frame = Frame((this().master,NONAME_MOVE))
+            this().dyntk_start_frame.yxplace(0,0)
+            this().after(10,place_after,(this(),layout_before))
+        else:
+            yxplace(0,0)
+            send('POSITION_CHANGED') # show this in X an Y Spinbox, 'bd': '3'
+            send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
         
         if container().is_mouse_select_on: mouse_on(this())
         else: send("SWITCH_MOUSE_ON")
 
-        send('POSITION_CHANGED',this()) # show this in X an Y Spinbox, 'bd': '3'
-        send("BASE_LAYOUT_CHANGED",layout_before) # and message to others
 
     widget("Place").do_command(do_place_dependent)
-
 
     # -------------- X,Y Spinbox commands and Return key events ----------------------------------
 
     # do the place layout and send a 'BASE_LAYOUT_CHANGED' message
 
-    def do_place(yentry = widget("Y"), xentry = widget("X"),mouse_on=do_mouse_on):
+    def do_place(yentry = widget("Y"), xentry = widget("X")):
         layout_before = this().Layout
         yxplace(yentry.get(),xentry.get())
 
-        if container().is_mouse_select_on: mouse_on(this())
+        if container().is_mouse_select_on: place_mouse_on(this())
         send('BASE_LAYOUT_CHANGED',layout_before)
 
     widget("Y").do_command(do_place)

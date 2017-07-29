@@ -14,10 +14,10 @@ def parent_destroy(parent=container()):
 
 widget('Cancel').do_command(parent_destroy)
 
-def Access(widget_for_text):
+def Access(widget_for_text,option):
 
     def store_text(text_field = widget('Text'),widget_for_text = widget_for_text):
-        widget_for_text.setconfig('text',text_field.get("1.0",'end-1c'))
+        widget_for_text.setconfig(option,text_field.get("1.0",'end-1c'))
         selection_before = Selection()
         text_field.master.destroy()
         if widget_exists(selection_before._widget):
@@ -27,7 +27,9 @@ def Access(widget_for_text):
        
     widget('OK').do_command(store_text)
 
+    if option != 'methods':
+        widget('Text')['font'] = widget_for_text.getconfig('font')
     widget('Text').delete(1.0, END)	
-    widget('Text').insert(END,widget_for_text.getconfig('text'))
+    widget('Text').insert(END,widget_for_text.getconfig(option))
 
 ### ========================================================

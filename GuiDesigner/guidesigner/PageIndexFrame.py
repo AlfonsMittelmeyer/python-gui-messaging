@@ -15,6 +15,7 @@ def change_page(entry=widget('page')):
     entry.delete(0,END)
     entry.insert(0,this().getlayout('page'))
     send('LAYOUT_VALUES_REFRESH',this())
+    send('REFRESH_INDEX_ORDER')
 
 widget('page').do_event("<Return>",change_page)
 widget('page').do_command(change_page)

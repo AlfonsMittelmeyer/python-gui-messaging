@@ -7,14 +7,14 @@ def grid_configure_multi(data):
             if len(data[i]) == 5:
                 multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3],'uniform':data[i][4]}]
             else:
-                multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3]}]
+                multi[data[i][0]] = [True,{'minsize':data[i][1],'pad':data[i][2],'weight':data[i][3],'uniform':''}]
     return multi
 
 def grid_configure_cols(cont):
 
     cols = cont.grid_conf_cols[0]
 
-    if len(cont.grid_multi_conf_cols) == 0:
+    if not len(cont.grid_multi_conf_cols):
         for i in range(cols): cont.grid_multi_conf_cols.append([False,None])
 
     to_insert =  {'minsize':cont.grid_conf_cols[1],'pad':cont.grid_conf_cols[2],'weight':cont.grid_conf_cols[3]}
@@ -30,13 +30,14 @@ def grid_configure_rows(cont):
 
     rows = cont.grid_conf_rows[0]
 
-    if len(cont.grid_multi_conf_rows) == 0:
+    if not len(cont.grid_multi_conf_rows):
         for i in range(rows): cont.grid_multi_conf_rows.append([False,None])
 
     to_insert =  {'minsize':cont.grid_conf_rows[1],'pad':cont.grid_conf_rows[2],'weight':cont.grid_conf_rows[3]}
     
     for row in range(rows):
-        if cont.grid_multi_conf_rows[row][0] == False: cont.grid_multi_conf_rows[row][1] = dict(to_insert)
+        if not cont.grid_multi_conf_rows[row][0]:
+            cont.grid_multi_conf_rows[row][1] = dict(to_insert)
 
     for row in range(rows):
         cont.grid_rowconfigure(row,**(cont.grid_multi_conf_rows[row][1]))
@@ -50,7 +51,7 @@ def clear_grid(cont):
         if cont.grid_conf_individual_done:
             unconf_rows += 1
         for i in range(unconf_rows):
-            cont.grid_rowconfigure(i,minsize = 0,pad=0,weight=0)
+            cont.grid_rowconfigure(i,minsize = 0,pad=0,weight=0,uniform='')
 
     col_conf = cont.grid_conf_cols
     if col_conf != None:
@@ -59,11 +60,12 @@ def clear_grid(cont):
         if cont.grid_conf_individual_done:
             unconf_cols += 1
         for i in range(unconf_cols):
-            cont.grid_columnconfigure(i,minsize = 0,pad=0,weight=0)
-    
+            cont.grid_columnconfigure(i,minsize = 0,pad=0,weight=0,uniform='')
     cont.reset_grid()
 
 def grid_table(container,grid_rows = None, grid_cols = None, grid_multi_rows = None, grid_multi_cols = None):
+
+    clear_grid(container)
     if grid_multi_rows != None:
         container.grid_conf_individual_has = True
         container.grid_multi_conf_rows = grid_configure_multi(eval(grid_multi_rows))
