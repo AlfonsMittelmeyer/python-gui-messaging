@@ -324,7 +324,7 @@ class GuiElement:
     def __getitem__(self, key):
         try:
             item = self.tkClass.__getitem__(self, key)
-        except TclError:
+        except (AttributeError,TclError):
             dictionary = self.getconfdict()
             if key in dictionary:
                 item = dictionary[key]
