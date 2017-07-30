@@ -3099,6 +3099,16 @@ def saveAccess(filehandle,isWidgets=False):
 
 # ========== Save Export ===========================================================
 
+def exportApplication(name):
+    fh = open(name,'w',encoding="utf-8")
+    currentSelection = Selection()
+    gotoRoot()
+    _Selection._container = _TopLevelRoot._container
+    result = saveExport(None,fh)
+    setSelection(currentSelection)
+    fh.close()
+    
+
 def saveExport(readhandle,writehandle,names=False,designer=False):
 
     EXPORT_NAME = names # export with or without names
