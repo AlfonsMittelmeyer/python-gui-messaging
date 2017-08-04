@@ -3664,7 +3664,9 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
         if isinstance(widget,CanvasItemWidget): return []
 
         setWidgetSelection(widget)
-        var_name = (widget_name)
+        var_name = widget_name
+        if var_name[0].isdigit():
+            var_name = '_' + var_name
 
         if this().myclass:
             camelcase_name = this().myclass

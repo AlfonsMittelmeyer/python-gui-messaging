@@ -2284,12 +2284,12 @@ def main():
             
             # try to get the values from definitions made by a tkinter application, otherwise take default values
             if not container().grid_conf_cols:
-                container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols,this().grid_cols_how_many)
+                container().grid_conf_cols,container().grid_multi_conf_cols = get_gridconfig(container().grid_cols,container().grid_cols_how_many)
                 if not container().grid_conf_cols:
                     container().grid_conf_cols = start_default_col_values
 
             if not container().grid_conf_rows:
-                container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows,this().grid_rows_how_many)
+                container().grid_conf_rows,container().grid_multi_conf_rows = get_gridconfig(container().grid_rows,container().grid_rows_how_many)
                 if not container().grid_conf_rows:
                     container().grid_conf_rows = start_default_row_values
 

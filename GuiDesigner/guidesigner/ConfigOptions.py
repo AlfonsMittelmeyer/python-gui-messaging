@@ -250,7 +250,7 @@ def main():
         do_command(helpbutton,(grid_row,widget("listbox"),widget("Entry")))
 
     def listbox_bitmap_selection(grid_row,helpbutton = listbox_helpbutton,about_gif = about_gif):
-        Button(pady=1,padx=1,bitmap='@Bitmaps/icon',text="?").rcgrid(grid_row,2) # create a help button for showing the listbox
+        Button(pady=1,padx=1,bitmap='@guidesigner/images/icon',text="?").rcgrid(grid_row,2) # create a help button for showing the listbox
         do_command(helpbutton,(grid_row,widget("listbox"),widget("Entry")))
 
     def select_color(mebutton,entry):
