@@ -1,9 +1,9 @@
-config(**{'text': 'tkinter or ttk'})
+config(**{'grid_cols': '(2, 40, 0, 0)', 'grid_rows': '(2, 0, 0, 0)'})
 
-Button('button_ttk',**{'padx': '1', 'width': 11, 'text': 'ttk'}).grid(column=1, row=0, pady=2)
-Label('label_selected',**{'padx': '0', 'bg': 'yellow', 'width': 9, 'pady': '2', 'text': 'tkinter'}).grid(row=0, padx=10)
-Button('loadstyles',**{'padx': '1', 'width': 11, 'text': 'load styles'}).grid(column=1, row=1, pady=2)
-Label('styles',**{'bg': 'gray97', 'width': 9, 'pady': '2', 'text': 'styles.py'}).grid(row=1, padx=10)
+Button('button_ttk',**{'pady': '2', 'text': 'ttk', 'padx': '1', 'width': 11}).grid(row=0, pady=2, column=1)
+Label('label_selected',**{'text': 'tkinter', 'padx': '0', 'bg': 'yellow', 'pady': '2', 'width': 9}).grid(row=0, padx=10)
+Button('loadstyles',**{'pady': '2', 'text': 'load styles', 'padx': '1', 'width': 11}).grid(row=1, pady=2, column=1)
+Label('styles',**{'text': 'styles.py', 'bg': 'gray97', 'pady': '2', 'width': 9}).grid(row=1, padx=10)
 
 ### CODE ===================================================
 import os

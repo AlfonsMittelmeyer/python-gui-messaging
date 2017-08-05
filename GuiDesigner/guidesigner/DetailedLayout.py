@@ -336,7 +336,7 @@ def show_layout(
                 elif entry[0] == "underline":
                     Spinbox("Entry",from_=-1,to=300,increment=1,width=entry_width)
                     do_command(e_event,wishWidget=True) # via up and down buttons the option value can be changed
-                elif entry[0] == "expand":
+                elif entry[0] in ("expand","hide"):
                     ToggleButton('Entry',entry[0])
                 elif entry[0] == "text":
                     Entry("Entry",width=20)

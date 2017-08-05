@@ -184,7 +184,7 @@ class Main():
 
 
     def set_sticky(self,value):
-        if widget_exists(self.sticky_widget) and self.sticky_widget.Layout in (GRIDLAYOUT,PAGELAYOUT):
+        if widget_exists(self.sticky_widget) and self.sticky_widget.Layout in (GRIDLAYOUT,PAGELAYOUT,PANELAYOUT):
             self.sticky_widget.setlayout('sticky',value)
             if self.sticky_widget == this():
                 send("LAYOUT_VALUES_REFRESH")

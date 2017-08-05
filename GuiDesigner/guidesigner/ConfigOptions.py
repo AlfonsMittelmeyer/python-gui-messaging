@@ -897,7 +897,7 @@ def main():
                             do_command(lambda me = this(), root = widget('/','GuiFrame'),entry = widget('Entry'): send('SET_LABELANCHOR',(
                                 me.winfo_rootx() - root.winfo_rootx()+me.winfo_width(),
                                 me.winfo_rooty() - root.winfo_rooty(),
-                                this(),'labelanchor',entry
+                                'labelanchor',entry
                                 )))
 
                         elif entry[0] == "compound":

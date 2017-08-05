@@ -1,17 +1,17 @@
-config(grid_rows='(3, 25, 0, 0)', grid_cols='(4, 43, 0, 0)', text='Create Widget', grid_multi_cols='[4, (1, 64, 0, 0), (2, 3, 0, 0), (3, 26, 0, 1)]')
+config(**{'grid_multi_cols': '[4, (1, 64, 0, 0), (2, 3, 0, 0), (3, 26, 0, 1)]', 'grid_cols': '(4, 43, 0, 0)', 'grid_rows': '(3, 0, 0, 0)'})
 
-Button('Create',bg='lightgreen', pady='1', padx='1', bd='3', text='Create').grid(column=3, row=0, sticky='nes')
-Label('Label',text='Class', width=7).grid(row=0)
-Label('Label',text='Name', width=7).grid(row=1)
-Entry('Name').grid(column=1, row=1, sticky='nesw', columnspan=3)
-Label('Type',bg='yellow', relief='ridge', font='TkDefaultFont 9 bold', fg='blue', text='Button').grid(column=1, row=0, sticky='ew')
-Frame('orient',grid_rows='(1, 30, 0, 0)', grid_cols='(2, 0, 0, 0)')
+Button('Create',**{'text': 'Create', 'bg': 'lightgreen', 'pady': '1', 'padx': '1', 'bd': '2'}).grid(sticky='nes', column=3, row=0)
+Label('Label',**{'width': 7, 'text': 'Class'}).grid(row=0)
+Label('Label',**{'width': 7, 'text': 'Name'}).grid(row=1)
+Entry('Name').grid(columnspan=3, sticky='nesw', column=1, row=1)
+Label('Type',**{'fg': 'blue', 'text': 'Button', 'bg': 'yellow', 'relief': 'ridge', 'font': 'TkDefaultFont 9 bold'}).grid(sticky='ew', column=1, row=0)
+Frame('orient',**{'grid_cols': '(2, 0, 0, 0)', 'grid_rows': '(1, 0, 0, 0)'})
 goIn()
 
-Label('label',text='orient', width=7).grid(row=0)
-Entry('orient',width=10).grid(column=1, row=0, sticky='nesw')
-Button('help',text="?").rcgrid(0,2)
-Listbox('lbox',width=10,height=2)
+Label('label',**{'width': 7, 'text': 'orient'}).grid(row=0)
+Entry('orient',**{'width': 10}).grid(sticky='nesw', column=1, row=0)
+Button('help',**{'text': '?', 'pady': '1'}).grid(column=2, row=0)
+Listbox('lbox',**{'width': 10, 'fill by text': '', 'height': 2})
 
 ### CODE ===================================================
 
@@ -93,7 +93,7 @@ do_receive('ENABLE_ORIENT',enable_orient,wishMessage=True)
 ### ========================================================
 
 goOut()
-grid(row=2, sticky='nesw', columnspan=5)
+grid(columnspan=5, sticky='nesw', row=2)
 
 ### CODE ===================================================
 

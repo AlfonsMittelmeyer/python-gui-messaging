@@ -1,15 +1,13 @@
-MenuItem('Config','command',**{'underline': 1, 'background': 'lightgreen', 'label': 'Config ON'})
-MenuItem('Create','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Create ON'})
 MenuItem('File','cascade',**{'underline': 0, 'label': 'File'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('Menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('Access','cascade',**{'label': 'Save Access'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('Menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('Container','command',**{'label': 'Container Depth'})
@@ -38,10 +36,10 @@ select_menu()
 
 goOut()
 
-MenuItem('Export','cascade',**{'underline': 0, 'compound': 'left', 'photoimage': 'guidesigner/images/document-save-as.gif', 'label': 'Export tkinter'})
+MenuItem('Export','cascade',**{'compound': 'left', 'photoimage': 'guidesigner/images/document-save-as.gif', 'underline': 0, 'label': 'Export tkinter'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('Menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -89,7 +87,7 @@ MenuItem('Save','command',**{'underline': 0, 'compound': 'left', 'photoimage': '
 MenuItem('Split & Join','cascade',**{'label': 'Split & Join'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('Menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('Help','command',**{'label': 'Help'})
@@ -206,19 +204,16 @@ select_menu()
 
 goOut()
 
-MenuItem('Hide','command',**{'underline': 0, 'label': 'Hide'})
-MenuItem('Layout','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Layout ON'})
-MenuItem('Mouse','command',**{'underline': 0, 'background': 'lightgreen', 'label': 'Mouse ON'})
 MenuItem('Special','cascade',**{'underline': 0, 'label': 'Special'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'blue', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('Menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'blue', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('ExpertOptions','cascade',**{'compound': 'left', 'photoimage': 'guidesigner/images/meeting-chair.gif', 'label': 'Expert Options'})
 goIn()
 
-Menu('Menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('Menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('Code','command',**{'label': 'Code'})
@@ -254,12 +249,12 @@ goOut()
 MenuItem('GUI Refresh','command',**{'underline': 4, 'compound': 'left', 'photoimage': 'guidesigner/images/fullscreen.gif', 'label': 'GUI Refresh'})
 MenuItem('Refresh','command',**{'underline': 0, 'compound': 'left', 'photoimage': 'guidesigner/images/view-restore.gif', 'label': 'GuiDesigner Refresh'})
 MenuItem('Toproot','command',**{'compound': 'left', 'photoimage': 'guidesigner/images/top.gif', 'label': 'Toproot'})
-MenuItem('alphabetical','radiobutton',**{'value': 'alphabetical', 'compound': 'left', 'photoimage': 'guidesigner/images/tools-check-spelling.gif', 'label': 'alphabetical', 'underline': 0})
-MenuItem('i-order','radiobutton',**{'value': 'index', 'compound': 'left', 'photoimage': 'guidesigner/images/index.gif', 'label': 'pack index', 'underline': 0})
+MenuItem('alphabetical','radiobutton',**{'underline': 0, 'value': 'alphabetical', 'photoimage': 'guidesigner/images/tools-check-spelling.gif', 'label': 'alphabetical', 'compound': 'left'})
+MenuItem('i-order','radiobutton',**{'underline': 0, 'value': 'index', 'photoimage': 'guidesigner/images/index.gif', 'label': 'pack index', 'compound': 'left'})
 MenuItem('order','command',**{'activebackground': 'white', 'state': 'disabled', 'label': 'Navigation Order'})
 MenuItem('separator','separator')
 MenuItem('separator','separator')
-MenuItem('z-order','radiobutton',**{'value': 'basement', 'compound': 'left', 'photoimage': 'guidesigner/images/sort-ascending.gif', 'label': 'z-order', 'underline': 0})
+MenuItem('z-order','radiobutton',**{'underline': 0, 'value': 'basement', 'photoimage': 'guidesigner/images/sort-ascending.gif', 'label': 'z-order', 'compound': 'left'})
 
 widget('Refresh').layout(index=1)
 widget('GUI Refresh').layout(index=2)
@@ -345,14 +340,14 @@ goOut()
 MenuItem('help','cascade',**{'label': 'Help'})
 goIn()
 
-Menu('menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('backup','command',**{'label': 'Backup'})
 MenuItem('code_in_scripts','cascade',**{'label': 'Code in Scripts'})
 goIn()
 
-Menu('menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('dynaccess','command',**{'label': 'DynAccess'})
@@ -400,7 +395,7 @@ MenuItem('menu_entries','command',**{'label': 'Menu Entries'})
 MenuItem('programming','cascade',**{'label': 'Programming'})
 goIn()
 
-Menu('menu',**{'relief': 'solid', 'tearoff': 0, 'selectcolor': 'black', 'bg': 'white', 'activebackground': '#7bfeff', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64'})
+Menu('menu',**{'relief': 'solid', 'fg': 'black', 'activeforeground': 'black', 'disabledforeground': 'grey64', 'selectcolor': 'black', 'tearoff': 0, 'activebackground': '#7bfeff', 'bg': 'white'})
 goIn()
 
 MenuItem('access_toplevel','command',**{'label': 'Access Toplevel'})
@@ -481,25 +476,12 @@ select_menu()
 
 goOut()
 
-MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
-MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
-MenuItem('space','command',**{'state': 'disabled', 'label': ' '})
 
 widget('File').layout(index=1)
 widget('Special').layout(index=2)
 widget('help').layout(index=3)
-widget('Create').layout(index=4)
-widget('space',0).layout(index=5)
-widget('Config').layout(index=6)
-widget('space',1).layout(index=7)
-widget('Layout').layout(index=8)
-widget('space',2).layout(index=9)
-widget('Mouse').layout(index=10)
-widget('Hide').layout(index=11)
 
 ### CODE ===================================================
-
-widget('Hide').mydata = False
 
 def enable_file(wi=widget('File')):
 
@@ -507,69 +489,5 @@ def enable_file(wi=widget('File')):
     wi.config(state = state)
 
 do_receive("SELECTION_CHANGED",enable_file)
-
-
-# ----
-
-widget("Config").mydata = False
-widget("Layout").mydata = False
-widget("Create").mydata = False
-widget("Mouse").mydata = False
-
-def function_callback(me,message_to_send,thisText=None):
-    me.mydata = not me.mydata
-    if message_to_send == "MOUSE_SELECT_ON": container().is_mouse_select_on = me.mydata
-    send(message_to_send,me.mydata)
-    if me.mydata: me.config(label=thisText+" OFF",background="orange")
-    else: me.config(label=thisText+" ON",background="lightgreen")
-
-def call(widget_name,message_to_send,callback=function_callback):
-    widget(widget_name).do_command(callback,(message_to_send,widget_name),True)
-
-call("Config","SHOW_CONFIG")
-call("Layout","SHOW_LAYOUT")
-call("Create","SHOW_CREATE")
-call("Mouse","MOUSE_SELECT_ON")
-
-send("SHOW_CREATE",False)
-
-def switch_mouse_on(mouse_button=widget("Mouse"),funct=function_callback):
-    if not mouse_button.mydata: funct(mouse_button,"MOUSE_SELECT_ON",'Mouse')
-
-do_receive("SWITCH_MOUSE_ON",switch_mouse_on)
-
-
-def set_option_buttons(message,buttons=(widget("Config"),widget("Layout"),widget("Create"),widget("Mouse"))):
-    for i in range(len(message)):
-        if message[i] != buttons[i].mydata: buttons[i].invoke()
-
-do_receive('SET_OPTION_BUTTONS',set_option_buttons,wishMessage=True)
-
-
-def hide_gui(me,buttons=((widget("Config"),"SHOW_CONFIG"),(widget("Layout"),"SHOW_LAYOUT"),(widget("Create"),"SHOW_CREATE"))):
-
-    me.mydata = not me.mydata
-
-    if me.mydata:
-        me.config(label = 'Show',underline = 1)
-    else:
-        me.config(label = 'Hide',underline = 0)
-        
-    send("HIDE_GUI",me.mydata)
-    enable_state = 'disabled' if me.mydata else 'normal'
-    for entry in buttons:
-        entry[0].config(state = enable_state)
-        if me.mydata and entry[0].mydata: send(entry[1],False)
-        elif not me.mydata and entry[0].mydata: send(entry[1],True)
-
-widget('Hide').do_command(hide_gui,wishWidget=True)
-
-
-def check_mouse_on(mouse=widget('Mouse'),func=function_callback):
-    #if container().is_mouse_select_on != mouse.mydata: mouse.invoke()
-    if container().is_mouse_select_on != mouse.mydata: func(mouse,"MOUSE_SELECT_ON",'Mouse')
-
-    
-do_receive('SELECTION_CHANGED',check_mouse_on)
 
 ### ========================================================
