@@ -137,6 +137,7 @@ def do_destroy(cont = container(),delete_window=delete_window):
             destroyElement(name_ind[0],name_ind[1])
             cdDir()
             send("SELECTION_CHANGED",this())
+            send("SHOW_SELECTION_UPDATE")
 
 do_receive('DESTROY_WIDGET',do_destroy)
 
