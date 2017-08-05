@@ -12,7 +12,7 @@ Just download the ZIP file DynTkInter GuiDesigner via green button 'Clone or dow
 
 **DynTkInter GuiDesigner, the best gui builder for tkinter**
 ----------------------
-**Now Mac compitible**
+**Now Mac compatible**
 
 ![enter image description here](https://www2.pic-upload.de/img/33678975/guidesigner.gif)
 *The menu buttons - tkinter menu command items - were not visible for Mac. They are now located in the GUI - here (Linux) just below the menu*
