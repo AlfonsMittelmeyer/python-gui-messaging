@@ -12,8 +12,10 @@ Just download the ZIP file DynTkInter GuiDesigner via green button 'Clone or dow
 
 **DynTkInter GuiDesigner, the best gui builder for tkinter**
 ----------------------
+**Now Mac compitible**
 
-![enter image description here](https://www2.pic-upload.de/img/33627507/guidesigner_new.gif)
+![enter image description here](https://www2.pic-upload.de/img/33678975/guidesigner.gif)
+*The menu buttons - tkinter menu command items - were not visible for Mac. They are now located in the GUI - here (Linux) just below the menu*
 
 Most gui builders offer only one kind of layout.
 Most of them offer **place**.
@@ -51,6 +53,5 @@ The Grid Layout
  - [fast grid minsize change via movable grid bars](https://github.com/AlfonsMittelmeyer/python-gui-messaging/wiki/fast-grid-minsize-change-via-movable-grid-bars)
  - [insert and delete rows and columns](https://github.com/AlfonsMittelmeyer/python-gui-messaging/wiki/insert-and-delete-rows-and-columns)
  - [grid uniform configuration](https://github.com/AlfonsMittelmeyer/python-gui-messaging/wiki/grid-uniform-configuration)
-
 
 
