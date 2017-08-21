@@ -694,12 +694,12 @@ class GuiElement:
             else: 
                 if isinstance(self.master,MenuItem):
                     self.master = self.master.master
+
+                elif isinstance(self,MenuItem) and self.mytype == 'cascade':
+                    child_list = self.Dictionary.getChildrenList()
+                    for child in child_list: child.destroy()
+
                 if widget_exists(self): self.tkClass.destroy(self)
-        else:
-            if isinstance(self,MenuItem) and self.mytype == 'cascade':
-                child_list = self.Dictionary.getChildrenList()
-                for child in child_list: child.destroy()
-                
 
         EXISTING_WIDGETS.pop(self,None)		
         cdApp()
@@ -1852,12 +1852,17 @@ class Text(GuiElement,StatTkInter.Text):
     def __init__(self,myname=None,**kwargs):
         _initGuiElement(kwargs,StatTkInter.Text,self,myname,"text")
 
+    def executeclear_addconfig(self,kwargs):
+        text = kwargs.pop('fill by text',None)
+        GuiElement.executeclear_addconfig(self,kwargs)
+        if text != None:
+            self.delete(1.0, END)
+            self.insert(END,text)
 
 class Spinbox(GuiElement,StatTkInter.Spinbox):
 
     def __init__(self,myname=None,**kwargs):
         _initGuiElement(kwargs,StatTkInter.Spinbox,self,myname,"spinbox")
-
 
 class Menubutton(GuiContainer,StatTkInter.Menubutton):
 
@@ -3099,12 +3104,12 @@ def saveAccess(filehandle,isWidgets=False):
 
 # ========== Save Export ===========================================================
 
-def exportApplication(name):
+def exportApplication(name,with_names=True):
     fh = open(name,'w',encoding="utf-8")
     currentSelection = Selection()
     gotoRoot()
     _Selection._container = _TopLevelRoot._container
-    result = saveExport(None,fh)
+    result = saveExport(None,fh,with_names)
     setSelection(currentSelection)
     fh.close()
     
@@ -3865,6 +3870,7 @@ def saveExport(readhandle,writehandle,names=False,designer=False):
                 # shall not be called for MenuItem type 'cascade', which has widgets
                 if not isinstance(this(),CanvasItemWidget):
                     if (this().myclass or this().hasWidgets() or this().getconfig('baseclass') or this().getconfig('call Code(self)')) and not isinstance(this(),MenuItem):
+
                         exportSubcontainer(filehandle,ExportNames[this()][1]) # camelcase_name
 
         AccessDictionary.clear()
@@ -4306,13 +4312,17 @@ def DynAccess(filename,par=None,parent=None):
     setSelection(selection_before)
     return retval
 
-def load_script(filename,classlist = None, parent=None):
-    if type(classlist) is list or type(classlist) is tuple: DynAccess('dyntkinter/LoadScript.py',(filename,classlist),parent)
-    myparent = classlist
-    selection_before = Selection()
-    if myparent != None: setSelection(Create_Selection(myparent,myparent))
-    exec(compile(open(filename, "r",encoding="utf-8").read(), filename, 'exec'))
-    setSelection(selection_before)
+def load_script(filename,parent=None,classlist=None):
+    if type(classlist) is list or type(classlist) is tuple:
+        return DynAccess('dyntkinter/LoadScript.py',(filename,classlist),parent)
+    else:
+        myparent = parent
+        selection_before = Selection()
+        if myparent != None: setSelection(Create_Selection(myparent,myparent))
+        exec(compile(open(filename, "r",encoding="utf-8").read(), filename, 'exec'))
+        retval = this()
+        setSelection(selection_before)
+        return retval
 
 def DynLink(filename):
     goIn()
@@ -4417,6 +4427,7 @@ def labelwidget():
     this().labelwidget()
 
 import DynTtk as ttk
+import DynTtk as dynttk
 from DynTtk import StatTtk
 
 
