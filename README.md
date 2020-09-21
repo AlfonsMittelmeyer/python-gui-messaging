@@ -29,6 +29,26 @@ But the DynTkInter GuiDesigner offers all:
 
 And the DynTkInter GuiDesigner has the **most advanced grid layout**
 
+
+A simple tkinter GUI
+--------------------
+
+Currently all the images in my github documentation have vanished, because I used an image hoster, who had deleted the images after some time. I also don't have local copies. So it will take some time, until I can make them anew.
+
+There was interest for a workshop, how to program tkinter applications with help of the GuiDesigner and how to connect a created GUI with code for the logic. The DynTkInter GuiDesigner concept enables even beginners to programm complex GUI applications.
+
+So here is the first chapter of the workshop: **Editing a simple Tkinter GUI**
+
+It's about a calculator, which of course should work in the end.
+
+![enter image description here](https://www.mediafire.com/convkey/8a0c/1yw6vrltwyt3vta7g.jpg)
+
+
+**Workshop: Programming tkinter GUIs**
+
+ - [Editing a simple Tkinter GUI](https://drive.google.com/file/d/1IOY6xKHK7ZplnuaZlxRVOIXNxkCwQ6Ld/view?usp=sharing)
+
+
 The Grid Layout
 ---------------
 
@@ -53,5 +73,4 @@ The Grid Layout
  - [fast grid minsize change via movable grid bars](https://github.com/AlfonsMittelmeyer/python-gui-messaging/wiki/fast-grid-minsize-change-via-movable-grid-bars)
  - [insert and delete rows and columns](https://github.com/AlfonsMittelmeyer/python-gui-messaging/wiki/insert-and-delete-rows-and-columns)
  - [grid uniform configuration](https://github.com/AlfonsMittelmeyer/python-gui-messaging/wiki/grid-uniform-configuration)
-
 
